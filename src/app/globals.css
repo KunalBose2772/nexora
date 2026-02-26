@@ -1076,3 +1076,124 @@ a:hover {
   color: var(--color-text-muted);
   max-width: 360px;
 }
+
+/* ═══════════════════════════════════════════════════════
+   LANDING PAGE — RESPONSIVE RULES
+   All sections in page.js use named CSS classes (lp-*)
+   so we handle breakpoints here rather than in JSX.
+═══════════════════════════════════════════════════════ */
+
+/* Hero section */
+@media (max-width: 768px) {
+  .lp-hero {
+    padding: 40px 20px 24px !important;
+  }
+
+  .lp-h1 {
+    font-size: 36px !important;
+    line-height: 1.15 !important;
+    margin-bottom: 16px !important;
+  }
+
+  .lp-hero-p {
+    font-size: 15px !important;
+    margin-bottom: 28px !important;
+  }
+
+  .lp-cta-row {
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 12px !important;
+  }
+
+  .lp-cta-row a,
+  .lp-cta-row>* {
+    width: 100% !important;
+    justify-content: center !important;
+    text-align: center !important;
+  }
+
+  .lp-stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 24px !important;
+  }
+
+  .lp-stats-grid>div {
+    border-right: none !important;
+  }
+}
+
+/* Modules / section inner grids */
+@media (max-width: 1024px) {
+  .lp-modules-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .lp-workflow-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .lp-security-grid {
+    grid-template-columns: 1fr !important;
+    gap: 40px !important;
+  }
+
+  .lp-testimonials-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .lp-pricing-grid {
+    grid-template-columns: 1fr !important;
+    max-width: 480px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  .lp-faq-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .lp-modules-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .lp-workflow-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .lp-testimonials-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Section padding on mobile */
+@media (max-width: 768px) {
+
+  .lp-section-modules,
+  .lp-section-testimonials,
+  .lp-section-pricing,
+  .lp-section-faq,
+  .lp-section-cta,
+  .lp-security {
+    padding: 40px 20px !important;
+  }
+
+  .lp-section-cta>div {
+    padding: 48px 24px !important;
+    border-radius: 20px !important;
+  }
+
+  .lp-cta-buttons {
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 12px !important;
+  }
+
+  .lp-cta-buttons a,
+  .lp-cta-buttons>* {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+}
