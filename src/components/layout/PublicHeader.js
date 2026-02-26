@@ -9,24 +9,19 @@ export default function PublicHeader() {
         <nav
             role="navigation"
             aria-label="Main navigation"
+            className="sticky top-0 z-[100] h-16 shadow-[0_4px_24px_rgba(0,0,0,0.3)] border-b border-white/10"
             style={{
-                position: 'sticky',
-                top: 0,
-                zIndex: 100,
-                height: '64px',
                 background: 'rgba(7,18,36,0.90)',
                 backdropFilter: 'blur(16px) saturate(180%)',
                 WebkitBackdropFilter: 'blur(16px) saturate(180%)',
-                borderBottom: '1px solid rgba(255,255,255,0.07)',
-                boxShadow: '0 4px 24px rgba(0,0,0,0.30)',
             }}
         >
-            <div style={{ maxWidth: '1480px', margin: '0 auto', height: '100%', padding: '0 48px', display: 'flex', alignItems: 'center', gap: '32px' }}>
+            <div className="max-w-[1480px] mx-auto h-full px-4 md:px-12 flex items-center justify-between gap-8">
                 {/* Logo */}
                 <Link
                     href="/"
                     aria-label="Nexora Health — Home"
-                    style={{ display: 'inline-block', lineHeight: 0, marginRight: 'auto' }}
+                    className="inline-block leading-none mr-auto"
                 >
                     <Image
                         src="/nexora-logo.png"
@@ -34,73 +29,43 @@ export default function PublicHeader() {
                         width={180}
                         height={52}
                         priority
-                        style={{
-                            height: '36px',
-                            width: 'auto',
-                            filter: 'brightness(0) invert(1)',
-                            opacity: 0.92,
-                        }}
+                        className="h-8 md:h-9 w-auto opacity-90 invert brightness-0"
                     />
                 </Link>
 
-                {[
-                    { href: '#modules', label: 'Modules' },
-                    { href: '#workflow', label: 'How It Works' },
-                    { href: '#pricing', label: 'Pricing' },
-                    { href: '#testimonials', label: 'Customers' },
-                    { href: '#faq', label: 'FAQ' },
-                ].map(({ href, label }) => (
-                    <a
-                        key={href}
-                        href={href}
-                        style={{
-                            fontSize: '13.5px',
-                            color: 'rgba(255,255,255,0.60)',
-                            textDecoration: 'none',
-                            fontWeight: 400,
-                            transition: 'color 150ms',
-                        }}
-                        onMouseEnter={(e) => (e.target.style.color = '#fff')}
-                        onMouseLeave={(e) => (e.target.style.color = 'rgba(255,255,255,0.60)')}
-                    >
-                        {label}
-                    </a>
-                ))}
+                <div className="hidden lg:flex items-center gap-8">
+                    {[
+                        { href: '#modules', label: 'Modules' },
+                        { href: '#workflow', label: 'How It Works' },
+                        { href: '#pricing', label: 'Pricing' },
+                        { href: '#testimonials', label: 'Customers' },
+                        { href: '#faq', label: 'FAQ' },
+                    ].map(({ href, label }) => (
+                        <a
+                            key={href}
+                            href={href}
+                            className="text-[13.5px] text-white/60 hover:text-white font-normal transition-colors"
+                        >
+                            {label}
+                        </a>
+                    ))}
+                </div>
 
-                <Link
-                    href="/login"
-                    style={{
-                        fontSize: '13.5px',
-                        color: 'rgba(255,255,255,0.75)',
-                        textDecoration: 'none',
-                        padding: '7px 16px',
-                        border: '1px solid rgba(255,255,255,0.18)',
-                        borderRadius: '8px',
-                        transition: 'all 150ms',
-                        fontWeight: 500,
-                    }}
-                >
-                    Sign In
-                </Link>
-                <Link
-                    href="/demo"
-                    style={{
-                        fontSize: '13.5px',
-                        color: '#071220',
-                        fontWeight: 600,
-                        textDecoration: 'none',
-                        padding: '7px 18px',
-                        background: '#00C2FF',
-                        borderRadius: '8px',
-                        transition: 'all 150ms',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                    }}
-                >
-                    Request Demo
-                    <ArrowRight size={14} strokeWidth={2.5} aria-hidden="true" />
-                </Link>
+                <div className="flex items-center gap-3 md:gap-4">
+                    <Link
+                        href="/login"
+                        className="hidden sm:inline-flex text-[13.5px] text-white/75 hover:text-white font-medium border border-white/20 rounded-lg px-4 py-[7px] transition-all"
+                    >
+                        Sign In
+                    </Link>
+                    <Link
+                        href="/demo"
+                        className="inline-flex items-center gap-1.5 text-[13.5px] text-[#071220] font-semibold bg-[#00C2FF] rounded-lg px-4 py-[7px] transition-all"
+                    >
+                        Request Demo
+                        <ArrowRight size={14} strokeWidth={2.5} aria-hidden="true" />
+                    </Link>
+                </div>
             </div>
         </nav>
     );

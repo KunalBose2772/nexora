@@ -6,9 +6,9 @@ import { Mail, Phone, MapPin } from 'lucide-react';
 
 export default function PublicFooter() {
     return (
-        <footer role="contentinfo" style={{ background: '#040D1A', padding: '32px 48px 14px' }}>
-            <div style={{ maxWidth: '1480px', margin: '0 auto' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '2.5fr 1fr 1fr 1fr 1fr', gap: '48px', marginBottom: '56px' }}>
+        <footer role="contentinfo" className="bg-[#040D1A] pt-12 pb-6 px-6 md:px-12">
+            <div className="max-w-[1480px] mx-auto">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[2.5fr_1fr_1fr_1fr_1fr] gap-10 lg:gap-12 mb-14">
 
                     {/* Brand */}
                     <div>
@@ -94,15 +94,7 @@ export default function PublicFooter() {
                     ))}
                 </div>
 
-                <div style={{
-                    borderTop: '1px solid rgba(255,255,255,0.06)',
-                    paddingTop: '24px',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    flexWrap: 'wrap',
-                    gap: '12px',
-                }}>
+                <div className="border-t border-white/5 pt-6 flex flex-col sm:flex-row justify-between items-center text-center sm:text-left gap-4">
                     <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.22)' }}>
                         &copy; {new Date().getFullYear()} Nexora Health. All rights reserved. Powered by Global Webify.
                     </span>

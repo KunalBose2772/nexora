@@ -232,16 +232,7 @@ export default function LandingPage() {
       ══════════════════════════════════════ */}
       <section
         aria-label="Hero — Nexora Health Enterprise Hospital Management System"
-        style={{
-          position: 'relative',
-          background: '#071220',
-          minHeight: 'calc(100vh - 6px)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          overflow: 'hidden',
-          padding: '20px 48px 12px',
-        }}
+        className="relative bg-[#071220] min-h-[calc(100vh-64px)] flex items-center justify-center overflow-hidden px-6 md:px-12 py-16 md:py-5"
       >
         {/* Background radial glow */}
         <div aria-hidden="true" style={{
@@ -263,9 +254,9 @@ export default function LandingPage() {
           pointerEvents: 'none',
         }} />
 
-        <div style={{ position: 'relative', maxWidth: '1480px', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100%' }}>
+        <div className="relative max-w-[1480px] w-full flex flex-col items-center h-full">
 
-          <div style={{ maxWidth: '960px', textAlign: 'center', marginBottom: 'auto', marginTop: 'auto' }}>
+          <div className="max-w-[960px] text-center my-auto">
             {/* Category pill */}
             <div style={{
               display: 'inline-flex',
@@ -285,14 +276,7 @@ export default function LandingPage() {
               Pan-India Multi-Tenant SaaS Hospital ERP
             </div>
 
-            <h1 style={{
-              fontSize: '56px',
-              fontWeight: 800,
-              color: '#FFFFFF',
-              lineHeight: 1.10,
-              letterSpacing: '-0.03em',
-              marginBottom: '24px',
-            }}>
+            <h1 className="text-[40px] md:text-[56px] font-[800] text-white leading-[1.15] md:leading-[1.10] tracking-[-0.03em] mb-6">
               One Platform.
               <br />
               <span style={{
@@ -305,20 +289,14 @@ export default function LandingPage() {
               </span>
             </h1>
 
-            <p style={{
-              fontSize: '18px',
-              color: 'rgba(255,255,255,0.58)',
-              lineHeight: 1.75,
-              maxWidth: '680px',
-              margin: '0 auto 48px',
-            }}>
+            <p className="text-[16px] md:text-[18px] text-white/60 leading-[1.6] md:leading-[1.75] max-w-[680px] mx-auto mb-10 md:mb-12 px-4 md:px-0">
               Nexora Health is India's most comprehensive multi-tenant SaaS Hospital ERP — managing patients,
               appointments, IPD, laboratory, pharmacy, billing, HR, and your hospital website, all from a
               single enterprise-grade platform.
             </p>
 
             {/* CTA buttons */}
-            <div style={{ display: 'flex', gap: '14px', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <div className="flex flex-col sm:flex-row gap-[14px] justify-center w-full px-6 sm:px-0">
               <Link href="/login" style={{
                 display: 'inline-flex', alignItems: 'center', gap: '8px',
                 background: '#00C2FF', color: '#071220', fontWeight: 700,
@@ -343,23 +321,11 @@ export default function LandingPage() {
           </div>
 
           {/* Stats bar - Uses full 1480px width to fit 6 columns gracefully */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(6, 1fr)',
-            gap: '0',
-            borderTop: '1px solid rgba(255,255,255,0.07)',
-            paddingTop: '32px',
-            marginTop: '40px',
-            width: '100%',
-          }}>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-y-8 gap-x-4 border-t border-white/10 pt-8 mt-10 md:mt-10 w-full mb-8 lg:mb-0">
             {STATS.map(({ value, label, icon: Icon }, i) => (
               <div
                 key={label}
-                style={{
-                  textAlign: 'center',
-                  padding: '0 16px',
-                  borderRight: i < 5 ? '1px solid rgba(255,255,255,0.07)' : 'none',
-                }}
+                className="text-center px-2 lg:px-4 lg:border-r border-white/10 last:border-0"
               >
                 <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '6px' }}>
                   <Icon size={16} strokeWidth={1.5} style={{ color: '#00C2FF' }} aria-hidden="true" />
@@ -381,22 +347,9 @@ export default function LandingPage() {
       ══════════════════════════════════════ */}
       <section
         aria-label="Security and compliance certifications"
-        style={{
-          background: '#FFFFFF',
-          borderTop: '1px solid rgba(0,0,0,0.04)',
-          borderBottom: '1px solid rgba(0,0,0,0.04)',
-          padding: '12px 48px',
-        }}
+        className="bg-white border-y border-black/5 py-4 px-6 md:px-12"
       >
-        <div style={{
-          maxWidth: '1480px',
-          margin: '0 auto',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: '24px',
-          flexWrap: 'wrap',
-        }}>
+        <div className="max-w-[1480px] mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-6 md:gap-6 flex-wrap">
           {TRUST.map(({ icon: Icon, label }) => (
             <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '10px', whiteSpace: 'nowrap' }}>
               <div style={{ padding: '6px', background: '#F8FAFC', borderRadius: '8px' }}>
@@ -411,7 +364,7 @@ export default function LandingPage() {
       {/* ══════════════════════════════════════
           ALL MODULES
       ══════════════════════════════════════ */}
-      <section id="modules" aria-label="All hospital management modules" style={{ padding: '40px 48px', background: '#F4F9FF' }}>
+      <section id="modules" aria-label="All hospital management modules" className="py-12 md:py-16 px-6 md:px-12 bg-[#F4F9FF]">
         <div style={{ maxWidth: '1480px', margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '64px' }}>
             <div style={{
@@ -425,7 +378,7 @@ export default function LandingPage() {
               <Layers size={14} strokeWidth={1.5} aria-hidden="true" style={{ color: '#00C2FF' }} />
               12 Integrated Clinical Modules
             </div>
-            <h2 style={{ fontSize: '42px', fontWeight: 800, color: '#0F172A', letterSpacing: '-0.02em', marginBottom: '16px' }}>
+            <h2 className="text-[32px] md:text-[42px] font-[800] text-[#0F172A] tracking-[-0.02em] mb-4">
               Everything Your Hospital Needs
             </h2>
             <p style={{ fontSize: '17px', color: '#64748B', maxWidth: '680px', margin: '0 auto', lineHeight: 1.6 }}>
@@ -434,11 +387,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))',
-            gap: '24px',
-          }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {MODULES.map(({ icon: Icon, name, desc }) => (
               <article
                 key={name}
@@ -539,7 +488,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div style={{ position: 'relative', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '28px' }}>
+          <div className="relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-7">
             {WORKFLOW_STEPS.map(({ step, title, desc }, i) => (
               <article
                 key={step}
@@ -615,9 +564,9 @@ export default function LandingPage() {
       {/* ══════════════════════════════════════
           SECURITY HIGHLIGHT
       ══════════════════════════════════════ */}
-      <section aria-label="Hospital Data Security" style={{ padding: '50px 48px', background: '#071220' }}>
-        <div style={{ maxWidth: '1480px', margin: '0 auto' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(400px, 1fr) minmax(400px, 1fr)', gap: '80px', alignItems: 'center' }}>
+      <section aria-label="Hospital Data Security" className="py-16 md:py-[100px] px-6 md:px-12 bg-[#071220]">
+        <div className="max-w-[1480px] mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
             <div>
               <div style={{
                 display: 'inline-flex', alignItems: 'center', gap: '6px',
@@ -653,12 +602,7 @@ export default function LandingPage() {
             </div>
 
             {/* Security diagram card */}
-            <div style={{
-              background: 'rgba(255,255,255,0.04)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              borderRadius: '16px',
-              padding: '32px',
-            }}>
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-6 md:p-8">
               {[
                 { label: 'Cloud Security Layer', bg: '#0A2E4D', items: ['Firewall', '256-bit Encryption', 'Threat Defense', 'Access Logs'] },
                 { label: 'Your Hospital Space (Isolated)', bg: '#052038', items: ['Patient Records', 'Financial Data', 'Staff Info', 'Inventories'] },
@@ -705,7 +649,7 @@ export default function LandingPage() {
       {/* ══════════════════════════════════════
           TESTIMONIALS
       ══════════════════════════════════════ */}
-      <section id="testimonials" aria-label="Customer testimonials" style={{ padding: '50px 48px', background: '#FFFFFF' }}>
+      <section id="testimonials" aria-label="Customer testimonials" className="py-16 md:py-[100px] px-6 md:px-12 bg-white">
         <div style={{ maxWidth: '1480px', margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '64px' }}>
             <h2 style={{ fontSize: '38px', fontWeight: 800, color: '#0F172A', letterSpacing: '-0.02em', marginBottom: '14px' }}>
@@ -716,7 +660,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {TESTIMONIALS.map(({ name, title, content, rating }) => (
               <blockquote
                 key={name}
@@ -745,7 +689,7 @@ export default function LandingPage() {
       {/* ══════════════════════════════════════
           PRICING
       ══════════════════════════════════════ */}
-      <section id="pricing" aria-label="Pricing plans" style={{ padding: '50px 48px', background: '#F0F7FF' }}>
+      <section id="pricing" aria-label="Pricing plans" className="py-16 md:py-[100px] px-6 md:px-12 bg-[#F0F7FF]">
         <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '64px' }}>
             <h2 style={{ fontSize: '38px', fontWeight: 800, color: '#0F172A', letterSpacing: '-0.02em', marginBottom: '14px' }}>
@@ -756,7 +700,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', alignItems: 'stretch' }}>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
             {PLANS.map((plan) => (
               <article
                 key={plan.id}
@@ -848,36 +792,27 @@ export default function LandingPage() {
       {/* ══════════════════════════════════════
           FAQ
       ══════════════════════════════════════ */}
-      <section id="faq" aria-label="Frequently asked questions" style={{ padding: '50px 48px', background: '#FFFFFF', position: 'relative' }}>
+      <section id="faq" aria-label="Frequently asked questions" className="py-16 md:py-[100px] px-6 md:px-12 bg-white relative">
         {/* Subtle Background Elements */}
-        <div style={{
-          position: 'absolute', top: 0, right: 0, width: '600px', height: '600px',
+        <div className="absolute top-0 right-0 w-full md:w-[600px] h-full md:h-[600px] pointer-events-none blur-[60px]" style={{
           background: 'radial-gradient(circle, rgba(0, 194, 255, 0.05) 0%, transparent 60%)',
-          pointerEvents: 'none', filter: 'blur(60px)'
         }} aria-hidden="true" />
 
-        <div style={{ maxWidth: '1280px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
-          <div style={{ textAlign: 'center', marginBottom: '80px' }}>
-            <div style={{
-              display: 'inline-flex', alignItems: 'center', gap: '6px',
-              background: '#F8FAFC', border: '1px solid #E2E8F0',
-              borderRadius: '100px', padding: '6px 16px',
-              fontSize: '12.5px', fontWeight: 600, color: '#0A2E4D',
-              marginBottom: '20px', letterSpacing: '0.02em',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.02)',
-            }}>
+        <div className="relative max-w-[1280px] mx-auto z-10">
+          <div className="text-center mb-12 md:mb-20">
+            <div className="inline-flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-full px-4 py-1.5 text-[12.5px] font-semibold text-[#0A2E4D] mb-5 tracking-[0.02em] shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
               <MessageCircle size={14} strokeWidth={1.5} aria-hidden="true" style={{ color: '#00C2FF' }} />
               Got Questions?
             </div>
-            <h2 style={{ fontSize: '46px', fontWeight: 800, color: '#0F172A', letterSpacing: '-0.02em', marginBottom: '18px' }}>
+            <h2 className="text-[32px] md:text-[46px] font-[800] text-[#0F172A] tracking-[-0.02em] mb-4">
               Frequently Asked Questions
             </h2>
-            <p style={{ fontSize: '18px', color: '#64748B', maxWidth: '640px', margin: '0 auto', lineHeight: 1.6 }}>
+            <p className="text-[16px] md:text-[18px] text-slate-500 max-w-[640px] mx-auto leading-[1.6]">
               Everything you need to know about the product, onboarding, and how we handle your hospital's data.
             </p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '24px' }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {FAQS.map(({ q, a }, i) => (
               <article
                 key={i}
@@ -938,18 +873,10 @@ export default function LandingPage() {
       {/* ══════════════════════════════════════
           PREMIUM CTA SECTION
       ══════════════════════════════════════ */}
-      <section aria-label="Call to action" style={{ padding: '50px 48px', background: '#FFFFFF' }}>
-        <div style={{
-          position: 'relative',
-          maxWidth: '1280px',
-          margin: '0 auto',
-          background: 'linear-gradient(135deg, #0A2E4D 0%, #041220 100%)',
-          borderRadius: '32px',
-          padding: '80px 48px',
-          textAlign: 'center',
-          overflow: 'hidden',
-          boxShadow: '0 24px 48px -12px rgba(10, 46, 77, 0.4)',
-        }}>
+      <section aria-label="Call to action" className="py-12 md:py-16 px-6 md:px-12 bg-white">
+        <div className="relative max-w-[1280px] mx-auto rounded-[32px] px-6 md:px-12 py-16 md:py-20 text-center overflow-hidden shadow-[0_24px_48px_-12px_rgba(10,46,77,0.4)]"
+          style={{ background: 'linear-gradient(135deg, #0A2E4D 0%, #041220 100%)' }}
+        >
           {/* Background Elements */}
           <div aria-hidden="true" style={{
             position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
@@ -966,53 +893,27 @@ export default function LandingPage() {
           }} />
 
           {/* Content */}
-          <div style={{ position: 'relative', maxWidth: '720px', margin: '0 auto', zIndex: 1 }}>
-            <div style={{
-              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-              width: '56px', height: '56px', borderRadius: '16px',
-              background: 'rgba(0,194,255,0.1)', border: '1px solid rgba(0,194,255,0.2)',
-              color: '#00C2FF', marginBottom: '24px',
-              boxShadow: '0 0 20px rgba(0,194,255,0.2) inset'
-            }}>
+          <div className="relative max-w-[720px] mx-auto z-10 flex flex-col items-center">
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-6 shadow-[0_0_20px_rgba(0,194,255,0.2)_inset]"
+              style={{ background: 'rgba(0,194,255,0.1)', border: '1px solid rgba(0,194,255,0.2)', color: '#00C2FF' }}>
               <Sparkles size={28} strokeWidth={1.5} aria-hidden="true" />
             </div>
-            <h2 style={{ fontSize: '48px', fontWeight: 800, color: '#FFFFFF', letterSpacing: '-0.02em', marginBottom: '20px', lineHeight: 1.15 }}>
+            <h2 className="text-[36px] md:text-[48px] font-[800] text-white tracking-[-0.02em] mb-5 leading-[1.2] md:leading-[1.15]">
               Ready to Digitise Your Hospital?
             </h2>
-            <p style={{ fontSize: '18px', color: 'rgba(255,255,255,0.65)', marginBottom: '48px', lineHeight: 1.70 }}>
+            <p className="text-[16px] md:text-[18px] text-white/65 mb-10 md:mb-12 leading-[1.6] md:leading-[1.70]">
               Schedule a personalised 45-minute product walkthrough with our implementation team.
               We will show you exactly how Nexora Health fits into your local workflow.
             </p>
-            <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
-              <Link href="/login" style={{
-                display: 'inline-flex', alignItems: 'center', gap: '10px',
-                background: 'linear-gradient(90deg, #00C2FF 0%, #009FD1 100%)',
-                color: '#FFFFFF', fontWeight: 700,
-                fontSize: '16px', padding: '16px 36px', borderRadius: '12px',
-                textDecoration: 'none', boxShadow: '0 12px 24px -8px rgba(0,194,255,0.5)',
-                transition: 'all 200ms',
-              }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.boxShadow = '0 16px 32px -8px rgba(0,194,255,0.7)';
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.boxShadow = '0 12px 24px -8px rgba(0,194,255,0.5)';
-                  e.currentTarget.style.transform = 'translateY(0)';
-                }}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center w-full px-4 sm:px-0">
+              <Link href="/login" className="inline-flex items-center justify-center gap-2.5 text-white font-[700] text-[16px] px-8 py-4 rounded-xl no-underline transition-all shadow-[0_12px_24px_-8px_rgba(0,194,255,0.5)] hover:shadow-[0_16px_32px_-8px_rgba(0,194,255,0.7)] hover:-translate-y-[2px] w-full sm:w-auto"
+                style={{ background: 'linear-gradient(90deg, #00C2FF 0%, #009FD1 100%)' }}
               >
                 Schedule a Demo
                 <ArrowRight size={18} strokeWidth={2.5} aria-hidden="true" />
               </Link>
-              <a href="tel:+917563901100" style={{
-                display: 'inline-flex', alignItems: 'center', gap: '10px',
-                background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.15)',
-                color: '#FFFFFF', fontWeight: 600,
-                fontSize: '16px', padding: '16px 32px', borderRadius: '12px',
-                textDecoration: 'none', transition: 'all 200ms',
-              }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.1)')}
-                onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.05)')}
+              <a href="tel:+917563901100" className="inline-flex items-center justify-center gap-2.5 text-white font-[600] text-[16px] px-8 py-4 rounded-xl no-underline transition-all hover:bg-white/10 w-full sm:w-auto"
+                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.15)' }}
               >
                 <Phone size={18} strokeWidth={2} aria-hidden="true" />
                 Talk to Sales
