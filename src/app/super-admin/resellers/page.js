@@ -12,6 +12,14 @@ const INITIAL_RESELLERS = [
 export default function ResellersPage() {
     const [resellers, setResellers] = useState(INITIAL_RESELLERS);
     const [isResellerModalOpen, setIsResellerModalOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [openActionId, setOpenActionId] = useState(null);
+
+    const filteredResellers = resellers.filter(r =>
+        r.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        r.contact.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        r.email.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     const handleOnboard = (e) => {
         e.preventDefault();
@@ -69,7 +77,7 @@ export default function ResellersPage() {
                 <div style={{ padding: '16px 20px', borderBottom: '1px solid #E2E8F0' }}>
                     <div style={{ position: 'relative' }}>
                         <Search size={16} style={{ position: 'absolute', left: '14px', top: '11px', color: '#94A3B8' }} />
-                        <input type="text" placeholder="Search partners..." style={{ width: '100%', padding: '10px 14px 10px 40px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', background: '#F8FAFC', boxSizing: 'border-box' }} />
+                        <input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} type="text" placeholder="Search partners..." style={{ width: '100%', padding: '10px 14px 10px 40px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', background: '#F8FAFC', boxSizing: 'border-box' }} onFocus={(e) => e.currentTarget.style.borderColor = '#10B981'} onBlur={(e) => e.currentTarget.style.borderColor = '#E2E8F0'} />
                     </div>
                 </div>
 
@@ -87,7 +95,11 @@ export default function ResellersPage() {
                             </tr>
                         </thead>
                         <tbody>
-                            {resellers.map((r, i) => (
+                            {filteredResellers.length === 0 ? (
+                                <tr>
+                                    <td colSpan={6} style={{ padding: '40px', textAlign: 'center', color: '#64748B', fontSize: '14px' }}>No partners found matching your search.</td>
+                                </tr>
+                            ) : filteredResellers.map((r, i) => (
                                 <tr key={i} style={{ borderBottom: '1px solid #E2E8F0' }} onMouseOver={(e) => e.currentTarget.style.background = '#F8FAFC'} onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}>
                                     <td style={{ padding: '14px 20px', fontSize: '14px', fontWeight: 600, color: '#0F172A' }}>{r.name}</td>
                                     <td style={{ padding: '14px 20px', fontSize: '14px', color: '#64748B' }}>{r.contact} <span style={{ fontSize: '12px', color: '#94A3B8' }}>({r.email})</span></td>
@@ -98,8 +110,28 @@ export default function ResellersPage() {
                                     <td style={{ padding: '14px 20px' }}>
                                         <span style={{ padding: '4px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: 600, background: r.status === 'Active' ? '#ECFDF5' : '#F1F5F9', color: r.status === 'Active' ? '#059669' : '#64748B' }}>{r.status}</span>
                                     </td>
-                                    <td style={{ padding: '14px 20px', textAlign: 'right' }}>
-                                        <button onClick={() => alert('Opening reseller actions...')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8' }}><MoreVertical size={16} /></button>
+                                    <td style={{ padding: '14px 20px', textAlign: 'right', position: 'relative' }}>
+                                        <button onClick={() => setOpenActionId(openActionId === r.name ? null : r.name)} style={{ padding: '7px', background: openActionId === r.name ? '#F8FAFC' : 'none', border: openActionId === r.name ? '1px solid #E2E8F0' : '1px solid transparent', color: '#94A3B8', cursor: 'pointer', borderRadius: '6px' }}><MoreVertical size={16} /></button>
+
+                                        {/* Row Actions Dropdown */}
+                                        {openActionId === r.name && (
+                                            <div style={{ position: 'absolute', top: '100%', right: '20px', marginTop: '4px', background: 'white', border: '1px solid #E2E8F0', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', minWidth: '160px', zIndex: 10, overflow: 'hidden', textAlign: 'left' }}>
+                                                <button onClick={() => { setOpenActionId(null); alert('Opening edit modal...'); }} style={{ display: 'block', width: '100%', padding: '10px 14px', background: 'none', border: 'none', textAlign: 'left', fontSize: '13px', color: '#334155', cursor: 'pointer' }} onMouseOver={e => e.currentTarget.style.background = '#F8FAFC'} onMouseOut={e => e.currentTarget.style.background = 'transparent'}>Edit Partner</button>
+                                                <button onClick={() => {
+                                                    setOpenActionId(null);
+                                                    if (window.confirm('Are you sure you want to disable this partner?')) {
+                                                        setResellers(resellers.map(res => res.name === r.name ? { ...res, status: 'Inactive' } : res));
+                                                    }
+                                                }} style={{ display: 'block', width: '100%', padding: '10px 14px', background: 'none', border: 'none', textAlign: 'left', fontSize: '13px', color: '#334155', cursor: 'pointer' }} onMouseOver={e => e.currentTarget.style.background = '#F8FAFC'} onMouseOut={e => e.currentTarget.style.background = 'transparent'}>Disable Partner</button>
+                                                <div style={{ height: '1px', background: '#E2E8F0', margin: '4px 0' }}></div>
+                                                <button onClick={() => {
+                                                    setOpenActionId(null);
+                                                    if (window.confirm('Delete this partner permanently? This cannot be undone.')) {
+                                                        setResellers(resellers.filter(res => res.name !== r.name));
+                                                    }
+                                                }} style={{ display: 'block', width: '100%', padding: '10px 14px', background: 'none', border: 'none', textAlign: 'left', fontSize: '13px', color: '#EF4444', cursor: 'pointer' }} onMouseOver={e => e.currentTarget.style.background = '#FEF2F2'} onMouseOut={e => e.currentTarget.style.background = 'transparent'}>Remove</button>
+                                            </div>
+                                        )}
                                     </td>
                                 </tr>
                             ))}
@@ -109,7 +141,9 @@ export default function ResellersPage() {
 
                 {/* Mobile Cards */}
                 <div className="reseller-mob">
-                    {resellers.map((r, i) => (
+                    {filteredResellers.length === 0 ? (
+                        <div style={{ padding: '30px', textAlign: 'center', color: '#64748B', fontSize: '14px' }}>No partners found.</div>
+                    ) : filteredResellers.map((r, i) => (
                         <div key={i} style={{ padding: '16px 20px', borderBottom: '1px solid #F1F5F9' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
                                 <div style={{ fontWeight: 600, color: '#0F172A', fontSize: '14px' }}>{r.name}</div>

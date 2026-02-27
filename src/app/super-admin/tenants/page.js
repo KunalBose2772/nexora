@@ -14,6 +14,18 @@ const INITIAL_TENANTS = [
 export default function TenantsPage() {
     const [tenants, setTenants] = useState(INITIAL_TENANTS);
     const [isProvisionModalOpen, setIsProvisionModalOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [statusFilter, setStatusFilter] = useState('All');
+    const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const [openActionId, setOpenActionId] = useState(null);
+
+    const filteredTenants = tenants.filter(t => {
+        const matchesSearch = t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            t.domain.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            t.id.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesStatus = statusFilter === 'All' ? true : t.status === statusFilter;
+        return matchesSearch && matchesStatus;
+    });
 
     const handleProvision = (e) => {
         e.preventDefault();
@@ -60,11 +72,24 @@ export default function TenantsPage() {
                 <div style={{ padding: '16px 20px', borderBottom: '1px solid #E2E8F0', display: 'flex', gap: '12px' }}>
                     <div style={{ flex: 1, position: 'relative' }}>
                         <Search size={16} color="#94A3B8" style={{ position: 'absolute', left: '14px', top: '11px' }} />
-                        <input type="text" placeholder="Search by Hospital Name, Domain, or Tenant ID..." style={{ width: '100%', padding: '10px 14px 10px 40px', border: '1px solid #E2E8F0', borderRadius: '8px', outline: 'none', fontSize: '14px', background: '#F8FAFC', boxSizing: 'border-box' }} onFocus={(e) => e.currentTarget.style.borderColor = '#10B981'} onBlur={(e) => e.currentTarget.style.borderColor = '#E2E8F0'} />
+                        <input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} type="text" placeholder="Search by Hospital Name, Domain, or Tenant ID..." style={{ width: '100%', padding: '10px 14px 10px 40px', border: '1px solid #E2E8F0', borderRadius: '8px', outline: 'none', fontSize: '14px', background: '#F8FAFC', boxSizing: 'border-box' }} onFocus={(e) => e.currentTarget.style.borderColor = '#10B981'} onBlur={(e) => e.currentTarget.style.borderColor = '#E2E8F0'} />
                     </div>
-                    <button onClick={() => alert('Advanced filters loaded.')} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 14px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', fontWeight: 500, color: '#475569', cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                        <Filter size={16} /> Filters
-                    </button>
+                    <div style={{ position: 'relative' }}>
+                        <button onClick={() => setIsFilterOpen(!isFilterOpen)} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 14px', background: isFilterOpen ? '#F8FAFC' : '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', fontWeight: 500, color: '#475569', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                            <Filter size={16} /> Filters {statusFilter !== 'All' && <span style={{ background: '#10B981', color: 'white', padding: '2px 6px', borderRadius: '4px', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>1</span>}
+                        </button>
+                        {isFilterOpen && (
+                            <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: '8px', background: 'white', border: '1px solid #E2E8F0', borderRadius: '8px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', padding: '16px', minWidth: '220px', zIndex: 50 }}>
+                                <div style={{ fontSize: '12px', fontWeight: 600, color: '#64748B', marginBottom: '8px', textTransform: 'uppercase' }}>Filter by Status</div>
+                                <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setIsFilterOpen(false); }} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '14px', backgroundColor: '#F8FAFC', cursor: 'pointer' }}>
+                                    <option value="All">All Statuses</option>
+                                    <option value="Active">Active</option>
+                                    <option value="Payment Due">Payment Due</option>
+                                    <option value="Suspended">Suspended</option>
+                                </select>
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 {/* Desktop Table */}
@@ -81,7 +106,11 @@ export default function TenantsPage() {
                             </tr>
                         </thead>
                         <tbody>
-                            {tenants.map((row, i) => (
+                            {filteredTenants.length === 0 ? (
+                                <tr>
+                                    <td colSpan={6} style={{ padding: '40px', textAlign: 'center', color: '#64748B', fontSize: '14px' }}>No tenants found matching your criteria.</td>
+                                </tr>
+                            ) : filteredTenants.map((row, i) => (
                                 <tr key={i} style={{ borderBottom: '1px solid #E2E8F0' }} onMouseOver={(e) => e.currentTarget.style.background = '#F8FAFC'} onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}>
                                     <td style={{ padding: '14px 20px' }}>
                                         <div style={{ fontWeight: 600, color: '#0F172A', fontSize: '14px' }}>{row.name}</div>
@@ -102,9 +131,29 @@ export default function TenantsPage() {
                                             {row.status === 'Active' && <ShieldCheck size={11} />} {row.status}
                                         </span>
                                     </td>
-                                    <td style={{ padding: '14px 20px', textAlign: 'right' }}>
-                                        <button onClick={() => alert('Accessing tenant configuration...')} style={{ padding: '7px 14px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '6px', fontSize: '13px', fontWeight: 600, color: '#0F172A', cursor: 'pointer', marginRight: '6px' }}>Manage</button>
-                                        <button onClick={() => alert('Opening tenant options...')} style={{ padding: '7px', background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer' }}><MoreVertical size={16} /></button>
+                                    <td style={{ padding: '14px 20px', textAlign: 'right', position: 'relative' }}>
+                                        <button onClick={() => alert(`Managing configuration for ${row.name}...`)} style={{ padding: '7px 14px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '6px', fontSize: '13px', fontWeight: 600, color: '#0F172A', cursor: 'pointer', marginRight: '6px' }}>Manage</button>
+                                        <button onClick={() => setOpenActionId(openActionId === row.id ? null : row.id)} style={{ padding: '7px', background: openActionId === row.id ? '#F8FAFC' : 'none', border: openActionId === row.id ? '1px solid #E2E8F0' : '1px solid transparent', color: '#94A3B8', cursor: 'pointer', borderRadius: '6px' }}><MoreVertical size={16} /></button>
+
+                                        {/* Row Actions Dropdown */}
+                                        {openActionId === row.id && (
+                                            <div style={{ position: 'absolute', top: '100%', right: '20px', marginTop: '4px', background: 'white', border: '1px solid #E2E8F0', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', minWidth: '160px', zIndex: 10, overflow: 'hidden', textAlign: 'left' }}>
+                                                <button onClick={() => { setOpenActionId(null); alert('Opening edit modal...'); }} style={{ display: 'block', width: '100%', padding: '10px 14px', background: 'none', border: 'none', textAlign: 'left', fontSize: '13px', color: '#334155', cursor: 'pointer' }} onMouseOver={e => e.currentTarget.style.background = '#F8FAFC'} onMouseOut={e => e.currentTarget.style.background = 'transparent'}>Edit Details</button>
+                                                <button onClick={() => {
+                                                    setOpenActionId(null);
+                                                    if (window.confirm('Are you sure you want to suspend this tenant?')) {
+                                                        setTenants(tenants.map(t => t.id === row.id ? { ...t, status: 'Suspended', badge: '#EF4444', bg: 'rgba(239,68,68,0.1)' } : t));
+                                                    }
+                                                }} style={{ display: 'block', width: '100%', padding: '10px 14px', background: 'none', border: 'none', textAlign: 'left', fontSize: '13px', color: '#334155', cursor: 'pointer' }} onMouseOver={e => e.currentTarget.style.background = '#F8FAFC'} onMouseOut={e => e.currentTarget.style.background = 'transparent'}>Suspend Tenant</button>
+                                                <div style={{ height: '1px', background: '#E2E8F0', margin: '4px 0' }}></div>
+                                                <button onClick={() => {
+                                                    setOpenActionId(null);
+                                                    if (window.confirm('Delete this tenant permanently? This cannot be undone.')) {
+                                                        setTenants(tenants.filter(t => t.id !== row.id));
+                                                    }
+                                                }} style={{ display: 'block', width: '100%', padding: '10px 14px', background: 'none', border: 'none', textAlign: 'left', fontSize: '13px', color: '#EF4444', cursor: 'pointer' }} onMouseOver={e => e.currentTarget.style.background = '#FEF2F2'} onMouseOut={e => e.currentTarget.style.background = 'transparent'}>Delete</button>
+                                            </div>
+                                        )}
                                     </td>
                                 </tr>
                             ))}
@@ -114,8 +163,10 @@ export default function TenantsPage() {
 
                 {/* Mobile Cards */}
                 <div className="tenant-mob">
-                    {tenants.map((row, i) => (
-                        <div key={i} style={{ padding: '16px 20px', borderBottom: '1px solid #F1F5F9' }}>
+                    {filteredTenants.length === 0 ? (
+                        <div style={{ padding: '30px', textAlign: 'center', color: '#64748B', fontSize: '14px' }}>No tenants found.</div>
+                    ) : filteredTenants.map((row, i) => (
+                        <div key={i} style={{ padding: '16px 20px', borderBottom: '1px solid #F1F5F9', position: 'relative' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px', marginBottom: '8px' }}>
                                 <div style={{ minWidth: 0 }}>
                                     <div style={{ fontWeight: 600, color: '#0F172A', fontSize: '14px', marginBottom: '2px' }}>{row.name}</div>
@@ -123,10 +174,18 @@ export default function TenantsPage() {
                                 </div>
                                 <span style={{ padding: '4px 10px', fontSize: '12px', fontWeight: 600, color: row.badge, background: row.bg, borderRadius: '20px', whiteSpace: 'nowrap', flexShrink: 0 }}>{row.status}</span>
                             </div>
-                            <div style={{ fontSize: '12px', color: '#64748B', marginBottom: '4px' }}>{row.plan} · {row.users} users</div>
-                            <a href={`https://${row.domain}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: '12px', color: '#3B82F6', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                                {row.domain} <ExternalLink size={10} />
-                            </a>
+
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: '12px' }}>
+                                <div>
+                                    <div style={{ fontSize: '12px', color: '#64748B', marginBottom: '4px' }}>{row.plan} · {row.users} users</div>
+                                    <a href={`https://${row.domain}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: '12px', color: '#3B82F6', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                                        {row.domain} <ExternalLink size={10} />
+                                    </a>
+                                </div>
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                    <button onClick={() => alert(`Managing ${row.name}...`)} style={{ padding: '6px 12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '6px', fontSize: '12px', fontWeight: 600, color: '#0F172A', cursor: 'pointer' }}>Manage</button>
+                                </div>
+                            </div>
                         </div>
                     ))}
                 </div>
