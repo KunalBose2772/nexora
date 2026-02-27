@@ -74,6 +74,11 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+html {
+  overflow-x: hidden;
 }
 
 /* ── Typography ── */
@@ -1077,59 +1082,106 @@ a:hover {
   max-width: 360px;
 }
 
-/* ═══════════════════════════════════════════════════════
-   LANDING PAGE — RESPONSIVE RULES
-   All sections in page.js use named CSS classes (lp-*)
-   so we handle breakpoints here rather than in JSX.
-═══════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════
+   LANDING PAGE — RESPONSIVE SCALE SYSTEM
+   Strategy: Target h2, h3, p directly inside lp-section-*
+   wrappers using descendant selectors so we don't need to
+   add classes to every individual heading or paragraph.
+══════════════════════════════════════════════════════════ */
 
-/* Hero section */
+
+
+
+/* ─── Trust strip — base (desktop) ─── */
+.lp-trust-strip {
+  padding: 18px 48px;
+}
+
+.lp-trust-items {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.lp-trust-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  white-space: nowrap;
+}
+
+/* ─── Trust strip — tablet ≤768px : 2×2 grid ─── */
 @media (max-width: 768px) {
-  .lp-hero {
-    padding: 40px 20px 24px !important;
+  .lp-trust-strip {
+    padding: 20px 16px;
   }
 
-  .lp-h1 {
-    font-size: 36px !important;
-    line-height: 1.15 !important;
-    margin-bottom: 16px !important;
+  .lp-trust-items {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px 16px;
   }
 
-  .lp-hero-p {
-    font-size: 15px !important;
-    margin-bottom: 28px !important;
-  }
-
-  .lp-cta-row {
-    flex-direction: column !important;
-    align-items: center !important;
-    gap: 12px !important;
-  }
-
-  .lp-cta-row a,
-  .lp-cta-row>* {
-    width: 100% !important;
-    justify-content: center !important;
-    text-align: center !important;
-  }
-
-  .lp-stats-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 24px !important;
-  }
-
-  .lp-stats-grid>div {
-    border-right: none !important;
+  .lp-trust-item {
+    white-space: normal;
   }
 }
 
-/* Modules / section inner grids */
+/* ─── Trust strip — phone ≤400px : single col ─── */
+/* ─── Trust strip — phone ≤400px : single col (fine‑tune) ─── */
+@media (max-width: 400px) {
+  .lp-trust-items {
+    grid-template-columns: 1fr;
+    gap: 8px 10px;
+  }
+
+  .lp-trust-item span {
+    font-size: 12px;
+  }
+
+  .lp-trust-item>div {
+    padding: 5px;
+  }
+}
+
+
+/* ─── Large tablet / small laptop (≤1024px) ─── */
 @media (max-width: 1024px) {
+  .lp-h1 {
+    font-size: 48px !important;
+  }
+
+  .lp-section-h2 {
+    font-size: 38px !important;
+  }
+
+  /* Horizontal padding reduction for all sections */
+  .lp-section-modules,
+  .lp-section-workflow,
+  .lp-section-testimonials,
+  .lp-section-pricing,
+  .lp-section-faq,
+  .lp-section-cta,
+  .lp-security {
+    padding-left: 32px !important;
+    padding-right: 32px !important;
+  }
+
+  /* 2-column grids */
   .lp-modules-grid {
     grid-template-columns: repeat(2, 1fr) !important;
   }
 
   .lp-workflow-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .lp-testimonials-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .lp-pricing-grid {
     grid-template-columns: repeat(2, 1fr) !important;
   }
 
@@ -1138,23 +1190,63 @@ a:hover {
     gap: 40px !important;
   }
 
-  .lp-testimonials-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
-  }
-
-  .lp-pricing-grid {
-    grid-template-columns: 1fr !important;
-    max-width: 480px !important;
-    margin-left: auto !important;
-    margin-right: auto !important;
-  }
-
   .lp-faq-grid {
     grid-template-columns: 1fr !important;
   }
 }
 
-@media (max-width: 640px) {
+/* ─── Tablet portrait (≤768px) ─── */
+@media (max-width: 768px) {
+
+  /* Hero */
+  .lp-hero {
+    padding: 48px 20px 32px !important;
+  }
+
+  .lp-h1 {
+    font-size: 38px !important;
+    line-height: 1.15 !important;
+    letter-spacing: -0.025em !important;
+    margin-bottom: 16px !important;
+  }
+
+  .lp-hero-p {
+    font-size: 14.5px !important;
+    line-height: 1.65 !important;
+    margin: 0 auto 24px !important;
+    max-width: 100% !important;
+  }
+
+  /* Hero CTA buttons */
+  .lp-cta-row {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+    padding: 0 !important;
+  }
+
+  .lp-cta-row>* {
+    width: 100% !important;
+    justify-content: center !important;
+    font-size: 14px !important;
+    padding: 13px 20px !important;
+    border-radius: 10px !important;
+  }
+
+  /* Stats bar: 3-col then 2-col */
+  .lp-stats-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 16px 0 !important;
+    padding-top: 24px !important;
+    margin-top: 24px !important;
+  }
+
+  .lp-stats-grid>div {
+    border-right: none !important;
+    padding: 0 6px !important;
+  }
+
+  /* Grids: single column */
   .lp-modules-grid {
     grid-template-columns: 1fr !important;
   }
@@ -1166,34 +1258,175 @@ a:hover {
   .lp-testimonials-grid {
     grid-template-columns: 1fr !important;
   }
-}
 
-/* Section padding on mobile */
-@media (max-width: 768px) {
+  .lp-pricing-grid {
+    grid-template-columns: 1fr !important;
+    max-width: 420px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
 
+  .lp-faq-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Section padding: all sections uniform */
   .lp-section-modules,
+  .lp-section-workflow,
   .lp-section-testimonials,
   .lp-section-pricing,
   .lp-section-faq,
   .lp-section-cta,
   .lp-security {
-    padding: 40px 20px !important;
+    padding: 36px 20px !important;
+  }
+
+  /* ALL section heading h2 — parent selector so it catches every section */
+  .lp-section-modules h2,
+  .lp-section-workflow h2,
+  .lp-section-testimonials h2,
+  .lp-section-pricing h2,
+  .lp-section-faq h2,
+  .lp-security h2,
+  .lp-section-h2 {
+    font-size: 30px !important;
+    line-height: 1.2 !important;
+    margin-bottom: 10px !important;
+    letter-spacing: -0.015em !important;
+  }
+
+  /* ALL section sub-paragraphs */
+  .lp-section-modules p,
+  .lp-section-workflow p,
+  .lp-section-testimonials p,
+  .lp-section-pricing p,
+  .lp-section-faq p,
+  .lp-security p {
+    font-size: 14px !important;
+    line-height: 1.6 !important;
+  }
+
+  /* Section heading top margin reduce */
+  .lp-section-modules .lp-section-h2+p,
+  .lp-section-workflow h2+p {
+    margin-bottom: 32px !important;
+  }
+
+  /* CTA section */
+  .lp-section-cta {
+    padding: 36px 16px !important;
   }
 
   .lp-section-cta>div {
-    padding: 48px 24px !important;
+    padding: 40px 20px !important;
     border-radius: 20px !important;
+  }
+
+  .lp-section-cta h2 {
+    font-size: 26px !important;
+    line-height: 1.25 !important;
+    margin-bottom: 12px !important;
+  }
+
+  .lp-section-cta p {
+    font-size: 14.5px !important;
+    margin-bottom: 24px !important;
   }
 
   .lp-cta-buttons {
     flex-direction: column !important;
-    align-items: center !important;
-    gap: 12px !important;
+    align-items: stretch !important;
+    gap: 10px !important;
   }
 
-  .lp-cta-buttons a,
-  .lp-cta-buttons>* {
+  .lp-cta-buttons>*,
+  .lp-cta-buttons a {
     width: 100% !important;
     justify-content: center !important;
+    font-size: 14.5px !important;
+    padding: 13px 20px !important;
+  }
+
+  /* Hero stats number size */
+  .lp-stats-grid>div>div:nth-child(2) {
+    font-size: 20px !important;
+  }
+
+  .lp-stats-grid>div>div:nth-child(3) {
+    font-size: 10px !important;
+  }
+}
+
+/* ─── Large phone (≤640px) ─── */
+@media (max-width: 640px) {
+  .lp-hero {
+    padding: 36px 16px 24px !important;
+  }
+
+  .lp-h1 {
+    font-size: 34px !important;
+  }
+
+  .lp-hero-p {
+    font-size: 13.5px !important;
+  }
+
+  .lp-stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 20px 0 !important;
+  }
+
+  .lp-section-modules,
+  .lp-section-workflow,
+  .lp-section-testimonials,
+  .lp-section-pricing,
+  .lp-section-faq,
+  .lp-section-cta,
+  .lp-security {
+    padding: 32px 16px !important;
+  }
+
+  .lp-section-modules h2,
+  .lp-section-workflow h2,
+  .lp-section-testimonials h2,
+  .lp-section-pricing h2,
+  .lp-section-faq h2,
+  .lp-security h2,
+  .lp-section-h2 {
+    font-size: 26px !important;
+  }
+
+  .lp-section-cta>div {
+    padding: 32px 16px !important;
+    border-radius: 16px !important;
+  }
+
+  .lp-section-cta h2 {
+    font-size: 22px !important;
+  }
+}
+
+/* ─── Small phone (≤400px) ─── */
+@media (max-width: 400px) {
+  .lp-hero {
+    padding: 28px 14px 20px !important;
+  }
+
+  .lp-h1 {
+    font-size: 29px !important;
+  }
+
+  .lp-hero-p {
+    font-size: 13px !important;
+  }
+
+  .lp-section-modules h2,
+  .lp-section-workflow h2,
+  .lp-section-testimonials h2,
+  .lp-section-pricing h2,
+  .lp-section-faq h2,
+  .lp-security h2,
+  .lp-section-h2 {
+    font-size: 23px !important;
   }
 }

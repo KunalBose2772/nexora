@@ -65,8 +65,10 @@ export default function PublicHeader() {
                         <Image
                             src="/nexora-logo.png"
                             alt="Nexora Health"
-                            width={180}
-                            height={52}
+                            width={0}
+                            height={0}
+                            sizes="100vw"
+                            unoptimized
                             priority
                             style={{
                                 height: '34px',

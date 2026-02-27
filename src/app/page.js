@@ -382,28 +382,23 @@ export default function LandingPage() {
       ══════════════════════════════════════ */}
       <section
         aria-label="Security and compliance certifications"
+        className="lp-trust-strip"
         style={{
           background: '#FFFFFF',
           borderTop: '1px solid rgba(0,0,0,0.04)',
           borderBottom: '1px solid rgba(0,0,0,0.04)',
-          padding: '12px 48px',
         }}
       >
-        <div style={{
-          maxWidth: '1480px',
-          margin: '0 auto',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: '24px',
-          flexWrap: 'wrap',
-        }}>
+        <div
+          className="lp-trust-items"
+          style={{ maxWidth: '1480px', margin: '0 auto' }}
+        >
           {TRUST.map(({ icon: Icon, label }) => (
-            <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '10px', whiteSpace: 'nowrap' }}>
-              <div style={{ padding: '6px', background: '#F8FAFC', borderRadius: '8px' }}>
-                <Icon size={16} strokeWidth={1.5} style={{ color: '#0A2E4D' }} aria-hidden="true" />
+            <div key={label} className="lp-trust-item">
+              <div style={{ padding: '6px', background: '#F0F7FF', borderRadius: '8px', flexShrink: 0 }}>
+                <Icon size={15} strokeWidth={1.5} style={{ color: '#0A2E4D', display: 'block' }} aria-hidden="true" />
               </div>
-              <span style={{ fontSize: '13px', fontWeight: 600, color: '#475569', letterSpacing: '0.01em' }}>{label}</span>
+              <span style={{ fontSize: '12.5px', fontWeight: 600, color: '#475569', letterSpacing: '0.01em' }}>{label}</span>
             </div>
           ))}
         </div>
@@ -496,7 +491,7 @@ export default function LandingPage() {
       {/* ══════════════════════════════════════
           WORKFLOW / HOW IT WORKS
       ══════════════════════════════════════ */}
-      <section id="workflow" aria-label="How Nexora Health works" style={{ position: 'relative', padding: '50px 48px', background: '#FAFCFF', overflow: 'hidden' }}>
+      <section id="workflow" aria-label="How Nexora Health works" className="lp-section-workflow" style={{ position: 'relative', padding: '50px 48px', background: '#FAFCFF', overflow: 'hidden' }}>
         {/* Beautiful Dotted Grid Overlay */}
         <div style={{
           position: 'absolute', inset: 0,
