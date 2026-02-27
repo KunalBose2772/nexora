@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Building, Plus, Search, Filter, MoreVertical, ShieldCheck, Clock, ExternalLink, X } from 'lucide-react';
 import Link from 'next/link';
 
-const TENANTS = [
+const INITIAL_TENANTS = [
     { name: 'Apollo Health Systems', id: 'TEN-9201', domain: 'apollo.your-domain.com', plan: 'Enterprise Annual', users: '1,240', status: 'Active', badge: '#10B981', bg: 'rgba(16,185,129,0.1)' },
     { name: 'City General Medical Center', id: 'TEN-8492', domain: 'citygeneral.your-domain.com', plan: 'Professional Monthly', users: '450', status: 'Active', badge: '#10B981', bg: 'rgba(16,185,129,0.1)' },
     { name: 'MediCare Clinics', id: 'TEN-8104', domain: 'medicare.your-domain.com', plan: 'Basic Quarterly', users: '42', status: 'Payment Due', badge: '#F59E0B', bg: 'rgba(245,158,11,0.1)' },
@@ -12,7 +12,33 @@ const TENANTS = [
 ];
 
 export default function TenantsPage() {
+    const [tenants, setTenants] = useState(INITIAL_TENANTS);
     const [isProvisionModalOpen, setIsProvisionModalOpen] = useState(false);
+
+    const handleProvision = (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+
+        const planMapping = {
+            'starter': 'Starter Tier',
+            'pro': 'Pro Tier',
+            'enterprise': 'Enterprise Tier'
+        };
+
+        const newTenant = {
+            name: formData.get('hospitalName'),
+            id: `TEN-${Math.floor(1000 + Math.random() * 9000)}`,
+            domain: `${formData.get('subdomain')}.your-domain.com`,
+            plan: planMapping[formData.get('plan')],
+            users: '1',
+            status: 'Active',
+            badge: '#10B981',
+            bg: 'rgba(16,185,129,0.1)'
+        };
+
+        setTenants([newTenant, ...tenants]);
+        setIsProvisionModalOpen(false);
+    };
 
     return (
         <div className="fade-in">
@@ -55,7 +81,7 @@ export default function TenantsPage() {
                             </tr>
                         </thead>
                         <tbody>
-                            {TENANTS.map((row, i) => (
+                            {tenants.map((row, i) => (
                                 <tr key={i} style={{ borderBottom: '1px solid #E2E8F0' }} onMouseOver={(e) => e.currentTarget.style.background = '#F8FAFC'} onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}>
                                     <td style={{ padding: '14px 20px' }}>
                                         <div style={{ fontWeight: 600, color: '#0F172A', fontSize: '14px' }}>{row.name}</div>
@@ -128,16 +154,16 @@ export default function TenantsPage() {
 
                         {/* Body / Form */}
                         <div style={{ padding: '24px', overflowY: 'auto' }}>
-                            <form id="provision-form" onSubmit={(e) => { e.preventDefault(); alert('Hospital provisioned successfully!'); setIsProvisionModalOpen(false); }} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                            <form id="provision-form" onSubmit={handleProvision} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                                 <div>
                                     <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Hospital Name</label>
-                                    <input required type="text" placeholder="e.g. Apex General Hospital" style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} onFocus={(e) => e.currentTarget.style.borderColor = '#10B981'} onBlur={(e) => e.currentTarget.style.borderColor = '#E2E8F0'} />
+                                    <input required name="hospitalName" type="text" placeholder="e.g. Apex General Hospital" style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} onFocus={(e) => e.currentTarget.style.borderColor = '#10B981'} onBlur={(e) => e.currentTarget.style.borderColor = '#E2E8F0'} />
                                 </div>
 
                                 <div>
                                     <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Subdomain</label>
                                     <div style={{ display: 'flex', alignItems: 'center', border: '1px solid #E2E8F0', borderRadius: '8px', overflow: 'hidden' }}>
-                                        <input required type="text" placeholder="apexgeneral" style={{ flex: 1, padding: '10px 12px', border: 'none', fontSize: '14px', outline: 'none', minWidth: 0 }} />
+                                        <input required name="subdomain" type="text" placeholder="apexgeneral" style={{ flex: 1, padding: '10px 12px', border: 'none', fontSize: '14px', outline: 'none', minWidth: 0 }} />
                                         <div style={{ padding: '10px 12px', background: '#F8FAFC', color: '#64748B', fontSize: '14px', fontWeight: 500, borderLeft: '1px solid #E2E8F0' }}>
                                             .your-domain.com
                                         </div>
@@ -147,12 +173,12 @@ export default function TenantsPage() {
 
                                 <div>
                                     <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Admin Email Address</label>
-                                    <input required type="email" placeholder="admin@apexgeneral.com" style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} onFocus={(e) => e.currentTarget.style.borderColor = '#10B981'} onBlur={(e) => e.currentTarget.style.borderColor = '#E2E8F0'} />
+                                    <input required name="adminEmail" type="email" placeholder="admin@apexgeneral.com" style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} onFocus={(e) => e.currentTarget.style.borderColor = '#10B981'} onBlur={(e) => e.currentTarget.style.borderColor = '#E2E8F0'} />
                                 </div>
 
                                 <div>
                                     <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Subscription Plan</label>
-                                    <select style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', background: 'white', boxSizing: 'border-box' }}>
+                                    <select required name="plan" style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', background: 'white', boxSizing: 'border-box' }}>
                                         <option value="starter">Starter Tier (₹4,999/mo)</option>
                                         <option value="pro">Pro Tier (₹12,999/mo)</option>
                                         <option value="enterprise">Enterprise Tier (Custom)</option>

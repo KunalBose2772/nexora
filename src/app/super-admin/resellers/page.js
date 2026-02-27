@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Building, Plus, Search, Activity, Download, MoreVertical, Users, X } from 'lucide-react';
 
-const RESELLERS = [
+const INITIAL_RESELLERS = [
     { name: 'TechMed Solutions', contact: 'Ravi Kumar', email: 'ravi@techmed.in', hospitals: 45, revShare: '20%', status: 'Active' },
     { name: 'CareLogic IT', contact: 'Anita Desai', email: 'anita@carelogic.com', hospitals: 12, revShare: '15%', status: 'Active' },
     { name: 'MediSys Integrators', contact: 'Sumit Patel', email: 'sumit@medisys.in', hospitals: 3, revShare: '10%', status: 'Inactive' },
@@ -10,7 +10,25 @@ const RESELLERS = [
 ];
 
 export default function ResellersPage() {
+    const [resellers, setResellers] = useState(INITIAL_RESELLERS);
     const [isResellerModalOpen, setIsResellerModalOpen] = useState(false);
+
+    const handleOnboard = (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+
+        const newReseller = {
+            name: formData.get('agencyName'),
+            contact: formData.get('contactName'),
+            email: formData.get('email'),
+            hospitals: 0,
+            revShare: `${formData.get('revShare')}%`,
+            status: 'Active'
+        };
+
+        setResellers([newReseller, ...resellers]);
+        setIsResellerModalOpen(false);
+    };
 
     return (
         <div className="fade-in">
@@ -69,7 +87,7 @@ export default function ResellersPage() {
                             </tr>
                         </thead>
                         <tbody>
-                            {RESELLERS.map((r, i) => (
+                            {resellers.map((r, i) => (
                                 <tr key={i} style={{ borderBottom: '1px solid #E2E8F0' }} onMouseOver={(e) => e.currentTarget.style.background = '#F8FAFC'} onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}>
                                     <td style={{ padding: '14px 20px', fontSize: '14px', fontWeight: 600, color: '#0F172A' }}>{r.name}</td>
                                     <td style={{ padding: '14px 20px', fontSize: '14px', color: '#64748B' }}>{r.contact} <span style={{ fontSize: '12px', color: '#94A3B8' }}>({r.email})</span></td>
@@ -129,26 +147,26 @@ export default function ResellersPage() {
 
                         {/* Body / Form */}
                         <div style={{ padding: '24px', overflowY: 'auto' }}>
-                            <form id="reseller-form" onSubmit={(e) => { e.preventDefault(); alert('Reseller onboarded successfully! Invitations sent.'); setIsResellerModalOpen(false); }} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                            <form id="reseller-form" onSubmit={handleOnboard} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                                 <div>
                                     <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Agency / Company Name</label>
-                                    <input required type="text" placeholder="e.g. CareLogic IT Solutions" style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} onFocus={(e) => e.currentTarget.style.borderColor = '#10B981'} onBlur={(e) => e.currentTarget.style.borderColor = '#E2E8F0'} />
+                                    <input required name="agencyName" type="text" placeholder="e.g. CareLogic IT Solutions" style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} onFocus={(e) => e.currentTarget.style.borderColor = '#10B981'} onBlur={(e) => e.currentTarget.style.borderColor = '#E2E8F0'} />
                                 </div>
 
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                                     <div>
                                         <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Primary Contact Name</label>
-                                        <input required type="text" placeholder="e.g. Anita Desai" style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} onFocus={(e) => e.currentTarget.style.borderColor = '#10B981'} onBlur={(e) => e.currentTarget.style.borderColor = '#E2E8F0'} />
+                                        <input required name="contactName" type="text" placeholder="e.g. Anita Desai" style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} onFocus={(e) => e.currentTarget.style.borderColor = '#10B981'} onBlur={(e) => e.currentTarget.style.borderColor = '#E2E8F0'} />
                                     </div>
                                     <div>
                                         <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Revenue Share (%)</label>
-                                        <input required type="number" placeholder="20" defaultValue={20} style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} onFocus={(e) => e.currentTarget.style.borderColor = '#10B981'} onBlur={(e) => e.currentTarget.style.borderColor = '#E2E8F0'} />
+                                        <input required name="revShare" type="number" placeholder="20" defaultValue={20} style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} onFocus={(e) => e.currentTarget.style.borderColor = '#10B981'} onBlur={(e) => e.currentTarget.style.borderColor = '#E2E8F0'} />
                                     </div>
                                 </div>
 
                                 <div>
                                     <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Contact Email Address</label>
-                                    <input required type="email" placeholder="anita@carelogic.com" style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} onFocus={(e) => e.currentTarget.style.borderColor = '#10B981'} onBlur={(e) => e.currentTarget.style.borderColor = '#E2E8F0'} />
+                                    <input required name="email" type="email" placeholder="anita@carelogic.com" style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} onFocus={(e) => e.currentTarget.style.borderColor = '#10B981'} onBlur={(e) => e.currentTarget.style.borderColor = '#E2E8F0'} />
                                     <p style={{ fontSize: '12px', color: '#94A3B8', marginTop: '6px' }}>An invitation link will be sent to this email to setup their partner portal.</p>
                                 </div>
                             </form>

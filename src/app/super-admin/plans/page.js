@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Layers, Plus, Edit2, CheckCircle2, XCircle, Building, X } from 'lucide-react';
 
-const PLANS = [
+const INITIAL_PLANS = [
     { id: 'plan_starter', name: 'Starter Tier', price: '₹4,999/mo', maxUsers: 5, maxBranches: 1, features: ['OPD Module', 'Patient EMR', 'Basic Billing'], status: 'active', tenantsCount: 412 },
     { id: 'plan_pro', name: 'Pro Tier', price: '₹12,999/mo', maxUsers: 30, maxBranches: 3, features: ['All Starter Features', 'IPD & Wards', 'Pharmacy & Labs', 'HR Module'], status: 'active', tenantsCount: 890 },
     { id: 'plan_enterprise', name: 'Enterprise Tier', price: 'Custom', maxUsers: 'Unlimited', maxBranches: 'Unlimited', features: ['All Pro Features', 'Dedicated AWS RDS', 'White-labeling', 'API Access'], status: 'active', tenantsCount: 145 },
@@ -10,17 +10,45 @@ const PLANS = [
 ];
 
 export default function PlansPage() {
+    const [plans, setPlans] = useState(INITIAL_PLANS);
     const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
     const [modalAction, setModalAction] = useState('create'); // 'create' or 'edit'
+    const [editingPlanId, setEditingPlanId] = useState(null);
 
     const openCreateModal = () => {
         setModalAction('create');
+        setEditingPlanId(null);
         setIsPlanModalOpen(true);
     };
 
     const openEditModal = (plan) => {
         setModalAction('edit');
+        setEditingPlanId(plan.id);
         setIsPlanModalOpen(true);
+    };
+
+    const handleSavePlan = (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+
+        const newPlan = {
+            id: modalAction === 'create' ? `plan_${Math.random().toString(36).substr(2, 6)}` : editingPlanId,
+            name: formData.get('planName'),
+            price: formData.get('planPrice').toLowerCase() === 'custom' ? 'Custom' : `₹${formData.get('planPrice')}/mo`,
+            maxUsers: formData.get('maxUsers'),
+            maxBranches: formData.get('maxBranches'),
+            features: formData.get('features').split(',').map(f => f.trim()),
+            status: formData.get('status'),
+            tenantsCount: modalAction === 'create' ? 0 : plans.find(p => p.id === editingPlanId)?.tenantsCount || 0
+        };
+
+        if (modalAction === 'create') {
+            setPlans([...plans, newPlan]);
+        } else {
+            setPlans(plans.map(p => p.id === editingPlanId ? newPlan : p));
+        }
+
+        setIsPlanModalOpen(false);
     };
 
     return (
@@ -40,7 +68,7 @@ export default function PlansPage() {
 
             {/* Plans Grid - uses auto-fit so always fits on any screen */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
-                {PLANS.map((plan) => (
+                {plans.map((plan) => (
                     <div key={plan.id} style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '16px', padding: '24px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)', opacity: plan.status === 'archived' ? 0.65 : 1, display: 'flex', flexDirection: 'column' }}>
                         {/* Plan Header */}
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
@@ -116,38 +144,38 @@ export default function PlansPage() {
 
                         {/* Body / Form */}
                         <div style={{ padding: '24px', overflowY: 'auto' }}>
-                            <form id="plan-form" onSubmit={(e) => { e.preventDefault(); alert(modalAction === 'create' ? 'Plan created successfully!' : 'Plan updated successfully!'); setIsPlanModalOpen(false); }} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                            <form id="plan-form" onSubmit={handleSavePlan} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                                     <div>
                                         <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Plan Name</label>
-                                        <input required type="text" placeholder="e.g. Starter Tier" defaultValue={modalAction === 'edit' ? 'Starter Tier' : ''} style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} onFocus={(e) => e.currentTarget.style.borderColor = '#10B981'} onBlur={(e) => e.currentTarget.style.borderColor = '#E2E8F0'} />
+                                        <input required name="planName" type="text" placeholder="e.g. Starter Tier" defaultValue={modalAction === 'edit' ? plans.find(p => p.id === editingPlanId)?.name : ''} style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} onFocus={(e) => e.currentTarget.style.borderColor = '#10B981'} onBlur={(e) => e.currentTarget.style.borderColor = '#E2E8F0'} />
                                     </div>
                                     <div>
                                         <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Monthly Price (₹)</label>
-                                        <input required type="text" placeholder="e.g. 4999" defaultValue={modalAction === 'edit' ? '4999' : ''} style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} onFocus={(e) => e.currentTarget.style.borderColor = '#10B981'} onBlur={(e) => e.currentTarget.style.borderColor = '#E2E8F0'} />
+                                        <input required name="planPrice" type="text" placeholder="e.g. 4999" defaultValue={modalAction === 'edit' ? plans.find(p => p.id === editingPlanId)?.price.replace(/[^0-9]/g, '') : ''} style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} onFocus={(e) => e.currentTarget.style.borderColor = '#10B981'} onBlur={(e) => e.currentTarget.style.borderColor = '#E2E8F0'} />
                                     </div>
                                 </div>
 
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                                     <div>
                                         <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Max Users</label>
-                                        <input required type="number" placeholder="5" defaultValue={modalAction === 'edit' ? 5 : ''} style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} onFocus={(e) => e.currentTarget.style.borderColor = '#10B981'} onBlur={(e) => e.currentTarget.style.borderColor = '#E2E8F0'} />
+                                        <input required name="maxUsers" type="text" placeholder="5 or Unlimited" defaultValue={modalAction === 'edit' ? plans.find(p => p.id === editingPlanId)?.maxUsers : ''} style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} onFocus={(e) => e.currentTarget.style.borderColor = '#10B981'} onBlur={(e) => e.currentTarget.style.borderColor = '#E2E8F0'} />
                                     </div>
                                     <div>
                                         <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Max Branches</label>
-                                        <input required type="number" placeholder="1" defaultValue={modalAction === 'edit' ? 1 : ''} style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} onFocus={(e) => e.currentTarget.style.borderColor = '#10B981'} onBlur={(e) => e.currentTarget.style.borderColor = '#E2E8F0'} />
+                                        <input required name="maxBranches" type="text" placeholder="1 or Unlimited" defaultValue={modalAction === 'edit' ? plans.find(p => p.id === editingPlanId)?.maxBranches : ''} style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} onFocus={(e) => e.currentTarget.style.borderColor = '#10B981'} onBlur={(e) => e.currentTarget.style.borderColor = '#E2E8F0'} />
                                     </div>
                                 </div>
 
                                 <div>
                                     <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Included Features (Comma separated)</label>
-                                    <textarea required rows={3} placeholder="OPD Module, Patient EMR, Basic Billing" defaultValue={modalAction === 'edit' ? 'OPD Module, Patient EMR, Basic Billing' : ''} style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }} onFocus={(e) => e.currentTarget.style.borderColor = '#10B981'} onBlur={(e) => e.currentTarget.style.borderColor = '#E2E8F0'}></textarea>
+                                    <textarea required name="features" rows={3} placeholder="OPD Module, Patient EMR, Basic Billing" defaultValue={modalAction === 'edit' ? plans.find(p => p.id === editingPlanId)?.features.join(', ') : ''} style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }} onFocus={(e) => e.currentTarget.style.borderColor = '#10B981'} onBlur={(e) => e.currentTarget.style.borderColor = '#E2E8F0'}></textarea>
                                 </div>
 
                                 <div>
                                     <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Status</label>
-                                    <select style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', background: 'white', boxSizing: 'border-box' }}>
+                                    <select required name="status" defaultValue={modalAction === 'edit' ? plans.find(p => p.id === editingPlanId)?.status : 'active'} style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', background: 'white', boxSizing: 'border-box' }}>
                                         <option value="active">Active (Available for purchase)</option>
                                         <option value="archived">Archived (Grandfathered only)</option>
                                     </select>
