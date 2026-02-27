@@ -4,11 +4,11 @@ import { Building, Plus, Search, Filter, MoreVertical, ShieldCheck, Clock, Exter
 import Link from 'next/link';
 
 const TENANTS = [
-    { name: 'Apollo Health Systems', id: 'TEN-9201', domain: 'apollo.nexora.health', plan: 'Enterprise Annual', users: '1,240', status: 'Active', badge: '#10B981', bg: 'rgba(16,185,129,0.1)' },
-    { name: 'City General Medical Center', id: 'TEN-8492', domain: 'citygeneral.nexora.health', plan: 'Professional Monthly', users: '450', status: 'Active', badge: '#10B981', bg: 'rgba(16,185,129,0.1)' },
-    { name: 'MediCare Clinics', id: 'TEN-8104', domain: 'medicare.nexora.health', plan: 'Basic Quarterly', users: '42', status: 'Payment Due', badge: '#F59E0B', bg: 'rgba(245,158,11,0.1)' },
-    { name: 'Prime Heart Institute', id: 'TEN-7221', domain: 'primeheart.nexora.health', plan: 'Enterprise Custom', users: '820', status: 'Active', badge: '#10B981', bg: 'rgba(16,185,129,0.1)' },
-    { name: 'Sunrise Diagnostics Hub', id: 'TEN-6019', domain: 'sunrise.nexora.health', plan: 'Professional Monthly', users: '120', status: 'Suspended', badge: '#EF4444', bg: 'rgba(239,68,68,0.1)' }
+    { name: 'Apollo Health Systems', id: 'TEN-9201', domain: 'apollo.your-domain.com', plan: 'Enterprise Annual', users: '1,240', status: 'Active', badge: '#10B981', bg: 'rgba(16,185,129,0.1)' },
+    { name: 'City General Medical Center', id: 'TEN-8492', domain: 'citygeneral.your-domain.com', plan: 'Professional Monthly', users: '450', status: 'Active', badge: '#10B981', bg: 'rgba(16,185,129,0.1)' },
+    { name: 'MediCare Clinics', id: 'TEN-8104', domain: 'medicare.your-domain.com', plan: 'Basic Quarterly', users: '42', status: 'Payment Due', badge: '#F59E0B', bg: 'rgba(245,158,11,0.1)' },
+    { name: 'Prime Heart Institute', id: 'TEN-7221', domain: 'primeheart.your-domain.com', plan: 'Enterprise Custom', users: '820', status: 'Active', badge: '#10B981', bg: 'rgba(16,185,129,0.1)' },
+    { name: 'Sunrise Diagnostics Hub', id: 'TEN-6019', domain: 'sunrise.your-domain.com', plan: 'Professional Monthly', users: '120', status: 'Suspended', badge: '#EF4444', bg: 'rgba(239,68,68,0.1)' }
 ];
 
 export default function TenantsPage() {
@@ -139,7 +139,7 @@ export default function TenantsPage() {
                                     <div style={{ display: 'flex', alignItems: 'center', border: '1px solid #E2E8F0', borderRadius: '8px', overflow: 'hidden' }}>
                                         <input required type="text" placeholder="apexgeneral" style={{ flex: 1, padding: '10px 12px', border: 'none', fontSize: '14px', outline: 'none', minWidth: 0 }} />
                                         <div style={{ padding: '10px 12px', background: '#F8FAFC', color: '#64748B', fontSize: '14px', fontWeight: 500, borderLeft: '1px solid #E2E8F0' }}>
-                                            .nexora.health
+                                            .your-domain.com
                                         </div>
                                     </div>
                                     <p style={{ fontSize: '12px', color: '#94A3B8', marginTop: '6px' }}>This will be the hospital's dedicated login URL.</p>
