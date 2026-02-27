@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
     Bell,
     ChevronDown,
@@ -34,6 +34,13 @@ export default function SuperAdminHeader({ user, setMobileOpen }) {
     const [showNotif, setShowNotif] = useState(false);
 
     const me = user || { name: 'Kunal Bose', role: 'SaaS Creator' };
+    const router = useRouter();
+
+    const handleSignOut = () => {
+        closeAll();
+        // Clear any auth tokens/cookies here if added later
+        router.push('/login');
+    };
 
     const closeAll = () => { setShowUser(false); setShowNotif(false); };
 
@@ -215,10 +222,31 @@ export default function SuperAdminHeader({ user, setMobileOpen }) {
                                     <div style={{ fontSize: '14px', fontWeight: 600, color: '#0F172A' }}>{me.name}</div>
                                     <div style={{ fontSize: '12px', color: '#64748B' }}>{me.role}</div>
                                 </div>
-                                <button style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 12px', width: '100%', background: 'none', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: 500, color: '#334155', borderRadius: '6px' }}><User size={16} /> Platform Profile</button>
-                                <button style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 12px', width: '100%', background: 'none', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: 500, color: '#334155', borderRadius: '6px' }}><Settings size={16} /> Global Settings</button>
+                                <button
+                                    onClick={() => { closeAll(); router.push('/super-admin/settings'); }}
+                                    onMouseEnter={(e) => e.currentTarget.style.background = '#F8FAFC'}
+                                    onMouseLeave={(e) => e.currentTarget.style.background = 'none'}
+                                    style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 12px', width: '100%', background: 'none', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: 500, color: '#334155', borderRadius: '6px', textAlign: 'left' }}
+                                >
+                                    <User size={16} /> Platform Profile
+                                </button>
+                                <button
+                                    onClick={() => { closeAll(); router.push('/super-admin/settings'); }}
+                                    onMouseEnter={(e) => e.currentTarget.style.background = '#F8FAFC'}
+                                    onMouseLeave={(e) => e.currentTarget.style.background = 'none'}
+                                    style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 12px', width: '100%', background: 'none', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: 500, color: '#334155', borderRadius: '6px', textAlign: 'left' }}
+                                >
+                                    <Settings size={16} /> Global Settings
+                                </button>
                                 <div style={{ borderTop: '1px solid #F1F5F9', margin: '8px 0' }} />
-                                <button style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 12px', width: '100%', background: 'none', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: 500, color: '#EF4444', borderRadius: '6px' }}><LogOut size={16} /> Sign Out</button>
+                                <button
+                                    onClick={handleSignOut}
+                                    onMouseEnter={(e) => e.currentTarget.style.background = '#FEF2F2'}
+                                    onMouseLeave={(e) => e.currentTarget.style.background = 'none'}
+                                    style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 12px', width: '100%', background: 'none', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: 500, color: '#EF4444', borderRadius: '6px', textAlign: 'left' }}
+                                >
+                                    <LogOut size={16} /> Sign Out
+                                </button>
                             </div>
                         </>
                     )}
