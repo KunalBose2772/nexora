@@ -584,6 +584,21 @@ a:hover {
   flex-wrap: wrap;
 }
 
+.dashboard-header-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+  gap: 16px;
+}
+
+.dashboard-header-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 .page-header__title {
   font-size: 22px;
   font-weight: 600;
@@ -594,6 +609,22 @@ a:hover {
   font-size: 14px;
   color: var(--color-text-muted);
   margin-top: 2px;
+}
+
+@media (max-width: 768px) {
+  .dashboard-header-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .dashboard-header-buttons {
+    width: 100%;
+  }
+
+  .dashboard-header-buttons .btn {
+    flex: 1;
+    justify-content: center;
+  }
 }
 
 /* ── Grid ── */

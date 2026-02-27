@@ -20,11 +20,9 @@ export default function LoginPage() {
             <style>{`
                 .login-wrap {
                     min-height: 100vh;
-                    height: 100vh;
                     display: grid;
                     grid-template-columns: 1fr 1fr;
                     font-family: 'Inter', system-ui, sans-serif;
-                    overflow: hidden;
                 }
                 .login-left {
                     display: flex;
@@ -33,8 +31,8 @@ export default function LoginPage() {
                     justify-content: center;
                     padding: 56px 48px;
                     position: relative;
-                    overflow-y: auto;
                     background: #071220;
+                    overflow: hidden;
                 }
                 .login-right {
                     background: #F8FAFC;
@@ -43,7 +41,6 @@ export default function LoginPage() {
                     align-items: center;
                     justify-content: center;
                     padding: 48px 32px;
-                    overflow-y: auto;
                 }
                 /* Mobile: stack vertically, left panel collapses to compact banner */
                 @media (max-width: 768px) {
@@ -51,9 +48,9 @@ export default function LoginPage() {
                     .login-left { padding: 32px 24px; min-height: auto; align-items: flex-start; }
                     .login-left-inner { flex-direction: row !important; align-items: center !important; gap: 16px !important; }
                     .login-left-inner .login-tagline, .login-left-inner .login-features, .login-left-brand { display: none !important; }
-                    .login-left-inner h1 { font-size: 17px !important; margin-bottom: 0 !important; }
+                    .login-left-inner h1 { display: none !important; }
                     .login-left-inner p { display: none !important; }
-                    .login-left-logo { margin-bottom: 0 !important; }
+                    .login-left-logo { margin-bottom: 0 !important; max-width: 140px !important; height: auto !important; }
                     .login-right { padding: 32px 20px; }
                 }
                 @media (max-width: 480px) { .login-right { padding: 24px 16px; } }
@@ -100,15 +97,13 @@ export default function LoginPage() {
                             className="login-left-logo"
                             src="/nexora-logo.png"
                             alt="Nexora Health"
-                            width={0}
-                            height={0}
-                            sizes="100vw"
-                            unoptimized
+                            width={1500}
+                            height={500}
                             priority
                             style={{
                                 filter: 'brightness(0) invert(1)',
-                                width: 'auto',
-                                height: '80px',
+                                width: '240px',
+                                height: 'auto',
                                 opacity: 0.92,
                                 marginBottom: '44px',
                                 display: 'block',

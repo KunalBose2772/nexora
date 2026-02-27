@@ -19,6 +19,7 @@ import {
     ChevronLeft,
     ChevronRight,
     Building2,
+    X,
 } from 'lucide-react';
 
 const NAV_GROUPS = [
@@ -61,13 +62,13 @@ const NAV_GROUPS = [
     },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ collapsed, setCollapsed, mobileOpen }) {
     const pathname = usePathname();
-    const [collapsed, setCollapsed] = useState(false);
     const W = collapsed ? '64px' : '260px';
 
     return (
         <aside
+            className={`hms-sidebar ${mobileOpen ? 'mobile-open' : ''}`}
             style={{
                 width: W,
                 minWidth: W,
@@ -81,7 +82,6 @@ export default function Sidebar() {
                 zIndex: 40,
                 overflowY: 'auto',
                 overflowX: 'hidden',
-                transition: 'width 220ms cubic-bezier(0.4,0,0.2,1)',
                 borderRight: '1px solid rgba(255,255,255,0.06)',
             }}
             aria-label="Main navigation"
@@ -117,6 +117,7 @@ export default function Sidebar() {
                     >
                         {/* Full original logo, white-inverted for dark background */}
                         <Image
+                            className="sidebar-logo-img"
                             src="/nexora-logo.png"
                             alt="Nexora Health"
                             width={188}
@@ -131,6 +132,38 @@ export default function Sidebar() {
                         />
                     </Link>
                 )}
+
+                {/* Mobile Close Button */}
+                <button
+                    className="sidebar-close-btn"
+                    onClick={() => setMobileOpen(false)}
+                    style={{
+                        background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer',
+                        padding: '4px', marginLeft: 'auto', display: 'none'
+                    }}
+                >
+                    <X size={20} />
+                </button>
+                <style>{`
+                    .hms-sidebar {
+                        transition: width 220ms cubic-bezier(0.4,0,0.2,1), transform 350ms cubic-bezier(0.4, 0, 0.2, 1);
+                        transform: translateX(0);
+                    }
+                    @media (max-width: 1024px) {
+                        .hms-sidebar {
+                            transform: translateX(-100%);
+                            width: 260px !important;
+                            min-width: 260px !important;
+                        }
+                        .hms-sidebar.mobile-open {
+                            transform: translateX(0);
+                            box-shadow: 4px 0 24px rgba(0,0,0,0.5);
+                        }
+                        .sidebar-close-btn { display: block !important; }
+                        .sidebar-logo-img { max-width: 150px; height: auto !important; }
+                        .sidebar-hide-on-mobile { display: none !important; }
+                    }
+                `}</style>
             </div>
 
             {/* ── Navigation ── */}
@@ -158,6 +191,7 @@ export default function Sidebar() {
                                     key={href}
                                     href={href}
                                     title={collapsed ? label : undefined}
+                                    onClick={() => { if (setMobileOpen) setMobileOpen(false); }}
                                     style={{
                                         display: 'flex',
                                         alignItems: 'center',
@@ -204,7 +238,7 @@ export default function Sidebar() {
             </nav>
 
             {/* ── Collapse toggle ── */}
-            <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', flexShrink: 0 }}>
+            <div className="sidebar-hide-on-mobile" style={{ borderTop: '1px solid rgba(255,255,255,0.06)', flexShrink: 0 }}>
                 <button
                     onClick={() => setCollapsed(!collapsed)}
                     aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}

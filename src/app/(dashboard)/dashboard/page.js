@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import {
     TrendingUp,
     TrendingDown,
@@ -11,6 +12,18 @@ import {
     UserCheck,
     Users,
     Activity,
+    UserPlus,
+    CalendarPlus,
+    Stethoscope,
+    Pill,
+    Receipt,
+    FileText,
+    UserCog,
+    Building2,
+    Hospital,
+    ClipboardList,
+    Stethoscope as DoctorIcon,
+    Wallet
 } from 'lucide-react';
 
 /* ─── Mock KPI data ─── */
@@ -24,6 +37,7 @@ const KPI_CARDS = [
         icon: IndianRupee,
         iconBg: 'rgba(10,46,77,0.08)',
         iconColor: 'var(--color-navy)',
+        href: '/billing',
     },
     {
         id: 'appointments-today',
@@ -35,6 +49,7 @@ const KPI_CARDS = [
         iconBg: 'rgba(0,194,255,0.10)',
         iconColor: 'var(--color-cyan)',
         trendColor: 'var(--color-success)',
+        href: '/appointments',
     },
     {
         id: 'bed-occupancy',
@@ -45,6 +60,7 @@ const KPI_CARDS = [
         icon: BedDouble,
         iconBg: 'rgba(22,163,74,0.08)',
         iconColor: 'var(--color-success)',
+        href: '/ipd/wards',
     },
     {
         id: 'pending-lab',
@@ -55,6 +71,7 @@ const KPI_CARDS = [
         icon: FlaskConical,
         iconBg: 'rgba(217,119,6,0.08)',
         iconColor: 'var(--color-warning)',
+        href: '/laboratory',
     },
     {
         id: 'low-stock',
@@ -65,6 +82,7 @@ const KPI_CARDS = [
         icon: AlertTriangle,
         iconBg: 'rgba(220,38,38,0.08)',
         iconColor: 'var(--color-error)',
+        href: '/inventory',
     },
     {
         id: 'doctors-available',
@@ -75,7 +93,66 @@ const KPI_CARDS = [
         icon: UserCheck,
         iconBg: 'rgba(10,46,77,0.06)',
         iconColor: 'var(--color-navy)',
+        href: '/hr/doctors',
     },
+    {
+        id: 'active-inpatients',
+        label: 'Active Inpatients',
+        value: '142',
+        trend: '+5 from yesterday',
+        trendDir: 'up',
+        icon: Hospital,
+        iconBg: 'rgba(59,130,246,0.1)',
+        iconColor: '#3B82F6',
+        href: '/ipd/patients',
+    },
+    {
+        id: 'pending-prescriptions',
+        label: 'Pending Rx',
+        value: '28',
+        trend: 'Pharmacy queue',
+        trendDir: 'neutral',
+        icon: Pill,
+        iconBg: 'rgba(139,92,246,0.1)',
+        iconColor: '#8B5CF6',
+        href: '/pharmacy',
+    },
+    {
+        id: 'outpatient-consults',
+        label: 'OPD Consults',
+        value: '210',
+        trend: 'Steady flow',
+        trendDir: 'neutral',
+        icon: DoctorIcon,
+        iconBg: 'rgba(20,184,166,0.1)',
+        iconColor: '#14B8A6',
+        href: '/opd',
+    },
+    {
+        id: 'total-expenses',
+        label: 'Total Expenses',
+        value: '₹32,400',
+        trend: '-2.1% this week',
+        trendDir: 'down',
+        icon: Wallet,
+        iconBg: 'rgba(239,68,68,0.1)',
+        iconColor: '#EF4444',
+        href: '/billing/expenses',
+    }
+];
+
+/* ─── Quick Actions ─── */
+const QUICK_ACTIONS = [
+    { label: 'Register Patient', icon: UserPlus, href: '/patients/new', color: '#00C2FF', bg: 'rgba(0,194,255,0.1)' },
+    { label: 'Book Appt.', icon: CalendarPlus, href: '/appointments/new', color: '#16A34A', bg: 'rgba(22,163,74,0.1)' },
+    { label: 'OPD Consult', icon: Stethoscope, href: '/opd/consult', color: '#8B5CF6', bg: 'rgba(139,92,246,0.1)' },
+    { label: 'Admit to IPD', icon: BedDouble, href: '/ipd/admit', color: '#F59E0B', bg: 'rgba(245,158,11,0.1)' },
+    { label: 'Add Lab Test', icon: FlaskConical, href: '/laboratory/new', color: '#EC4899', bg: 'rgba(236,72,153,0.1)' },
+    { label: 'Pharmacy', icon: Pill, href: '/pharmacy/prescribe', color: '#14B8A6', bg: 'rgba(20,184,166,0.1)' },
+    { label: 'New Invoice', icon: Receipt, href: '/billing/new', color: '#3B82F6', bg: 'rgba(59,130,246,0.1)' },
+    { label: 'Add Record', icon: FileText, href: '/patients/records', color: '#64748B', bg: 'rgba(100,116,139,0.1)' },
+    { label: 'Add Staff', icon: UserCog, href: '/hr/new', color: '#0A2E4D', bg: 'rgba(10,46,77,0.1)' },
+    { label: 'New Branch', icon: Building2, href: '/branches/new', color: '#EF4444', bg: 'rgba(239,68,68,0.1)' },
 ];
 
 /* ─── Recent Appointments ─── */
@@ -98,7 +175,12 @@ const STATUS_BADGE = {
 function StatCard({ card }) {
     const Icon = card.icon;
     return (
-        <div className="stat-card" id={`kpi-${card.id}`}>
+        <Link
+            href={card.href || '#'}
+            className="stat-card"
+            id={`kpi-${card.id}`}
+            style={{ textDecoration: 'none', transition: 'all 150ms' }}
+        >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <span className="stat-card__label">{card.label}</span>
                 <div
@@ -126,22 +208,87 @@ function StatCard({ card }) {
                 {card.trendDir === 'neutral' && <Activity size={13} strokeWidth={1.5} aria-hidden="true" />}
                 <span>{card.trend}</span>
             </div>
-        </div>
+        </Link>
     );
 }
 
 export default function DashboardPage() {
     return (
         <div className="fade-in">
+            <style>{`
+                .dashboard-header-row { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; gap: 16px; }
+                .dashboard-header-buttons { display: flex; flex-wrap: wrap; gap: 10px; }
+                .dashboard-quick-actions {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+                    gap: 12px;
+                    margin-bottom: 28px;
+                }
+                .quick-action-btn {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 8px;
+                    background: #FFFFFF;
+                    border: 1px solid var(--color-border-light);
+                    border-radius: 12px;
+                    padding: 16px 8px;
+                    text-decoration: none;
+                    transition: all 150ms;
+                    text-align: center;
+                    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+                }
+                .quick-action-btn:hover {
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+                    border-color: #00C2FF;
+                    transform: translateY(-2px);
+                }
+                .quick-action-icon {
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 10px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+                .quick-action-label {
+                    font-size: 11.5px;
+                    font-weight: 500;
+                    color: var(--color-navy);
+                }
+                .dashboard-kpi-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                    gap: 16px;
+                    margin-bottom: 28px;
+                }
+                .dashboard-chart-row {
+                    display: grid; 
+                    grid-template-columns: 2fr 1fr; 
+                    gap: 20px; 
+                    margin-bottom: 28px;
+                }
+                @media (max-width: 768px) {
+                    .dashboard-header-row { flex-direction: column; align-items: stretch; }
+                    .dashboard-header-buttons { width: 100%; }
+                    .dashboard-header-buttons .btn { flex: 1; justify-content: center; }
+                    
+                    .dashboard-chart-row {
+                        grid-template-columns: 1fr;
+                    }
+                }
+            `}</style>
+
             {/* Page Header */}
-            <div className="page-header">
+            <div className="dashboard-header-row">
                 <div>
-                    <h1 className="page-header__title">Dashboard</h1>
+                    <h1 className="page-header__title" style={{ marginBottom: '4px' }}>Dashboard</h1>
                     <p className="page-header__subtitle">
                         Overview of today's clinical and operational metrics.
                     </p>
                 </div>
-                <div style={{ display: 'flex', gap: '10px' }}>
+                <div className="dashboard-header-buttons">
                     <button className="btn btn-secondary btn-sm">
                         <CalendarDays size={15} strokeWidth={1.5} aria-hidden="true" />
                         Today
@@ -155,22 +302,35 @@ export default function DashboardPage() {
 
             {/* KPI Grid */}
             <div
+                className="dashboard-kpi-grid"
                 role="region"
                 aria-label="Key performance indicators"
-                style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))',
-                    gap: '16px',
-                    marginBottom: '28px',
-                }}
             >
                 {KPI_CARDS.map((card) => (
                     <StatCard key={card.id} card={card} />
                 ))}
             </div>
 
+            {/* Quick Actions */}
+            <div className="section-title" style={{ marginTop: '32px' }}>Quick Actions</div>
+            <div className="dashboard-quick-actions" role="region" aria-label="Quick Actions">
+                {QUICK_ACTIONS.map((action, idx) => {
+                    const Icon = action.icon;
+                    return (
+                        <Link href={action.href} key={idx} className="quick-action-btn">
+                            <div className="quick-action-icon" style={{ background: action.bg, color: action.color }}>
+                                <Icon size={20} strokeWidth={1.5} />
+                            </div>
+                            <span className="quick-action-label">{action.label}</span>
+                        </Link>
+                    );
+                })}
+            </div>
+
+
+
             {/* Charts Row */}
-            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '20px', marginBottom: '28px' }}>
+            <div className="dashboard-chart-row">
                 {/* Revenue Chart placeholder */}
                 <div className="card" style={{ padding: '20px' }}>
                     <div className="section-title">Monthly Revenue</div>
