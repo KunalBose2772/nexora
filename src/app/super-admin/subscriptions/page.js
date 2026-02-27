@@ -1,4 +1,5 @@
 'use client';
+import { useState } from 'react';
 import { CreditCard, Search, Download, MoreVertical, Building } from 'lucide-react';
 
 const SUBS = [
@@ -9,6 +10,26 @@ const SUBS = [
 ];
 
 export default function SubscriptionsPage() {
+    const [subs, setSubs] = useState(SUBS);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [openActionId, setOpenActionId] = useState(null);
+
+    const filteredSubs = subs.filter(s =>
+        s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        s.id.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    const handleExport = () => {
+        const header = "Tenant,ID,Plan,Amount,Status,Next Renewal\n";
+        const csv = filteredSubs.map(s => `${s.name},${s.id},${s.plan},${s.amount.replace('₹', '')},${s.status},${s.next}`).join('\n');
+        const blob = new Blob([header + csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'subscriptions-export.csv';
+        a.click();
+        URL.revokeObjectURL(url);
+    };
     return (
         <div className="fade-in">
             {/* Page Header */}
@@ -18,7 +39,7 @@ export default function SubscriptionsPage() {
                     <p style={{ color: '#64748B', margin: 0, fontSize: '14px' }}>Monitor recurring billing, invoices, and payment statuses across all tenants.</p>
                 </div>
                 <div>
-                    <button onClick={() => alert('Exporting subscriptions as CSV...')} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', fontWeight: 600, color: '#0F172A', cursor: 'pointer' }}>
+                    <button onClick={handleExport} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', fontWeight: 600, color: '#0F172A', cursor: 'pointer' }}>
                         <Download size={16} /> Export CSV
                     </button>
                 </div>
@@ -44,7 +65,7 @@ export default function SubscriptionsPage() {
                 <div style={{ padding: '16px 20px', borderBottom: '1px solid #E2E8F0' }}>
                     <div style={{ position: 'relative' }}>
                         <Search size={16} style={{ position: 'absolute', left: '14px', top: '11px', color: '#94A3B8' }} />
-                        <input type="text" placeholder="Search by hospital or ID..." style={{ width: '100%', padding: '10px 14px 10px 40px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', background: '#F8FAFC', boxSizing: 'border-box' }} />
+                        <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} type="text" placeholder="Search by hospital or ID..." style={{ width: '100%', padding: '10px 14px 10px 40px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', background: '#F8FAFC', boxSizing: 'border-box' }} onFocus={(e) => e.currentTarget.style.borderColor = '#10B981'} onBlur={(e) => e.currentTarget.style.borderColor = '#E2E8F0'} />
                     </div>
                 </div>
 
@@ -62,7 +83,11 @@ export default function SubscriptionsPage() {
                             </tr>
                         </thead>
                         <tbody>
-                            {SUBS.map((sub, i) => (
+                            {filteredSubs.length === 0 ? (
+                                <tr>
+                                    <td colSpan={6} style={{ padding: '40px', textAlign: 'center', color: '#64748B', fontSize: '14px' }}>No subscriptions found matching your search.</td>
+                                </tr>
+                            ) : filteredSubs.map((sub, i) => (
                                 <tr key={i} style={{ borderBottom: '1px solid #E2E8F0' }} onMouseOver={(e) => e.currentTarget.style.background = '#F8FAFC'} onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}>
                                     <td style={{ padding: '14px 20px' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -78,13 +103,38 @@ export default function SubscriptionsPage() {
                                     <td style={{ padding: '14px 20px', fontSize: '14px', color: '#334155', fontWeight: 500 }}>{sub.plan}</td>
                                     <td style={{ padding: '14px 20px', fontSize: '14px', color: '#0F172A', fontWeight: 700 }}>{sub.amount}/mo</td>
                                     <td style={{ padding: '14px 20px' }}>
-                                        <span style={{ padding: '4px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: 600, background: sub.status === 'Active' ? '#ECFDF5' : '#FEF2F2', color: sub.status === 'Active' ? '#059669' : '#DC2626', whiteSpace: 'nowrap' }}>
+                                        <span style={{ padding: '4px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: 600, background: sub.status === 'Active' ? '#ECFDF5' : (sub.status === 'Suspended' ? '#FEF2F2' : '#FFFBEB'), color: sub.status === 'Active' ? '#059669' : (sub.status === 'Suspended' ? '#DC2626' : '#D97706'), whiteSpace: 'nowrap' }}>
                                             {sub.status}
                                         </span>
                                     </td>
                                     <td style={{ padding: '14px 20px', fontSize: '14px', color: '#64748B' }}>{sub.next}</td>
-                                    <td style={{ padding: '14px 20px', textAlign: 'right' }}>
-                                        <button onClick={() => alert('View subscription details...')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8' }}><MoreVertical size={16} /></button>
+                                    <td style={{ padding: '14px 20px', textAlign: 'right', position: 'relative' }}>
+                                        <button onClick={() => setOpenActionId(openActionId === sub.id ? null : sub.id)} style={{ padding: '7px', background: openActionId === sub.id ? '#F8FAFC' : 'none', border: openActionId === sub.id ? '1px solid #E2E8F0' : '1px solid transparent', color: '#94A3B8', cursor: 'pointer', borderRadius: '6px' }}><MoreVertical size={16} /></button>
+
+                                        {/* Row Actions Dropdown */}
+                                        {openActionId === sub.id && (
+                                            <div style={{ position: 'absolute', top: '100%', right: '20px', marginTop: '4px', background: 'white', border: '1px solid #E2E8F0', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', minWidth: '160px', zIndex: 10, overflow: 'hidden', textAlign: 'left' }}>
+                                                {sub.status !== 'Active' && (
+                                                    <button onClick={() => {
+                                                        setOpenActionId(null);
+                                                        setSubs(subs.map(s => s.id === sub.id ? { ...s, status: 'Active' } : s));
+                                                    }} style={{ display: 'block', width: '100%', padding: '10px 14px', background: 'none', border: 'none', textAlign: 'left', fontSize: '13px', color: '#10B981', cursor: 'pointer' }} onMouseOver={e => e.currentTarget.style.background = '#F8FAFC'} onMouseOut={e => e.currentTarget.style.background = 'transparent'}>Mark Active</button>
+                                                )}
+                                                <button onClick={() => {
+                                                    setOpenActionId(null);
+                                                    setSubs(subs.map(s => s.id === sub.id ? { ...s, status: 'Past Due' } : s));
+                                                }} style={{ display: 'block', width: '100%', padding: '10px 14px', background: 'none', border: 'none', textAlign: 'left', fontSize: '13px', color: '#334155', cursor: 'pointer' }} onMouseOver={e => e.currentTarget.style.background = '#F8FAFC'} onMouseOut={e => e.currentTarget.style.background = 'transparent'}>Mark Past Due</button>
+
+                                                <div style={{ height: '1px', background: '#E2E8F0', margin: '4px 0' }}></div>
+
+                                                <button onClick={() => {
+                                                    setOpenActionId(null);
+                                                    if (window.confirm('Suspending this subscription will block tenant access. Continue?')) {
+                                                        setSubs(subs.map(s => s.id === sub.id ? { ...s, status: 'Suspended' } : s));
+                                                    }
+                                                }} style={{ display: 'block', width: '100%', padding: '10px 14px', background: 'none', border: 'none', textAlign: 'left', fontSize: '13px', color: '#EF4444', cursor: 'pointer' }} onMouseOver={e => e.currentTarget.style.background = '#FEF2F2'} onMouseOut={e => e.currentTarget.style.background = 'transparent'}>Suspend Subscription</button>
+                                            </div>
+                                        )}
                                     </td>
                                 </tr>
                             ))}
@@ -94,11 +144,13 @@ export default function SubscriptionsPage() {
 
                 {/* Mobile Cards */}
                 <div className="sub-mob">
-                    {SUBS.map((sub, i) => (
+                    {filteredSubs.length === 0 ? (
+                        <div style={{ padding: '30px', textAlign: 'center', color: '#64748B', fontSize: '14px' }}>No subscriptions found.</div>
+                    ) : filteredSubs.map((sub, i) => (
                         <div key={i} style={{ padding: '16px 20px', borderBottom: '1px solid #F1F5F9' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px', marginBottom: '6px' }}>
                                 <div style={{ fontWeight: 600, color: '#0F172A', fontSize: '14px', minWidth: 0 }}>{sub.name}</div>
-                                <span style={{ padding: '3px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: 600, background: sub.status === 'Active' ? '#ECFDF5' : '#FEF2F2', color: sub.status === 'Active' ? '#059669' : '#DC2626', whiteSpace: 'nowrap', flexShrink: 0 }}>{sub.status}</span>
+                                <span style={{ padding: '3px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: 600, background: sub.status === 'Active' ? '#ECFDF5' : (sub.status === 'Suspended' ? '#FEF2F2' : '#FFFBEB'), color: sub.status === 'Active' ? '#059669' : (sub.status === 'Suspended' ? '#DC2626' : '#D97706'), whiteSpace: 'nowrap', flexShrink: 0 }}>{sub.status}</span>
                             </div>
                             <div style={{ fontSize: '12px', color: '#64748B', marginBottom: '8px' }}>{sub.id}</div>
                             <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>

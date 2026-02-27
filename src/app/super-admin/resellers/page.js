@@ -14,6 +14,22 @@ export default function ResellersPage() {
     const [isResellerModalOpen, setIsResellerModalOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [openActionId, setOpenActionId] = useState(null);
+    const [modalAction, setModalAction] = useState('create');
+    const [editingResellerName, setEditingResellerName] = useState(null);
+
+    const openCreateModal = () => {
+        setModalAction('create');
+        setEditingResellerName(null);
+        setIsResellerModalOpen(true);
+    };
+
+    const openEditModal = (resellerName) => {
+        setModalAction('edit');
+        setEditingResellerName(resellerName);
+        setIsResellerModalOpen(true);
+    };
+
+    const editingReseller = resellers.find(r => r.name === editingResellerName);
 
     const filteredResellers = resellers.filter(r =>
         r.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -25,16 +41,25 @@ export default function ResellersPage() {
         e.preventDefault();
         const formData = new FormData(e.target);
 
-        const newReseller = {
-            name: formData.get('agencyName'),
-            contact: formData.get('contactName'),
-            email: formData.get('email'),
-            hospitals: 0,
-            revShare: `${formData.get('revShare')}%`,
-            status: 'Active'
-        };
-
-        setResellers([newReseller, ...resellers]);
+        if (modalAction === 'create') {
+            const newReseller = {
+                name: formData.get('agencyName'),
+                contact: formData.get('contactName'),
+                email: formData.get('email'),
+                hospitals: 0,
+                revShare: `${formData.get('revShare')}%`,
+                status: 'Active'
+            };
+            setResellers([newReseller, ...resellers]);
+        } else {
+            setResellers(resellers.map(r => r.name === editingResellerName ? {
+                ...r,
+                name: formData.get('agencyName'),
+                contact: formData.get('contactName'),
+                email: formData.get('email'),
+                revShare: `${formData.get('revShare')}%`
+            } : r));
+        }
         setIsResellerModalOpen(false);
     };
 
@@ -47,7 +72,7 @@ export default function ResellersPage() {
                     <p style={{ color: '#64748B', margin: 0, fontSize: '14px' }}>Manage your agency network, their commissioned tenants, and revenue shares.</p>
                 </div>
                 <div>
-                    <button onClick={() => setIsResellerModalOpen(true)} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: '#10B981', color: '#FFFFFF', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', boxShadow: '0 4px 12px rgba(16,185,129,0.2)' }}>
+                    <button onClick={openCreateModal} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: '#10B981', color: '#FFFFFF', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', boxShadow: '0 4px 12px rgba(16,185,129,0.2)' }}>
                         <Plus size={16} /> Add Reseller
                     </button>
                 </div>
@@ -116,7 +141,7 @@ export default function ResellersPage() {
                                         {/* Row Actions Dropdown */}
                                         {openActionId === r.name && (
                                             <div style={{ position: 'absolute', top: '100%', right: '20px', marginTop: '4px', background: 'white', border: '1px solid #E2E8F0', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', minWidth: '160px', zIndex: 10, overflow: 'hidden', textAlign: 'left' }}>
-                                                <button onClick={() => { setOpenActionId(null); alert('Opening edit modal...'); }} style={{ display: 'block', width: '100%', padding: '10px 14px', background: 'none', border: 'none', textAlign: 'left', fontSize: '13px', color: '#334155', cursor: 'pointer' }} onMouseOver={e => e.currentTarget.style.background = '#F8FAFC'} onMouseOut={e => e.currentTarget.style.background = 'transparent'}>Edit Partner</button>
+                                                <button onClick={() => { setOpenActionId(null); openEditModal(r.name); }} style={{ display: 'block', width: '100%', padding: '10px 14px', background: 'none', border: 'none', textAlign: 'left', fontSize: '13px', color: '#334155', cursor: 'pointer' }} onMouseOver={e => e.currentTarget.style.background = '#F8FAFC'} onMouseOut={e => e.currentTarget.style.background = 'transparent'}>Edit Partner</button>
                                                 <button onClick={() => {
                                                     setOpenActionId(null);
                                                     if (window.confirm('Are you sure you want to disable this partner?')) {
@@ -173,7 +198,9 @@ export default function ResellersPage() {
 
                         {/* Header */}
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 24px', borderBottom: '1px solid #E2E8F0' }}>
-                            <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#0F172A', margin: 0 }}>Onboard New Reseller</h2>
+                            <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#0F172A', margin: 0 }}>
+                                {modalAction === 'create' ? 'Onboard New Reseller' : 'Edit Reseller Details'}
+                            </h2>
                             <button onClick={() => setIsResellerModalOpen(false)} style={{ background: 'none', border: 'none', color: '#64748B', cursor: 'pointer', padding: '4px' }}>
                                 <X size={20} />
                             </button>
@@ -184,23 +211,23 @@ export default function ResellersPage() {
                             <form id="reseller-form" onSubmit={handleOnboard} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                                 <div>
                                     <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Agency / Company Name</label>
-                                    <input required name="agencyName" type="text" placeholder="e.g. CareLogic IT Solutions" style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} onFocus={(e) => e.currentTarget.style.borderColor = '#10B981'} onBlur={(e) => e.currentTarget.style.borderColor = '#E2E8F0'} />
+                                    <input defaultValue={editingReseller?.name} required name="agencyName" type="text" placeholder="e.g. CareLogic IT Solutions" style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} onFocus={(e) => e.currentTarget.style.borderColor = '#10B981'} onBlur={(e) => e.currentTarget.style.borderColor = '#E2E8F0'} />
                                 </div>
 
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                                     <div>
                                         <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Primary Contact Name</label>
-                                        <input required name="contactName" type="text" placeholder="e.g. Anita Desai" style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} onFocus={(e) => e.currentTarget.style.borderColor = '#10B981'} onBlur={(e) => e.currentTarget.style.borderColor = '#E2E8F0'} />
+                                        <input defaultValue={editingReseller?.contact} required name="contactName" type="text" placeholder="e.g. Anita Desai" style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} onFocus={(e) => e.currentTarget.style.borderColor = '#10B981'} onBlur={(e) => e.currentTarget.style.borderColor = '#E2E8F0'} />
                                     </div>
                                     <div>
                                         <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Revenue Share (%)</label>
-                                        <input required name="revShare" type="number" placeholder="20" defaultValue={20} style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} onFocus={(e) => e.currentTarget.style.borderColor = '#10B981'} onBlur={(e) => e.currentTarget.style.borderColor = '#E2E8F0'} />
+                                        <input defaultValue={editingReseller ? parseInt(editingReseller.revShare) : 20} required name="revShare" type="number" placeholder="20" style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} onFocus={(e) => e.currentTarget.style.borderColor = '#10B981'} onBlur={(e) => e.currentTarget.style.borderColor = '#E2E8F0'} />
                                     </div>
                                 </div>
 
                                 <div>
                                     <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Contact Email Address</label>
-                                    <input required name="email" type="email" placeholder="anita@carelogic.com" style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} onFocus={(e) => e.currentTarget.style.borderColor = '#10B981'} onBlur={(e) => e.currentTarget.style.borderColor = '#E2E8F0'} />
+                                    <input defaultValue={editingReseller?.email} required name="email" type="email" placeholder="anita@carelogic.com" style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} onFocus={(e) => e.currentTarget.style.borderColor = '#10B981'} onBlur={(e) => e.currentTarget.style.borderColor = '#E2E8F0'} />
                                     <p style={{ fontSize: '12px', color: '#94A3B8', marginTop: '6px' }}>An invitation link will be sent to this email to setup their partner portal.</p>
                                 </div>
                             </form>
@@ -212,7 +239,7 @@ export default function ResellersPage() {
                                 Cancel
                             </button>
                             <button type="submit" form="reseller-form" style={{ padding: '10px 16px', background: '#10B981', color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>
-                                Onboard Reseller
+                                {modalAction === 'create' ? 'Onboard Reseller' : 'Save Changes'}
                             </button>
                         </div>
                     </div>

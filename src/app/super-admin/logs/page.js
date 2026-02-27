@@ -1,5 +1,5 @@
-'use client';
-import { Activity, Server, Database, HardDrive, RefreshCcw } from 'lucide-react';
+import { useState } from 'react';
+import { Activity, Server, Database, HardDrive, RefreshCcw, Loader2 } from 'lucide-react';
 
 function TerminalSquare() {
     return <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m7 11 2-2-2-2"></path><path d="M11 13h4"></path><rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect></svg>;
@@ -17,6 +17,37 @@ const LOGS = [
 ];
 
 export default function LogsPage() {
+    const [logs, setLogs] = useState(LOGS);
+    const [isRefreshing, setIsRefreshing] = useState(false);
+    const [isRestarting, setIsRestarting] = useState(false);
+
+    const handleRefresh = () => {
+        setIsRefreshing(true);
+        setTimeout(() => {
+            const num1 = Math.floor(Math.random() * 50);
+            const num2 = Math.floor(Math.random() * 10);
+            setLogs(prev => [
+                ...prev,
+                { time: new Date().toISOString().substring(0, 19), level: 'INFO', msg: `[AUTH] ${num1} active JWTs verified in last 2m window.`, color: '#3B82F6' },
+                { time: new Date().toISOString().substring(0, 19), level: 'WARN', msg: `[API-GW] Rate limit approached for tenant ip: 10.0.${num2}.1`, color: '#F59E0B' }
+            ]);
+            setIsRefreshing(false);
+        }, 1200);
+    };
+
+    const handleRestart = () => {
+        if (window.confirm("WARNING: Are you sure you want to initiate a rolling restart of the database cluster?")) {
+            setIsRestarting(true);
+            setTimeout(() => {
+                setIsRestarting(false);
+                setLogs(prev => [
+                    ...prev,
+                    { time: new Date().toISOString().substring(0, 19), level: 'INFO', msg: '[CLUSTER] Manual cluster rolling restart initiated by super-admin.', color: '#10B981' }
+                ]);
+            }, 2500);
+        }
+    };
+
     return (
         <div className="fade-in">
             {/* Page Header */}
@@ -26,11 +57,11 @@ export default function LogsPage() {
                     <p style={{ color: '#64748B', margin: 0, fontSize: '14px' }}>Real-time AWS infrastructure metrics and global error logs.</p>
                 </div>
                 <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                    <button onClick={() => alert('Refreshing server logs...')} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'white', border: '1px solid #E2E8F0', color: '#0F172A', padding: '10px 14px', borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>
-                        <RefreshCcw size={16} /> Refresh
+                    <button onClick={handleRefresh} disabled={isRefreshing} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'white', border: '1px solid #E2E8F0', color: '#0F172A', padding: '10px 14px', borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: isRefreshing ? 'wait' : 'pointer', opacity: isRefreshing ? 0.7 : 1 }}>
+                        {isRefreshing ? <Loader2 size={16} className="spin" /> : <RefreshCcw size={16} />} Refresh
                     </button>
-                    <button onClick={() => alert('WARNING: Initiating rolling restart of the database cluster.')} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#DC2626', color: 'white', padding: '10px 14px', borderRadius: '8px', fontSize: '14px', fontWeight: 600, border: 'none', cursor: 'pointer' }}>
-                        Restart Cluster
+                    <button onClick={handleRestart} disabled={isRestarting} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#DC2626', color: 'white', padding: '10px 14px', borderRadius: '8px', fontSize: '14px', fontWeight: 600, border: 'none', cursor: isRestarting ? 'wait' : 'pointer', opacity: isRestarting ? 0.7 : 1 }}>
+                        {isRestarting ? <Loader2 size={16} className="spin" /> : 'Restart Cluster'}
                     </button>
                 </div>
             </div>
@@ -80,8 +111,8 @@ export default function LogsPage() {
                     </div>
                 </div>
                 <div style={{ padding: '20px', fontFamily: 'monospace', fontSize: '13px', color: '#94A3B8', lineHeight: 1.7, height: '380px', overflowY: 'auto', overflowX: 'auto' }}>
-                    {LOGS.map((log, i) => (
-                        <div key={i} style={{ display: 'flex', gap: '12px', marginBottom: '6px', borderBottom: '1px solid rgba(255,255,255,0.04)', paddingBottom: '4px', flexWrap: 'wrap' }}>
+                    {logs.map((log, i) => (
+                        <div key={i} style={{ display: 'flex', gap: '12px', marginBottom: '6px', borderBottom: '1px solid rgba(255,255,255,0.04)', paddingBottom: '4px', flexWrap: 'wrap', animation: 'fadeInBottom 0.3s ease-out' }}>
                             <span style={{ color: '#64748B', whiteSpace: 'nowrap', fontSize: '12px' }}>{log.time}</span>
                             <span style={{ color: log.color, fontWeight: 700, minWidth: '50px', fontSize: '12px' }}>{log.level}</span>
                             <span style={{ color: '#E2E8F0', wordBreak: 'break-word', flex: 1, minWidth: '0', fontSize: '12px' }}>{log.msg}</span>
@@ -99,6 +130,17 @@ export default function LogsPage() {
                     0% { opacity: 1; }
                     50% { opacity: 0.3; }
                     100% { opacity: 1; }
+                }
+                @keyframes fadeInBottom {
+                    from { opacity: 0; transform: translateY(4px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                .spin {
+                    animation: spin 1s linear infinite;
+                }
+                @keyframes spin {
+                    from { transform: rotate(0deg); }
+                    to { transform: rotate(360deg); }
                 }
             `}</style>
         </div>

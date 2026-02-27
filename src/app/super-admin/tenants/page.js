@@ -18,6 +18,22 @@ export default function TenantsPage() {
     const [statusFilter, setStatusFilter] = useState('All');
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [openActionId, setOpenActionId] = useState(null);
+    const [modalAction, setModalAction] = useState('create');
+    const [editingTenantId, setEditingTenantId] = useState(null);
+
+    const openCreateModal = () => {
+        setModalAction('create');
+        setEditingTenantId(null);
+        setIsProvisionModalOpen(true);
+    };
+
+    const openEditModal = (tenantId) => {
+        setModalAction('edit');
+        setEditingTenantId(tenantId);
+        setIsProvisionModalOpen(true);
+    };
+
+    const editingTenant = tenants.find(t => t.id === editingTenantId);
 
     const filteredTenants = tenants.filter(t => {
         const matchesSearch = t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -37,18 +53,27 @@ export default function TenantsPage() {
             'enterprise': 'Enterprise Tier'
         };
 
-        const newTenant = {
-            name: formData.get('hospitalName'),
-            id: `TEN-${Math.floor(1000 + Math.random() * 9000)}`,
-            domain: `${formData.get('subdomain')}.your-domain.com`,
-            plan: planMapping[formData.get('plan')],
-            users: '1',
-            status: 'Active',
-            badge: '#10B981',
-            bg: 'rgba(16,185,129,0.1)'
-        };
+        if (modalAction === 'create') {
+            const newTenant = {
+                name: formData.get('hospitalName'),
+                id: `TEN-${Math.floor(1000 + Math.random() * 9000)}`,
+                domain: `${formData.get('subdomain')}.your-domain.com`,
+                plan: planMapping[formData.get('plan')],
+                users: '1',
+                status: 'Active',
+                badge: '#10B981',
+                bg: 'rgba(16,185,129,0.1)'
+            };
+            setTenants([newTenant, ...tenants]);
+        } else {
+            setTenants(tenants.map(t => t.id === editingTenantId ? {
+                ...t,
+                name: formData.get('hospitalName'),
+                domain: `${formData.get('subdomain')}.your-domain.com`,
+                plan: planMapping[formData.get('plan')]
+            } : t));
+        }
 
-        setTenants([newTenant, ...tenants]);
         setIsProvisionModalOpen(false);
     };
 
@@ -61,7 +86,7 @@ export default function TenantsPage() {
                     <p style={{ color: '#64748B', margin: 0, fontSize: '14px' }}>Manage hospital accounts, provision new instances, and govern licenses.</p>
                 </div>
                 <div>
-                    <button onClick={() => setIsProvisionModalOpen(true)} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: '#10B981', color: '#FFFFFF', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', boxShadow: '0 4px 12px rgba(16,185,129,0.2)' }}>
+                    <button onClick={openCreateModal} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: '#10B981', color: '#FFFFFF', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', boxShadow: '0 4px 12px rgba(16,185,129,0.2)' }}>
                         <Plus size={16} /> Provision New Hospital
                     </button>
                 </div>
@@ -132,13 +157,13 @@ export default function TenantsPage() {
                                         </span>
                                     </td>
                                     <td style={{ padding: '14px 20px', textAlign: 'right', position: 'relative' }}>
-                                        <button onClick={() => alert(`Managing configuration for ${row.name}...`)} style={{ padding: '7px 14px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '6px', fontSize: '13px', fontWeight: 600, color: '#0F172A', cursor: 'pointer', marginRight: '6px' }}>Manage</button>
+                                        <button onClick={() => openEditModal(row.id)} style={{ padding: '7px 14px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '6px', fontSize: '13px', fontWeight: 600, color: '#0F172A', cursor: 'pointer', marginRight: '6px' }}>Manage</button>
                                         <button onClick={() => setOpenActionId(openActionId === row.id ? null : row.id)} style={{ padding: '7px', background: openActionId === row.id ? '#F8FAFC' : 'none', border: openActionId === row.id ? '1px solid #E2E8F0' : '1px solid transparent', color: '#94A3B8', cursor: 'pointer', borderRadius: '6px' }}><MoreVertical size={16} /></button>
 
                                         {/* Row Actions Dropdown */}
                                         {openActionId === row.id && (
                                             <div style={{ position: 'absolute', top: '100%', right: '20px', marginTop: '4px', background: 'white', border: '1px solid #E2E8F0', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', minWidth: '160px', zIndex: 10, overflow: 'hidden', textAlign: 'left' }}>
-                                                <button onClick={() => { setOpenActionId(null); alert('Opening edit modal...'); }} style={{ display: 'block', width: '100%', padding: '10px 14px', background: 'none', border: 'none', textAlign: 'left', fontSize: '13px', color: '#334155', cursor: 'pointer' }} onMouseOver={e => e.currentTarget.style.background = '#F8FAFC'} onMouseOut={e => e.currentTarget.style.background = 'transparent'}>Edit Details</button>
+                                                <button onClick={() => { setOpenActionId(null); openEditModal(row.id); }} style={{ display: 'block', width: '100%', padding: '10px 14px', background: 'none', border: 'none', textAlign: 'left', fontSize: '13px', color: '#334155', cursor: 'pointer' }} onMouseOver={e => e.currentTarget.style.background = '#F8FAFC'} onMouseOut={e => e.currentTarget.style.background = 'transparent'}>Edit Details</button>
                                                 <button onClick={() => {
                                                     setOpenActionId(null);
                                                     if (window.confirm('Are you sure you want to suspend this tenant?')) {
@@ -183,7 +208,7 @@ export default function TenantsPage() {
                                     </a>
                                 </div>
                                 <div style={{ display: 'flex', gap: '8px' }}>
-                                    <button onClick={() => alert(`Managing ${row.name}...`)} style={{ padding: '6px 12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '6px', fontSize: '12px', fontWeight: 600, color: '#0F172A', cursor: 'pointer' }}>Manage</button>
+                                    <button onClick={() => openEditModal(row.id)} style={{ padding: '6px 12px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '6px', fontSize: '12px', fontWeight: 600, color: '#0F172A', cursor: 'pointer' }}>Manage</button>
                                 </div>
                             </div>
                         </div>
@@ -205,7 +230,9 @@ export default function TenantsPage() {
 
                         {/* Header */}
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 24px', borderBottom: '1px solid #E2E8F0' }}>
-                            <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#0F172A', margin: 0 }}>Provision New Tenant</h2>
+                            <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#0F172A', margin: 0 }}>
+                                {modalAction === 'create' ? 'Provision New Tenant' : 'Edit Tenant Details'}
+                            </h2>
                             <button onClick={() => setIsProvisionModalOpen(false)} style={{ background: 'none', border: 'none', color: '#64748B', cursor: 'pointer', padding: '4px' }}>
                                 <X size={20} />
                             </button>
@@ -216,13 +243,13 @@ export default function TenantsPage() {
                             <form id="provision-form" onSubmit={handleProvision} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                                 <div>
                                     <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Hospital Name</label>
-                                    <input required name="hospitalName" type="text" placeholder="e.g. Apex General Hospital" style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} onFocus={(e) => e.currentTarget.style.borderColor = '#10B981'} onBlur={(e) => e.currentTarget.style.borderColor = '#E2E8F0'} />
+                                    <input defaultValue={editingTenant?.name} required name="hospitalName" type="text" placeholder="e.g. Apex General Hospital" style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} onFocus={(e) => e.currentTarget.style.borderColor = '#10B981'} onBlur={(e) => e.currentTarget.style.borderColor = '#E2E8F0'} />
                                 </div>
 
                                 <div>
                                     <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Subdomain</label>
                                     <div style={{ display: 'flex', alignItems: 'center', border: '1px solid #E2E8F0', borderRadius: '8px', overflow: 'hidden' }}>
-                                        <input required name="subdomain" type="text" placeholder="apexgeneral" style={{ flex: 1, padding: '10px 12px', border: 'none', fontSize: '14px', outline: 'none', minWidth: 0 }} />
+                                        <input defaultValue={editingTenant?.domain?.split('.')[0]} required name="subdomain" type="text" placeholder="apexgeneral" style={{ flex: 1, padding: '10px 12px', border: 'none', fontSize: '14px', outline: 'none', minWidth: 0 }} />
                                         <div style={{ padding: '10px 12px', background: '#F8FAFC', color: '#64748B', fontSize: '14px', fontWeight: 500, borderLeft: '1px solid #E2E8F0' }}>
                                             .your-domain.com
                                         </div>
@@ -232,12 +259,12 @@ export default function TenantsPage() {
 
                                 <div>
                                     <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Admin Email Address</label>
-                                    <input required name="adminEmail" type="email" placeholder="admin@apexgeneral.com" style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} onFocus={(e) => e.currentTarget.style.borderColor = '#10B981'} onBlur={(e) => e.currentTarget.style.borderColor = '#E2E8F0'} />
+                                    <input defaultValue={editingTenant ? `admin@${editingTenant.domain.split('.')[0]}.com` : ''} required name="adminEmail" type="email" placeholder="admin@apexgeneral.com" style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} onFocus={(e) => e.currentTarget.style.borderColor = '#10B981'} onBlur={(e) => e.currentTarget.style.borderColor = '#E2E8F0'} />
                                 </div>
 
                                 <div>
                                     <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Subscription Plan</label>
-                                    <select required name="plan" style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', background: 'white', boxSizing: 'border-box' }}>
+                                    <select defaultValue={editingTenant?.plan.includes('Enterprise') ? 'enterprise' : (editingTenant?.plan.includes('Pro') ? 'pro' : 'starter')} required name="plan" style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', background: 'white', boxSizing: 'border-box' }}>
                                         <option value="starter">Starter Tier (₹4,999/mo)</option>
                                         <option value="pro">Pro Tier (₹12,999/mo)</option>
                                         <option value="enterprise">Enterprise Tier (Custom)</option>
@@ -252,7 +279,7 @@ export default function TenantsPage() {
                                 Cancel
                             </button>
                             <button type="submit" form="provision-form" style={{ padding: '10px 16px', background: '#10B981', color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>
-                                Provision Tenant
+                                {modalAction === 'create' ? 'Provision Tenant' : 'Save Changes'}
                             </button>
                         </div>
                     </div>
