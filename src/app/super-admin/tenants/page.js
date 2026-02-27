@@ -1,5 +1,6 @@
 'use client';
-import { Building, Plus, Search, Filter, MoreVertical, ShieldCheck, Clock, ExternalLink } from 'lucide-react';
+import { useState } from 'react';
+import { Building, Plus, Search, Filter, MoreVertical, ShieldCheck, Clock, ExternalLink, X } from 'lucide-react';
 import Link from 'next/link';
 
 const TENANTS = [
@@ -11,6 +12,8 @@ const TENANTS = [
 ];
 
 export default function TenantsPage() {
+    const [isProvisionModalOpen, setIsProvisionModalOpen] = useState(false);
+
     return (
         <div className="fade-in">
             {/* Page Header */}
@@ -20,7 +23,7 @@ export default function TenantsPage() {
                     <p style={{ color: '#64748B', margin: 0, fontSize: '14px' }}>Manage hospital accounts, provision new instances, and govern licenses.</p>
                 </div>
                 <div>
-                    <button onClick={() => alert('Provisioning flow initializing...')} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: '#10B981', color: '#FFFFFF', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', boxShadow: '0 4px 12px rgba(16,185,129,0.2)' }}>
+                    <button onClick={() => setIsProvisionModalOpen(true)} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: '#10B981', color: '#FFFFFF', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', boxShadow: '0 4px 12px rgba(16,185,129,0.2)' }}>
                         <Plus size={16} /> Provision New Hospital
                     </button>
                 </div>
@@ -102,6 +105,74 @@ export default function TenantsPage() {
                     ))}
                 </div>
             </div>
+
+            {/* Provision Modal */}
+            {isProvisionModalOpen && (
+                <div style={{ position: 'fixed', inset: 0, zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
+                    {/* Backdrop */}
+                    <div
+                        style={{ position: 'absolute', inset: 0, background: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(4px)' }}
+                        onClick={() => setIsProvisionModalOpen(false)}
+                    />
+
+                    {/* Modal Content */}
+                    <div style={{ position: 'relative', background: '#FFFFFF', borderRadius: '16px', width: '100%', maxWidth: '500px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)', display: 'flex', flexDirection: 'column', maxHeight: '90vh' }}>
+
+                        {/* Header */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 24px', borderBottom: '1px solid #E2E8F0' }}>
+                            <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#0F172A', margin: 0 }}>Provision New Tenant</h2>
+                            <button onClick={() => setIsProvisionModalOpen(false)} style={{ background: 'none', border: 'none', color: '#64748B', cursor: 'pointer', padding: '4px' }}>
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        {/* Body / Form */}
+                        <div style={{ padding: '24px', overflowY: 'auto' }}>
+                            <form id="provision-form" onSubmit={(e) => { e.preventDefault(); alert('Hospital provisioned successfully!'); setIsProvisionModalOpen(false); }} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Hospital Name</label>
+                                    <input required type="text" placeholder="e.g. Apex General Hospital" style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} onFocus={(e) => e.currentTarget.style.borderColor = '#10B981'} onBlur={(e) => e.currentTarget.style.borderColor = '#E2E8F0'} />
+                                </div>
+
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Subdomain</label>
+                                    <div style={{ display: 'flex', alignItems: 'center', border: '1px solid #E2E8F0', borderRadius: '8px', overflow: 'hidden' }}>
+                                        <input required type="text" placeholder="apexgeneral" style={{ flex: 1, padding: '10px 12px', border: 'none', fontSize: '14px', outline: 'none', minWidth: 0 }} />
+                                        <div style={{ padding: '10px 12px', background: '#F8FAFC', color: '#64748B', fontSize: '14px', fontWeight: 500, borderLeft: '1px solid #E2E8F0' }}>
+                                            .nexora.health
+                                        </div>
+                                    </div>
+                                    <p style={{ fontSize: '12px', color: '#94A3B8', marginTop: '6px' }}>This will be the hospital's dedicated login URL.</p>
+                                </div>
+
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Admin Email Address</label>
+                                    <input required type="email" placeholder="admin@apexgeneral.com" style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} onFocus={(e) => e.currentTarget.style.borderColor = '#10B981'} onBlur={(e) => e.currentTarget.style.borderColor = '#E2E8F0'} />
+                                </div>
+
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Subscription Plan</label>
+                                    <select style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', background: 'white', boxSizing: 'border-box' }}>
+                                        <option value="starter">Starter Tier (₹4,999/mo)</option>
+                                        <option value="pro">Pro Tier (₹12,999/mo)</option>
+                                        <option value="enterprise">Enterprise Tier (Custom)</option>
+                                    </select>
+                                </div>
+                            </form>
+                        </div>
+
+                        {/* Footer */}
+                        <div style={{ padding: '16px 24px', borderTop: '1px solid #E2E8F0', background: '#F8FAFC', display: 'flex', justifyContent: 'flex-end', gap: '12px', borderRadius: '0 0 16px 16px' }}>
+                            <button onClick={() => setIsProvisionModalOpen(false)} type="button" style={{ padding: '10px 16px', background: 'white', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', fontWeight: 600, color: '#475569', cursor: 'pointer' }}>
+                                Cancel
+                            </button>
+                            <button type="submit" form="provision-form" style={{ padding: '10px 16px', background: '#10B981', color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>
+                                Provision Tenant
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <style>{`
                 .tenant-dt { display: block; }
