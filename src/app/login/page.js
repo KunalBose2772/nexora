@@ -3,10 +3,13 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { ShieldCheck, Eye, EyeOff, CheckCircle2 } from 'lucide-react';
 
 export default function LoginPage() {
     const [showPassword, setShowPassword] = useState(false);
+    const [role, setRole] = useState('hospital');
+    const router = useRouter();
 
     const FEATURES = [
         'Complete EMR with ICD-10 coding',
@@ -169,16 +172,52 @@ export default function LoginPage() {
                             Sign in to your account
                         </h2>
                         <p style={{ fontSize: '13.5px', color: '#64748B', marginBottom: '28px', lineHeight: 1.6 }}>
-                            Enter your credentials to access your hospital panel.
+                            Enter your credentials to access your {role === 'superadmin' ? 'platform' : 'hospital'} panel.
                         </p>
 
-                        <form aria-label="Sign in form" noValidate>
+                        <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', background: '#F1F5F9', padding: '4px', borderRadius: '10px' }}>
+                            <button
+                                type="button"
+                                onClick={() => setRole('hospital')}
+                                style={{
+                                    flex: 1, padding: '8px', border: 'none', borderRadius: '6px',
+                                    fontSize: '13px', fontWeight: 600, cursor: 'pointer', transition: 'all 150ms',
+                                    background: role === 'hospital' ? '#FFFFFF' : 'transparent',
+                                    color: role === 'hospital' ? '#0F172A' : '#64748B',
+                                    boxShadow: role === 'hospital' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                                }}
+                            >
+                                Hospital Admin
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setRole('superadmin')}
+                                style={{
+                                    flex: 1, padding: '8px', border: 'none', borderRadius: '6px',
+                                    fontSize: '13px', fontWeight: 600, cursor: 'pointer', transition: 'all 150ms',
+                                    background: role === 'superadmin' ? '#FFFFFF' : 'transparent',
+                                    color: role === 'superadmin' ? '#0F172A' : '#64748B',
+                                    boxShadow: role === 'superadmin' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                                }}
+                            >
+                                Super Admin
+                            </button>
+                        </div>
+
+                        <form aria-label="Sign in form" noValidate onSubmit={(e) => {
+                            e.preventDefault();
+                            if (role === 'superadmin') {
+                                router.push('/super-admin');
+                            } else {
+                                router.push('/dashboard');
+                            }
+                        }}>
                             <div className="form-group" style={{ marginBottom: '16px' }}>
                                 <label htmlFor="email" className="form-label">Email Address</label>
                                 <input
                                     id="email" name="email" type="email" required
                                     autoComplete="email"
-                                    placeholder="doctor@hospital.com"
+                                    placeholder={role === 'superadmin' ? "admin@globalwebify.com" : "doctor@hospital.com"}
                                     className="form-input"
                                     aria-required="true"
                                 />
@@ -222,21 +261,21 @@ export default function LoginPage() {
                                 </a>
                             </div>
 
-                            <Link
-                                href="/dashboard"
+                            <button
+                                type="submit"
                                 id="sign-in-btn"
                                 style={{
                                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                                     gap: '8px', width: '100%', padding: '13px',
-                                    background: 'linear-gradient(135deg, #0A2E4D 0%, #071220 100%)',
+                                    background: role === 'superadmin' ? 'linear-gradient(135deg, #064E3B 0%, #065F46 100%)' : 'linear-gradient(135deg, #0A2E4D 0%, #071220 100%)',
                                     color: 'white', fontWeight: 700, fontSize: '15px',
-                                    borderRadius: '10px', textDecoration: 'none',
+                                    borderRadius: '10px', textDecoration: 'none', border: 'none', cursor: 'pointer',
                                     transition: 'opacity 150ms', marginBottom: '16px',
-                                    boxShadow: '0 4px 14px rgba(10,46,77,0.35)',
+                                    boxShadow: role === 'superadmin' ? '0 4px 14px rgba(6,78,59,0.35)' : '0 4px 14px rgba(10,46,77,0.35)',
                                 }}
                             >
                                 Sign In
-                            </Link>
+                            </button>
                         </form>
 
                         {/* Divider */}
