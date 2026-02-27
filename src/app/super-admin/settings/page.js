@@ -4,7 +4,7 @@ import { Settings, Shield, Server, Bell, Database, Key } from 'lucide-react';
 
 export default function PlatformSettingsPage() {
     return (
-        <div style={{ padding: '24px', maxWidth: '1000px', margin: '0 auto' }}>
+        <div style={{ padding: '24px', maxWidth: '1400px', margin: '0 auto' }}>
             <div style={{ marginBottom: '24px' }}>
                 <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#0F172A', marginBottom: '4px' }}>Platform Settings</h1>
                 <p style={{ fontSize: '14px', color: '#64748B' }}>Manage global configurations, security policies, and integrations.</p>
@@ -43,15 +43,15 @@ export default function PlatformSettingsPage() {
                     <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
                         <div>
                             <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Platform Name</label>
-                            <input type="text" defaultValue="Nexora Health SaaS" style={{ width: '100%', maxWidth: '400px', padding: '10px', border: '1px solid #E2E8F0', borderRadius: '6px', fontSize: '14px', outline: 'none' }} />
+                            <input type="text" defaultValue="Nexora Health SaaS" style={{ width: '100%', maxWidth: '500px', padding: '10px', border: '1px solid #E2E8F0', borderRadius: '6px', fontSize: '14px', outline: 'none' }} />
                         </div>
                         <div>
                             <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Support Email</label>
-                            <input type="email" defaultValue="support@globalwebify.com" style={{ width: '100%', maxWidth: '400px', padding: '10px', border: '1px solid #E2E8F0', borderRadius: '6px', fontSize: '14px', outline: 'none' }} />
+                            <input type="email" defaultValue="support@globalwebify.com" style={{ width: '100%', maxWidth: '500px', padding: '10px', border: '1px solid #E2E8F0', borderRadius: '6px', fontSize: '14px', outline: 'none' }} />
                         </div>
                         <div>
                             <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Platform Default Currency</label>
-                            <select style={{ width: '100%', maxWidth: '400px', padding: '10px', border: '1px solid #E2E8F0', borderRadius: '6px', fontSize: '14px', outline: 'none', background: 'white' }}>
+                            <select style={{ width: '100%', maxWidth: '500px', padding: '10px', border: '1px solid #E2E8F0', borderRadius: '6px', fontSize: '14px', outline: 'none', background: 'white' }}>
                                 <option>INR (₹)</option>
                                 <option>USD ($)</option>
                                 <option>EUR (€)</option>
