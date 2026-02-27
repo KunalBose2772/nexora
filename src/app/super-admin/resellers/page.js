@@ -109,7 +109,7 @@ export default function ResellersPage() {
 
                 {/* Mobile Cards */}
                 <div className="reseller-mob">
-                    {RESELLERS.map((r, i) => (
+                    {resellers.map((r, i) => (
                         <div key={i} style={{ padding: '16px 20px', borderBottom: '1px solid #F1F5F9' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
                                 <div style={{ fontWeight: 600, color: '#0F172A', fontSize: '14px' }}>{r.name}</div>

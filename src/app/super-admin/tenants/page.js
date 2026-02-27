@@ -114,7 +114,7 @@ export default function TenantsPage() {
 
                 {/* Mobile Cards */}
                 <div className="tenant-mob">
-                    {TENANTS.map((row, i) => (
+                    {tenants.map((row, i) => (
                         <div key={i} style={{ padding: '16px 20px', borderBottom: '1px solid #F1F5F9' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px', marginBottom: '8px' }}>
                                 <div style={{ minWidth: 0 }}>
