@@ -1,9 +1,12 @@
 'use client';
 import { Building, ShieldCheck, Activity, Users, ArrowUpRight, TrendingUp, MonitorCheck, HardDrive, RefreshCcw, MoreVertical, CreditCard } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
 export default function SuperAdminDashboard() {
+    const router = useRouter();
+
     return (
         <div className="fade-in">
             <div className="saas-page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px', gap: '16px' }}>
@@ -14,7 +17,7 @@ export default function SuperAdminDashboard() {
                     </p>
                 </div>
                 <div>
-                    <button style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: '#10B981', color: '#FFFFFF', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', boxShadow: '0 4px 12px rgba(16,185,129,0.2)' }}>
+                    <button onClick={() => router.push('/super-admin/tenants')} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: '#10B981', color: '#FFFFFF', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', boxShadow: '0 4px 12px rgba(16,185,129,0.2)' }}>
                         <Building size={16} />
                         Onboard New Hospital
                     </button>
@@ -117,7 +120,7 @@ export default function SuperAdminDashboard() {
                                             </span>
                                         </td>
                                         <td style={{ padding: '14px 20px', textAlign: 'right' }}>
-                                            <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8' }}><MoreVertical size={18} /></button>
+                                            <button onClick={() => router.push('/super-admin/tenants')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8' }}><MoreVertical size={18} /></button>
                                         </td>
                                     </tr>
                                 ))}
@@ -152,7 +155,7 @@ export default function SuperAdminDashboard() {
                 <div style={{ background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)', padding: '24px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
                         <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: '#0F172A' }}>System Activity</h3>
-                        <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748B' }}><RefreshCcw size={16} /></button>
+                        <button onClick={() => router.refresh()} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748B', transition: 'transform 0.2s' }} onMouseEnter={e => e.currentTarget.style.transform = 'rotate(180deg)'} onMouseLeave={e => e.currentTarget.style.transform = 'rotate(0deg)'}><RefreshCcw size={16} /></button>
                     </div>
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -175,7 +178,7 @@ export default function SuperAdminDashboard() {
                             </div>
                         ))}
                     </div>
-                    <button style={{ width: '100%', padding: '12px', marginTop: '24px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', fontWeight: 600, color: '#475569', cursor: 'pointer' }}>
+                    <button onClick={() => router.push('/super-admin/logs')} style={{ width: '100%', padding: '12px', marginTop: '24px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', fontWeight: 600, color: '#475569', cursor: 'pointer', transition: 'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = '#F1F5F9'} onMouseLeave={e => e.currentTarget.style.background = '#F8FAFC'}>
                         View Full Logs
                     </button>
                 </div>

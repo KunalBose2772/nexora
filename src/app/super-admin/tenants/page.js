@@ -20,7 +20,7 @@ export default function TenantsPage() {
                     <p style={{ color: '#64748B', margin: 0, fontSize: '14px' }}>Manage hospital accounts, provision new instances, and govern licenses.</p>
                 </div>
                 <div>
-                    <button style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: '#10B981', color: '#FFFFFF', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', boxShadow: '0 4px 12px rgba(16,185,129,0.2)' }}>
+                    <button onClick={() => alert('Provisioning flow initializing...')} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: '#10B981', color: '#FFFFFF', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', boxShadow: '0 4px 12px rgba(16,185,129,0.2)' }}>
                         <Plus size={16} /> Provision New Hospital
                     </button>
                 </div>
@@ -33,7 +33,7 @@ export default function TenantsPage() {
                         <Search size={16} color="#94A3B8" style={{ position: 'absolute', left: '14px', top: '11px' }} />
                         <input type="text" placeholder="Search by Hospital Name, Domain, or Tenant ID..." style={{ width: '100%', padding: '10px 14px 10px 40px', border: '1px solid #E2E8F0', borderRadius: '8px', outline: 'none', fontSize: '14px', background: '#F8FAFC', boxSizing: 'border-box' }} onFocus={(e) => e.currentTarget.style.borderColor = '#10B981'} onBlur={(e) => e.currentTarget.style.borderColor = '#E2E8F0'} />
                     </div>
-                    <button style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 14px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', fontWeight: 500, color: '#475569', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                    <button onClick={() => alert('Advanced filters loaded.')} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 14px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', fontWeight: 500, color: '#475569', cursor: 'pointer', whiteSpace: 'nowrap' }}>
                         <Filter size={16} /> Filters
                     </button>
                 </div>
@@ -74,8 +74,8 @@ export default function TenantsPage() {
                                         </span>
                                     </td>
                                     <td style={{ padding: '14px 20px', textAlign: 'right' }}>
-                                        <button style={{ padding: '7px 14px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '6px', fontSize: '13px', fontWeight: 600, color: '#0F172A', cursor: 'pointer', marginRight: '6px' }}>Manage</button>
-                                        <button style={{ padding: '7px', background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer' }}><MoreVertical size={16} /></button>
+                                        <button onClick={() => alert('Accessing tenant configuration...')} style={{ padding: '7px 14px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '6px', fontSize: '13px', fontWeight: 600, color: '#0F172A', cursor: 'pointer', marginRight: '6px' }}>Manage</button>
+                                        <button onClick={() => alert('Opening tenant options...')} style={{ padding: '7px', background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer' }}><MoreVertical size={16} /></button>
                                     </td>
                                 </tr>
                             ))}

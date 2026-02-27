@@ -26,10 +26,10 @@ export default function LogsPage() {
                     <p style={{ color: '#64748B', margin: 0, fontSize: '14px' }}>Real-time AWS infrastructure metrics and global error logs.</p>
                 </div>
                 <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                    <button style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'white', border: '1px solid #E2E8F0', color: '#0F172A', padding: '10px 14px', borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>
+                    <button onClick={() => alert('Refreshing server logs...')} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'white', border: '1px solid #E2E8F0', color: '#0F172A', padding: '10px 14px', borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>
                         <RefreshCcw size={16} /> Refresh
                     </button>
-                    <button style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#DC2626', color: 'white', padding: '10px 14px', borderRadius: '8px', fontSize: '14px', fontWeight: 600, border: 'none', cursor: 'pointer' }}>
+                    <button onClick={() => alert('WARNING: Initiating rolling restart of the database cluster.')} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#DC2626', color: 'white', padding: '10px 14px', borderRadius: '8px', fontSize: '14px', fontWeight: 600, border: 'none', cursor: 'pointer' }}>
                         Restart Cluster
                     </button>
                 </div>

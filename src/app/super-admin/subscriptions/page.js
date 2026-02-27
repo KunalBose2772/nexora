@@ -18,7 +18,7 @@ export default function SubscriptionsPage() {
                     <p style={{ color: '#64748B', margin: 0, fontSize: '14px' }}>Monitor recurring billing, invoices, and payment statuses across all tenants.</p>
                 </div>
                 <div>
-                    <button style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', fontWeight: 600, color: '#0F172A', cursor: 'pointer' }}>
+                    <button onClick={() => alert('Exporting subscriptions as CSV...')} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', fontWeight: 600, color: '#0F172A', cursor: 'pointer' }}>
                         <Download size={16} /> Export CSV
                     </button>
                 </div>
@@ -84,7 +84,7 @@ export default function SubscriptionsPage() {
                                     </td>
                                     <td style={{ padding: '14px 20px', fontSize: '14px', color: '#64748B' }}>{sub.next}</td>
                                     <td style={{ padding: '14px 20px', textAlign: 'right' }}>
-                                        <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8' }}><MoreVertical size={16} /></button>
+                                        <button onClick={() => alert('View subscription details...')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8' }}><MoreVertical size={16} /></button>
                                     </td>
                                 </tr>
                             ))}

@@ -18,7 +18,7 @@ export default function PlansPage() {
                     <p style={{ color: '#64748B', margin: 0, fontSize: '14px' }}>Manage SaaS tiers, pricing, and feature access limits.</p>
                 </div>
                 <div>
-                    <button style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: '#10B981', color: '#FFFFFF', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', boxShadow: '0 4px 12px rgba(16,185,129,0.2)' }}>
+                    <button onClick={() => alert('New plan creation form initializing...')} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: '#10B981', color: '#FFFFFF', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', boxShadow: '0 4px 12px rgba(16,185,129,0.2)' }}>
                         <Plus size={16} /> Create New Plan
                     </button>
                 </div>
@@ -70,7 +70,7 @@ export default function PlansPage() {
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#64748B' }}>
                                 <Building size={13} /> {plan.tenantsCount} active tenants
                             </div>
-                            <button style={{ padding: '6px 12px', border: '1px solid #E2E8F0', background: 'white', borderRadius: '6px', fontSize: '12px', fontWeight: 600, color: '#0F172A', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <button onClick={() => alert('Opening plan editor...')} style={{ padding: '6px 12px', border: '1px solid #E2E8F0', background: 'white', borderRadius: '6px', fontSize: '12px', fontWeight: 600, color: '#0F172A', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
                                 <Edit2 size={12} /> Edit Plan
                             </button>
                         </div>

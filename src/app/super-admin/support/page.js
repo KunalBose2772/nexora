@@ -74,7 +74,7 @@ export default function SupportPage() {
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                             {col.tickets.map(ticket => (
-                                <div key={ticket.id} style={{ background: '#FFFFFF', padding: '16px', borderRadius: '8px', border: '1px solid #E2E8F0', boxShadow: '0 1px 3px rgba(0,0,0,0.02)', cursor: 'pointer' }}>
+                                <div key={ticket.id} onClick={() => alert(`Opening details for ticket ${ticket.id}: ${ticket.issue}`)} style={{ background: '#FFFFFF', padding: '16px', borderRadius: '8px', border: '1px solid #E2E8F0', boxShadow: '0 1px 3px rgba(0,0,0,0.02)', cursor: 'pointer', transition: 'box-shadow 0.2s' }} onMouseEnter={e => e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0,0,0,0.1)'} onMouseLeave={e => e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.02)'}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                                         <span style={{ fontSize: '11px', fontWeight: 600, color: '#64748B', textDecoration: col.resolved ? 'line-through' : 'none' }}>{ticket.id}</span>
                                         {col.resolved

@@ -18,7 +18,7 @@ export default function ResellersPage() {
                     <p style={{ color: '#64748B', margin: 0, fontSize: '14px' }}>Manage your agency network, their commissioned tenants, and revenue shares.</p>
                 </div>
                 <div>
-                    <button style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: '#10B981', color: '#FFFFFF', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', boxShadow: '0 4px 12px rgba(16,185,129,0.2)' }}>
+                    <button onClick={() => alert('Add Reseller modal opening...')} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: '#10B981', color: '#FFFFFF', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', boxShadow: '0 4px 12px rgba(16,185,129,0.2)' }}>
                         <Plus size={16} /> Add Reseller
                     </button>
                 </div>
@@ -78,7 +78,7 @@ export default function ResellersPage() {
                                         <span style={{ padding: '4px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: 600, background: r.status === 'Active' ? '#ECFDF5' : '#F1F5F9', color: r.status === 'Active' ? '#059669' : '#64748B' }}>{r.status}</span>
                                     </td>
                                     <td style={{ padding: '14px 20px', textAlign: 'right' }}>
-                                        <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8' }}><MoreVertical size={16} /></button>
+                                        <button onClick={() => alert('Opening reseller actions...')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8' }}><MoreVertical size={16} /></button>
                                     </td>
                                 </tr>
                             ))}

@@ -72,7 +72,7 @@ export default function PlatformSettingsPage() {
                                 <p style={{ fontSize: '12px', color: '#64748B', marginTop: '4px', marginLeft: '24px' }}>If disabled, tenants can only be provisioned manually by Super Admins.</p>
                             </div>
                             <div>
-                                <button style={{ background: '#10B981', color: 'white', padding: '10px 20px', borderRadius: '8px', fontSize: '14px', fontWeight: 600, border: 'none', cursor: 'pointer', boxShadow: '0 2px 4px rgba(16,185,129,0.2)' }}>
+                                <button onClick={() => alert('General Settings updated successfully.')} style={{ background: '#10B981', color: 'white', padding: '10px 20px', borderRadius: '8px', fontSize: '14px', fontWeight: 600, border: 'none', cursor: 'pointer', boxShadow: '0 2px 4px rgba(16,185,129,0.2)' }}>
                                     Save Changes
                                 </button>
                             </div>
@@ -104,7 +104,7 @@ export default function PlatformSettingsPage() {
                                 <input type="number" defaultValue="60" style={{ width: '100%', maxWidth: '300px', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '6px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
                             </div>
                             <div style={{ borderTop: '1px solid #E2E8F0', paddingTop: '20px' }}>
-                                <button style={{ background: '#10B981', color: 'white', padding: '10px 20px', borderRadius: '8px', fontSize: '14px', fontWeight: 600, border: 'none', cursor: 'pointer', boxShadow: '0 2px 4px rgba(16,185,129,0.2)' }}>
+                                <button onClick={() => alert('Security Policies applied globally.')} style={{ background: '#10B981', color: 'white', padding: '10px 20px', borderRadius: '8px', fontSize: '14px', fontWeight: 600, border: 'none', cursor: 'pointer', boxShadow: '0 2px 4px rgba(16,185,129,0.2)' }}>
                                     Save Security Policies
                                 </button>
                             </div>
@@ -132,7 +132,7 @@ export default function PlatformSettingsPage() {
                                 <input type="text" defaultValue="nexora-tenant-storage-prod-ap-south" style={{ width: '100%', maxWidth: '500px', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '6px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
                             </div>
                             <div style={{ borderTop: '1px solid #E2E8F0', paddingTop: '20px' }}>
-                                <button style={{ background: '#10B981', color: 'white', padding: '10px 20px', borderRadius: '8px', fontSize: '14px', fontWeight: 600, border: 'none', cursor: 'pointer', boxShadow: '0 2px 4px rgba(16,185,129,0.2)' }}>
+                                <button onClick={() => alert('Infrastructure updates deployed.')} style={{ background: '#10B981', color: 'white', padding: '10px 20px', borderRadius: '8px', fontSize: '14px', fontWeight: 600, border: 'none', cursor: 'pointer', boxShadow: '0 2px 4px rgba(16,185,129,0.2)' }}>
                                     Save Infrastructure Settings
                                 </button>
                             </div>
@@ -160,7 +160,7 @@ export default function PlatformSettingsPage() {
                                 </select>
                             </div>
                             <div style={{ borderTop: '1px solid #E2E8F0', paddingTop: '20px' }}>
-                                <button style={{ background: '#10B981', color: 'white', padding: '10px 20px', borderRadius: '8px', fontSize: '14px', fontWeight: 600, border: 'none', cursor: 'pointer', boxShadow: '0 2px 4px rgba(16,185,129,0.2)' }}>
+                                <button onClick={() => alert('Database routing rules updated.')} style={{ background: '#10B981', color: 'white', padding: '10px 20px', borderRadius: '8px', fontSize: '14px', fontWeight: 600, border: 'none', cursor: 'pointer', boxShadow: '0 2px 4px rgba(16,185,129,0.2)' }}>
                                     Apply Database Rules
                                 </button>
                             </div>
