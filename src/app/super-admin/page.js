@@ -6,7 +6,7 @@ import Image from 'next/image';
 export default function SuperAdminDashboard() {
     return (
         <div className="fade-in">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px' }}>
+            <div className="saas-page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px', gap: '16px' }}>
                 <div>
                     <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#0F172A', marginBottom: '8px', letterSpacing: '-0.02em' }}>Platform Overview</h1>
                     <p style={{ color: '#64748B', margin: 0, fontSize: '14px' }}>
@@ -22,7 +22,7 @@ export default function SuperAdminDashboard() {
             </div>
 
             {/* Platform Metrics */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px', marginBottom: '32px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '24px', marginBottom: '32px' }}>
                 <div style={{ background: '#FFFFFF', borderRadius: '16px', padding: '24px', border: '1px solid #E2E8F0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
                         <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(16,185,129,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10B981' }}>
@@ -77,7 +77,7 @@ export default function SuperAdminDashboard() {
             </div>
 
             {/* Split Section: Recent Tenants & System Logs */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 2fr) minmax(0, 1fr)', gap: '24px' }}>
+            <div className="saas-grid">
 
                 {/* Tenants Table */}
                 <div style={{ background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)', overflow: 'hidden' }}>
@@ -85,14 +85,16 @@ export default function SuperAdminDashboard() {
                         <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: '#0F172A' }}>Recent Tenant Onboardings</h3>
                         <Link href="/super-admin/tenants" style={{ fontSize: '14px', color: '#10B981', fontWeight: 600, textDecoration: 'none' }}>View All</Link>
                     </div>
-                    <div style={{ overflowX: 'auto' }}>
+
+                    {/* Desktop Table */}
+                    <div className="tenant-table-desktop">
                         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
                             <thead style={{ background: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
                                 <tr>
-                                    <th style={{ padding: '16px 24px', fontWeight: 600, color: '#475569', fontSize: '12px', textTransform: 'uppercase' }}>Hospital Name & ID</th>
-                                    <th style={{ padding: '16px 24px', fontWeight: 600, color: '#475569', fontSize: '12px', textTransform: 'uppercase' }}>Sub Plan</th>
-                                    <th style={{ padding: '16px 24px', fontWeight: 600, color: '#475569', fontSize: '12px', textTransform: 'uppercase' }}>Status</th>
-                                    <th style={{ padding: '16px 24px', fontWeight: 600, color: '#475569', fontSize: '12px', textTransform: 'uppercase', textAlign: 'right' }}>Actions</th>
+                                    <th style={{ padding: '12px 20px', fontWeight: 600, color: '#475569', fontSize: '12px', textTransform: 'uppercase' }}>Hospital Name & ID</th>
+                                    <th style={{ padding: '12px 20px', fontWeight: 600, color: '#475569', fontSize: '12px', textTransform: 'uppercase' }}>Sub Plan</th>
+                                    <th style={{ padding: '12px 20px', fontWeight: 600, color: '#475569', fontSize: '12px', textTransform: 'uppercase' }}>Status</th>
+                                    <th style={{ padding: '12px 20px', fontWeight: 600, color: '#475569', fontSize: '12px', textTransform: 'uppercase', textAlign: 'right' }}>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -104,23 +106,45 @@ export default function SuperAdminDashboard() {
                                     { name: 'Valley Childrens', id: 'TEN-8488', plan: 'Trial (14 Days)', status: 'Trial Active', color: '#8B5CF6', bg: 'rgba(139,92,246,0.1)' },
                                 ].map((row, i) => (
                                     <tr key={i} style={{ borderBottom: '1px solid #E2E8F0' }}>
-                                        <td style={{ padding: '16px 24px' }}>
-                                            <div style={{ fontWeight: 600, color: '#0F172A' }}>{row.name}</div>
-                                            <div style={{ fontSize: '13px', color: '#64748B', fontFamily: 'monospace' }}>{row.id}</div>
+                                        <td style={{ padding: '14px 20px' }}>
+                                            <div style={{ fontWeight: 600, color: '#0F172A', fontSize: '14px' }}>{row.name}</div>
+                                            <div style={{ fontSize: '12px', color: '#64748B', fontFamily: 'monospace' }}>{row.id}</div>
                                         </td>
-                                        <td style={{ padding: '16px 24px', color: '#475569', fontWeight: 500 }}>{row.plan}</td>
-                                        <td style={{ padding: '16px 24px' }}>
-                                            <span style={{ background: row.bg, color: row.color, padding: '6px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 600 }}>
+                                        <td style={{ padding: '14px 20px', color: '#475569', fontWeight: 500, fontSize: '13px' }}>{row.plan}</td>
+                                        <td style={{ padding: '14px 20px' }}>
+                                            <span style={{ background: row.bg, color: row.color, padding: '4px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: 600, whiteSpace: 'nowrap' }}>
                                                 {row.status}
                                             </span>
                                         </td>
-                                        <td style={{ padding: '16px 24px', textAlign: 'right' }}>
+                                        <td style={{ padding: '14px 20px', textAlign: 'right' }}>
                                             <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8' }}><MoreVertical size={18} /></button>
                                         </td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
+                    </div>
+
+                    {/* Mobile Cards */}
+                    <div className="tenant-cards-mobile">
+                        {[
+                            { name: 'City General Hospital', id: 'TEN-8492', plan: 'Enterprise (Annual)', status: 'Active', color: '#10B981', bg: 'rgba(16,185,129,0.1)' },
+                            { name: 'Sunrise Medicare Center', id: 'TEN-8491', plan: 'Professional (Monthly)', status: 'Active', color: '#10B981', bg: 'rgba(16,185,129,0.1)' },
+                            { name: 'Apex Ortho Clinic', id: 'TEN-8490', plan: 'Basic (Monthly)', status: 'Payment Due', color: '#F59E0B', bg: 'rgba(245,158,11,0.1)' },
+                            { name: 'Northstar Care', id: 'TEN-8489', plan: 'Enterprise (Annual)', status: 'Deploying...', color: '#3B82F6', bg: 'rgba(59,130,246,0.1)' },
+                            { name: 'Valley Childrens', id: 'TEN-8488', plan: 'Trial (14 Days)', status: 'Trial Active', color: '#8B5CF6', bg: 'rgba(139,92,246,0.1)' },
+                        ].map((row, i) => (
+                            <div key={i} style={{ padding: '16px 20px', borderBottom: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
+                                <div style={{ minWidth: 0 }}>
+                                    <div style={{ fontWeight: 600, color: '#0F172A', fontSize: '14px', marginBottom: '3px' }}>{row.name}</div>
+                                    <div style={{ fontSize: '12px', color: '#64748B', fontFamily: 'monospace', marginBottom: '6px' }}>{row.id}</div>
+                                    <div style={{ fontSize: '12px', color: '#94A3B8' }}>{row.plan}</div>
+                                </div>
+                                <span style={{ background: row.bg, color: row.color, padding: '4px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: 600, whiteSpace: 'nowrap', flexShrink: 0 }}>
+                                    {row.status}
+                                </span>
+                            </div>
+                        ))}
                     </div>
                 </div>
 
@@ -139,15 +163,15 @@ export default function SuperAdminDashboard() {
                             { title: 'Payment Gateway Sync', desc: 'Stripe daily reconciliation done', time: '12 hours ago', icon: CreditCard, color: '#F59E0B', bg: 'rgba(245,158,11,0.1)' },
                             { title: 'API Limit Warning', desc: 'Tenant TEN-8210 approaching limits', time: '1 day ago', icon: Activity, color: '#8B5CF6', bg: 'rgba(139,92,246,0.1)' },
                         ].map((log, i) => (
-                            <div key={i} style={{ display: 'flex', gap: '16px' }}>
+                            <div key={i} style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
                                 <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: log.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: log.color, flexShrink: 0 }}>
                                     <log.icon size={18} />
                                 </div>
                                 <div style={{ flex: 1, minWidth: 0 }}>
-                                    <div style={{ fontSize: '14px', fontWeight: 600, color: '#0F172A', marginBottom: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{log.title}</div>
-                                    <div style={{ fontSize: '13px', color: '#64748B', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{log.desc}</div>
+                                    <div style={{ fontSize: '14px', fontWeight: 600, color: '#0F172A', marginBottom: '2px' }}>{log.title}</div>
+                                    <div style={{ fontSize: '13px', color: '#64748B' }}>{log.desc}</div>
                                 </div>
-                                <div style={{ fontSize: '12px', color: '#94A3B8', whiteSpace: 'nowrap' }}>{log.time}</div>
+                                <div style={{ fontSize: '12px', color: '#94A3B8', whiteSpace: 'nowrap', flexShrink: 0 }}>{log.time}</div>
                             </div>
                         ))}
                     </div>
@@ -158,8 +182,11 @@ export default function SuperAdminDashboard() {
             </div>
 
             <style>{`
-                @media (max-width: 1024px) {
-                    .saas-grid { grid-template-columns: 1fr !important; }
+                .tenant-table-desktop { display: block; }
+                .tenant-cards-mobile { display: none; }
+                @media (max-width: 768px) {
+                    .tenant-table-desktop { display: none; }
+                    .tenant-cards-mobile { display: block; }
                 }
             `}</style>
         </div>

@@ -1,35 +1,42 @@
 'use client';
+import { Activity, Server, Database, HardDrive, RefreshCcw } from 'lucide-react';
 
-import { Activity, Server, Database, HardDrive, Wifi, RefreshCcw, AlertTriangle } from 'lucide-react';
+function TerminalSquare() {
+    return <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m7 11 2-2-2-2"></path><path d="M11 13h4"></path><rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect></svg>;
+}
+
+const LOGS = [
+    { time: '2026-02-27T12:00:01', level: 'INFO', msg: '[TENANT-PROV] Database db_apollo_91 successfully cloned from template.', color: '#3B82F6' },
+    { time: '2026-02-27T12:01:45', level: 'WARN', msg: '[API-GW] Rate limit approached for tenant ip: 192.168.1.1', color: '#F59E0B' },
+    { time: '2026-02-27T12:02:10', level: 'INFO', msg: '[CRON] Nightly PDF backup routine started.', color: '#3B82F6' },
+    { time: '2026-02-27T12:05:00', level: 'ERROR', msg: '[DB-POOL] Connection timeout acquiring pooled connection. Queue=52', color: '#EF4444' },
+    { time: '2026-02-27T12:05:01', level: 'ERROR', msg: '[DB-POOL] Exception: FATAL: remaining connection slots are reserved.', color: '#EF4444' },
+    { time: '2026-02-27T12:05:05', level: 'INFO', msg: '[SCALER] Auto-scaling triggered. Launching 1 new RDS read replica.', color: '#10B981' },
+    { time: '2026-02-27T12:08:12', level: 'INFO', msg: '[SCALER] Read replica online. Pools re-balanced.', color: '#10B981' },
+    { time: '2026-02-27T12:10:00', level: 'INFO', msg: '[AUTH] 1,492 active JWTs verified in last 10m window.', color: '#3B82F6' },
+];
 
 export default function LogsPage() {
     return (
-        <div style={{ padding: '24px', maxWidth: '1400px', margin: '0 auto' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+        <div className="fade-in">
+            {/* Page Header */}
+            <div className="saas-page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px', gap: '16px' }}>
                 <div>
-                    <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#0F172A', marginBottom: '4px' }}>System Logs & Health</h1>
-                    <p style={{ fontSize: '14px', color: '#64748B' }}>Real-time AWS infrastructure metrics and global error logs.</p>
+                    <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#0F172A', marginBottom: '8px', letterSpacing: '-0.02em' }}>System Logs & Health</h1>
+                    <p style={{ color: '#64748B', margin: 0, fontSize: '14px' }}>Real-time AWS infrastructure metrics and global error logs.</p>
                 </div>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                    <button style={{
-                        display: 'flex', alignItems: 'center', gap: '8px',
-                        background: 'white', border: '1px solid #E2E8F0', color: '#0F172A', padding: '10px 16px',
-                        borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
-                    }}>
-                        <RefreshCcw size={16} /> Refresh Metrics
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                    <button style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'white', border: '1px solid #E2E8F0', color: '#0F172A', padding: '10px 14px', borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>
+                        <RefreshCcw size={16} /> Refresh
                     </button>
-                    <button style={{
-                        display: 'flex', alignItems: 'center', gap: '8px',
-                        background: '#DC2626', color: 'white', padding: '10px 16px',
-                        borderRadius: '8px', fontSize: '14px', fontWeight: 600, border: 'none', cursor: 'pointer', boxShadow: '0 2px 4px rgba(220,38,38,0.2)'
-                    }}>
+                    <button style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#DC2626', color: 'white', padding: '10px 14px', borderRadius: '8px', fontSize: '14px', fontWeight: 600, border: 'none', cursor: 'pointer' }}>
                         Restart Cluster
                     </button>
                 </div>
             </div>
 
             {/* Health Cards */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))', gap: '16px', marginBottom: '24px' }}>
                 <div style={{ background: '#FFFFFF', padding: '20px', borderRadius: '12px', border: '1px solid #10B981', boxShadow: '0 4px 12px rgba(16,185,129,0.05)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', color: '#10B981' }}>
                         <Server size={18} /> <span style={{ fontSize: '14px', fontWeight: 600 }}>API Instances</span>
@@ -37,7 +44,6 @@ export default function LogsPage() {
                     <div style={{ fontSize: '24px', fontWeight: 800, color: '#0F172A' }}>99.98% <span style={{ fontSize: '14px', fontWeight: 500, color: '#64748B' }}>Uptime</span></div>
                     <div style={{ fontSize: '12px', color: '#64748B', marginTop: '6px' }}>4/4 Nodes Healthy. Load: 32%</div>
                 </div>
-
                 <div style={{ background: '#FFFFFF', padding: '20px', borderRadius: '12px', border: '1px solid #10B981', boxShadow: '0 4px 12px rgba(16,185,129,0.05)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', color: '#10B981' }}>
                         <Database size={18} /> <span style={{ fontSize: '14px', fontWeight: 600 }}>PostgreSQL Clusters</span>
@@ -45,16 +51,14 @@ export default function LogsPage() {
                     <div style={{ fontSize: '24px', fontWeight: 800, color: '#0F172A' }}>1,142 <span style={{ fontSize: '14px', fontWeight: 500, color: '#64748B' }}>DBs</span></div>
                     <div style={{ fontSize: '12px', color: '#64748B', marginTop: '6px' }}>Active Connections: 8,491</div>
                 </div>
-
-                <div style={{ background: '#FFFFFF', padding: '20px', borderRadius: '12px', border: '1px solid #E2E8F0', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
+                <div style={{ background: '#FFFFFF', padding: '20px', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', color: '#475569' }}>
                         <HardDrive size={18} /> <span style={{ fontSize: '14px', fontWeight: 600 }}>S3 Storage Used</span>
                     </div>
                     <div style={{ fontSize: '24px', fontWeight: 800, color: '#0F172A' }}>8.4 TB</div>
                     <div style={{ fontSize: '12px', color: '#64748B', marginTop: '6px' }}>Costs: ₹42k/mo. Growing 5% MoM.</div>
                 </div>
-
-                <div style={{ background: '#FEF2F2', padding: '20px', borderRadius: '12px', border: '1px solid #FECACA', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
+                <div style={{ background: '#FEF2F2', padding: '20px', borderRadius: '12px', border: '1px solid #FECACA' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', color: '#DC2626' }}>
                         <Activity size={18} /> <span style={{ fontSize: '14px', fontWeight: 600 }}>Error Rate</span>
                     </div>
@@ -75,29 +79,21 @@ export default function LogsPage() {
                         <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#10B981' }}></div>
                     </div>
                 </div>
-                <div style={{ padding: '20px', fontFamily: 'monospace', fontSize: '13px', color: '#94A3B8', lineHeight: 1.6, height: '400px', overflowY: 'auto' }}>
-                    {[
-                        { time: '2026-02-27T12:00:01', level: 'INFO', msg: '[TENANT-PROV] Database db_apollo_91 successfully cloned from template.', color: '#3B82F6' },
-                        { time: '2026-02-27T12:01:45', level: 'WARN', msg: '[API-GW] Rate limit approached for tenant ip: 192.168.1.1', color: '#F59E0B' },
-                        { time: '2026-02-27T12:02:10', level: 'INFO', msg: '[CRON] Nightly PDF backup routine started.', color: '#3B82F6' },
-                        { time: '2026-02-27T12:05:00', level: 'ERROR', msg: '[DB-POOL] Connection timeout acquiring pooled connection. Queue=52', color: '#EF4444' },
-                        { time: '2026-02-27T12:05:01', level: 'ERROR', msg: '[DB-POOL] Exception: FATAL: remaining connection slots are reserved.', color: '#EF4444' },
-                        { time: '2026-02-27T12:05:05', level: 'INFO', msg: '[SCALER] Auto-scaling triggered. Launching 1 new RDS read replica.', color: '#10B981' },
-                        { time: '2026-02-27T12:08:12', level: 'INFO', msg: '[SCALER] Read replica online. Pools re-balanced.', color: '#10B981' },
-                        { time: '2026-02-27T12:10:00', level: 'INFO', msg: '[AUTH] 1,492 active JWTs verified in last 10m window.', color: '#3B82F6' },
-                    ].map((log, i) => (
-                        <div key={i} style={{ display: 'flex', gap: '16px', marginBottom: '8px', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '4px' }}>
-                            <span style={{ color: '#64748B', whiteSpace: 'nowrap' }}>{log.time}</span>
-                            <span style={{ color: log.color, fontWeight: 700, minWidth: '50px' }}>{log.level}</span>
-                            <span style={{ color: '#E2E8F0', wordBreak: 'break-all' }}>{log.msg}</span>
+                <div style={{ padding: '20px', fontFamily: 'monospace', fontSize: '13px', color: '#94A3B8', lineHeight: 1.7, height: '380px', overflowY: 'auto', overflowX: 'auto' }}>
+                    {LOGS.map((log, i) => (
+                        <div key={i} style={{ display: 'flex', gap: '12px', marginBottom: '6px', borderBottom: '1px solid rgba(255,255,255,0.04)', paddingBottom: '4px', flexWrap: 'wrap' }}>
+                            <span style={{ color: '#64748B', whiteSpace: 'nowrap', fontSize: '12px' }}>{log.time}</span>
+                            <span style={{ color: log.color, fontWeight: 700, minWidth: '50px', fontSize: '12px' }}>{log.level}</span>
+                            <span style={{ color: '#E2E8F0', wordBreak: 'break-word', flex: 1, minWidth: '0', fontSize: '12px' }}>{log.msg}</span>
                         </div>
                     ))}
                     <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '16px', color: '#10B981' }}>
-                        <div style={{ width: '8px', height: '8px', background: '#10B981', borderRadius: '50%', animation: 'pulse 2s infinite' }}></div>
+                        <div style={{ width: '8px', height: '8px', background: '#10B981', borderRadius: '50%' }}></div>
                         Tailing active logs...
                     </div>
                 </div>
             </div>
+
             <style>{`
                 @keyframes pulse {
                     0% { opacity: 1; }
@@ -107,8 +103,4 @@ export default function LogsPage() {
             `}</style>
         </div>
     );
-}
-
-function TerminalSquare() {
-    return <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m7 11 2-2-2-2"></path><path d="M11 13h4"></path><rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect></svg>
 }

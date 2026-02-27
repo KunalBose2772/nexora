@@ -39,7 +39,7 @@ export default function SuperAdminHeader({ user, setMobileOpen }) {
 
     return (
         <header
-            className="saas-header"
+            className="super-admin-top-nav"
             role="banner"
             style={{
                 height: '64px',
@@ -66,14 +66,14 @@ export default function SuperAdminHeader({ user, setMobileOpen }) {
                 <Menu size={20} strokeWidth={2} />
             </button>
             <style>{`
-                .saas-header { padding: 0 32px; gap: 24px; }
+                .super-admin-top-nav { padding: 0 32px; gap: 24px; }
                 .search-input-wrapper { width: 320px; }
                 
                 @media (max-width: 1024px) {
                     .desktop-hidden { display: flex !important; }
                 }
                 @media (max-width: 768px) {
-                    .saas-header { padding: 0 16px; gap: 12px; }
+                    .super-admin-top-nav { padding: 0 16px; gap: 12px; }
                     .mobile-hidden { display: none !important; }
                     .search-input-wrapper { width: 140px; }
                     .header-search-input { padding-right: 12px !important; }

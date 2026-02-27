@@ -1461,3 +1461,38 @@ a:hover {
     font-size: 23px !important;
   }
 }
+
+/* ─── SaaS Platform Dashboard Responsiveness ─── */
+.saas-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 32px;
+  gap: 16px;
+}
+
+.saas-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 24px;
+}
+
+@media (max-width: 1024px) {
+  .saas-page-header {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  .saas-page-header>div:last-child {
+    width: 100% !important;
+  }
+
+  .saas-page-header button {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  .saas-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+}
