@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Layers, Plus, Edit2, CheckCircle2, XCircle, MoreVertical, CreditCard } from 'lucide-react';
+import { Layers, Plus, Edit2, CheckCircle2, XCircle, MoreVertical, CreditCard, Building } from 'lucide-react';
 
 export default function PlansPage() {
     const [searchQuery, setSearchQuery] = useState('');
