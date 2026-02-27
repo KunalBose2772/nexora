@@ -13,6 +13,17 @@ const NAV_ITEMS = [
 export default function PlatformSettingsPage() {
     const [activeTab, setActiveTab] = useState('general');
 
+    // Mock States for the various inputs to make them "editable"
+    const [generalSettings, setGeneralSettings] = useState({ name: 'Nexora Health SaaS', email: 'support@globalwebify.com', currency: 'INR (₹)', allowSignups: true });
+    const [security, setSecurity] = useState({ mfa: true, strictPass: true, timeout: 60 });
+    const [infra, setInfra] = useState({ region: 'ap-south-1 (Mumbai)', bucket: 'nexora-tenant-storage-prod-ap-south' });
+    const [db, setDb] = useState({ maxTenants: 250, isolation: 'Pool-based (Logical Separation)' });
+    const [keys, setKeys] = useState({ stripe: 'sk_live_123456789', twilio: 'AC123xyz', sendgrid: 'SG.xyz.123' });
+
+    const handleSave = (tabName) => {
+        alert(`${tabName} Settings have been saved successfully!`);
+    };
+
     return (
         <div className="fade-in">
             {/* Page Header */}
@@ -50,15 +61,15 @@ export default function PlatformSettingsPage() {
                         <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
                             <div>
                                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Platform Name</label>
-                                <input type="text" defaultValue="Nexora Health SaaS" style={{ width: '100%', maxWidth: '500px', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '6px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
+                                <input value={generalSettings.name} onChange={e => setGeneralSettings({ ...generalSettings, name: e.target.value })} type="text" style={{ width: '100%', maxWidth: '500px', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '6px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
                             </div>
                             <div>
                                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Support Email</label>
-                                <input type="email" defaultValue="support@globalwebify.com" style={{ width: '100%', maxWidth: '500px', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '6px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
+                                <input value={generalSettings.email} onChange={e => setGeneralSettings({ ...generalSettings, email: e.target.value })} type="email" style={{ width: '100%', maxWidth: '500px', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '6px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
                             </div>
                             <div>
                                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Platform Default Currency</label>
-                                <select style={{ width: '100%', maxWidth: '500px', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '6px', fontSize: '14px', outline: 'none', background: 'white', boxSizing: 'border-box' }}>
+                                <select value={generalSettings.currency} onChange={e => setGeneralSettings({ ...generalSettings, currency: e.target.value })} style={{ width: '100%', maxWidth: '500px', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '6px', fontSize: '14px', outline: 'none', background: 'white', boxSizing: 'border-box' }}>
                                     <option>INR (₹)</option>
                                     <option>USD ($)</option>
                                     <option>EUR (€)</option>
@@ -66,13 +77,13 @@ export default function PlatformSettingsPage() {
                             </div>
                             <div style={{ borderTop: '1px solid #E2E8F0', paddingTop: '20px' }}>
                                 <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                                    <input type="checkbox" defaultChecked style={{ accentColor: '#10B981', width: '16px', height: '16px' }} />
+                                    <input type="checkbox" checked={generalSettings.allowSignups} onChange={e => setGeneralSettings({ ...generalSettings, allowSignups: e.target.checked })} style={{ accentColor: '#10B981', width: '16px', height: '16px' }} />
                                     <span style={{ fontSize: '14px', fontWeight: 500, color: '#0F172A' }}>Allow Public Signups (Self-Serve)</span>
                                 </label>
                                 <p style={{ fontSize: '12px', color: '#64748B', marginTop: '4px', marginLeft: '24px' }}>If disabled, tenants can only be provisioned manually by Super Admins.</p>
                             </div>
                             <div>
-                                <button onClick={() => alert('General Settings updated successfully.')} style={{ background: '#10B981', color: 'white', padding: '10px 20px', borderRadius: '8px', fontSize: '14px', fontWeight: 600, border: 'none', cursor: 'pointer', boxShadow: '0 2px 4px rgba(16,185,129,0.2)' }}>
+                                <button onClick={() => handleSave('General')} style={{ background: '#10B981', color: 'white', padding: '10px 20px', borderRadius: '8px', fontSize: '14px', fontWeight: 600, border: 'none', cursor: 'pointer', boxShadow: '0 2px 4px rgba(16,185,129,0.2)' }}>
                                     Save Changes
                                 </button>
                             </div>
@@ -89,22 +100,22 @@ export default function PlatformSettingsPage() {
                         <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
                             <div>
                                 <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                                    <input type="checkbox" defaultChecked style={{ accentColor: '#10B981', width: '16px', height: '16px' }} />
+                                    <input type="checkbox" checked={security.mfa} onChange={e => setSecurity({ ...security, mfa: e.target.checked })} style={{ accentColor: '#10B981', width: '16px', height: '16px' }} />
                                     <span style={{ fontSize: '14px', fontWeight: 500, color: '#0F172A' }}>Enforce MFA for all Super Admins</span>
                                 </label>
                             </div>
                             <div>
                                 <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                                    <input type="checkbox" defaultChecked style={{ accentColor: '#10B981', width: '16px', height: '16px' }} />
+                                    <input type="checkbox" checked={security.strictPass} onChange={e => setSecurity({ ...security, strictPass: e.target.checked })} style={{ accentColor: '#10B981', width: '16px', height: '16px' }} />
                                     <span style={{ fontSize: '14px', fontWeight: 500, color: '#0F172A' }}>Enforce strict password complexity</span>
                                 </label>
                             </div>
                             <div>
                                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Session Timeout (Minutes)</label>
-                                <input type="number" defaultValue="60" style={{ width: '100%', maxWidth: '300px', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '6px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
+                                <input value={security.timeout} onChange={e => setSecurity({ ...security, timeout: e.target.value })} type="number" style={{ width: '100%', maxWidth: '300px', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '6px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
                             </div>
                             <div style={{ borderTop: '1px solid #E2E8F0', paddingTop: '20px' }}>
-                                <button onClick={() => alert('Security Policies applied globally.')} style={{ background: '#10B981', color: 'white', padding: '10px 20px', borderRadius: '8px', fontSize: '14px', fontWeight: 600, border: 'none', cursor: 'pointer', boxShadow: '0 2px 4px rgba(16,185,129,0.2)' }}>
+                                <button onClick={() => handleSave('Security')} style={{ background: '#10B981', color: 'white', padding: '10px 20px', borderRadius: '8px', fontSize: '14px', fontWeight: 600, border: 'none', cursor: 'pointer', boxShadow: '0 2px 4px rgba(16,185,129,0.2)' }}>
                                     Save Security Policies
                                 </button>
                             </div>
@@ -121,7 +132,7 @@ export default function PlatformSettingsPage() {
                         <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
                             <div>
                                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Primary AWS Region</label>
-                                <select style={{ width: '100%', maxWidth: '500px', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '6px', fontSize: '14px', outline: 'none', background: 'white', boxSizing: 'border-box' }}>
+                                <select value={infra.region} onChange={e => setInfra({ ...infra, region: e.target.value })} style={{ width: '100%', maxWidth: '500px', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '6px', fontSize: '14px', outline: 'none', background: 'white', boxSizing: 'border-box' }}>
                                     <option>ap-south-1 (Mumbai)</option>
                                     <option>us-east-1 (N. Virginia)</option>
                                     <option>eu-central-1 (Frankfurt)</option>
@@ -129,10 +140,10 @@ export default function PlatformSettingsPage() {
                             </div>
                             <div>
                                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Tenant Storage S3 Bucket</label>
-                                <input type="text" defaultValue="nexora-tenant-storage-prod-ap-south" style={{ width: '100%', maxWidth: '500px', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '6px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
+                                <input value={infra.bucket} onChange={e => setInfra({ ...infra, bucket: e.target.value })} type="text" style={{ width: '100%', maxWidth: '500px', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '6px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
                             </div>
                             <div style={{ borderTop: '1px solid #E2E8F0', paddingTop: '20px' }}>
-                                <button onClick={() => alert('Infrastructure updates deployed.')} style={{ background: '#10B981', color: 'white', padding: '10px 20px', borderRadius: '8px', fontSize: '14px', fontWeight: 600, border: 'none', cursor: 'pointer', boxShadow: '0 2px 4px rgba(16,185,129,0.2)' }}>
+                                <button onClick={() => handleSave('Infrastructure')} style={{ background: '#10B981', color: 'white', padding: '10px 20px', borderRadius: '8px', fontSize: '14px', fontWeight: 600, border: 'none', cursor: 'pointer', boxShadow: '0 2px 4px rgba(16,185,129,0.2)' }}>
                                     Save Infrastructure Settings
                                 </button>
                             </div>
@@ -149,18 +160,18 @@ export default function PlatformSettingsPage() {
                         <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
                             <div>
                                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Max Tenants per Database Cluster</label>
-                                <input type="number" defaultValue="250" style={{ width: '100%', maxWidth: '300px', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '6px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
+                                <input value={db.maxTenants} onChange={e => setDb({ ...db, maxTenants: e.target.value })} type="number" style={{ width: '100%', maxWidth: '300px', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '6px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
                             </div>
                             <div>
                                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Isolation Level</label>
-                                <select style={{ width: '100%', maxWidth: '500px', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '6px', fontSize: '14px', outline: 'none', background: 'white', boxSizing: 'border-box' }}>
+                                <select value={db.isolation} onChange={e => setDb({ ...db, isolation: e.target.value })} style={{ width: '100%', maxWidth: '500px', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '6px', fontSize: '14px', outline: 'none', background: 'white', boxSizing: 'border-box' }}>
                                     <option>Pool-based (Logical Separation)</option>
                                     <option>Schema-level Separation</option>
                                     <option>Dedicated DB per Tenant (Enterprise Only)</option>
                                 </select>
                             </div>
                             <div style={{ borderTop: '1px solid #E2E8F0', paddingTop: '20px' }}>
-                                <button onClick={() => alert('Database routing rules updated.')} style={{ background: '#10B981', color: 'white', padding: '10px 20px', borderRadius: '8px', fontSize: '14px', fontWeight: 600, border: 'none', cursor: 'pointer', boxShadow: '0 2px 4px rgba(16,185,129,0.2)' }}>
+                                <button onClick={() => handleSave('Database')} style={{ background: '#10B981', color: 'white', padding: '10px 20px', borderRadius: '8px', fontSize: '14px', fontWeight: 600, border: 'none', cursor: 'pointer', boxShadow: '0 2px 4px rgba(16,185,129,0.2)' }}>
                                     Apply Database Rules
                                 </button>
                             </div>
@@ -177,18 +188,18 @@ export default function PlatformSettingsPage() {
                         <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
                             <div>
                                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Stripe Secret Key (Billing)</label>
-                                <input type="password" defaultValue="sk_live_123456789" style={{ width: '100%', maxWidth: '500px', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '6px', fontSize: '14px', outline: 'none', boxSizing: 'border-box', fontFamily: 'monospace' }} />
+                                <input value={keys.stripe} onChange={e => setKeys({ ...keys, stripe: e.target.value })} type="password" style={{ width: '100%', maxWidth: '500px', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '6px', fontSize: '14px', outline: 'none', boxSizing: 'border-box', fontFamily: 'monospace' }} />
                             </div>
                             <div>
                                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Twilio API Key (SMS)</label>
-                                <input type="password" defaultValue="AC123xyz" style={{ width: '100%', maxWidth: '500px', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '6px', fontSize: '14px', outline: 'none', boxSizing: 'border-box', fontFamily: 'monospace' }} />
+                                <input value={keys.twilio} onChange={e => setKeys({ ...keys, twilio: e.target.value })} type="password" style={{ width: '100%', maxWidth: '500px', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '6px', fontSize: '14px', outline: 'none', boxSizing: 'border-box', fontFamily: 'monospace' }} />
                             </div>
                             <div>
                                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>SendGrid API Key (Email)</label>
-                                <input type="password" defaultValue="SG.xyz.123" style={{ width: '100%', maxWidth: '500px', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '6px', fontSize: '14px', outline: 'none', boxSizing: 'border-box', fontFamily: 'monospace' }} />
+                                <input value={keys.sendgrid} onChange={e => setKeys({ ...keys, sendgrid: e.target.value })} type="password" style={{ width: '100%', maxWidth: '500px', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '6px', fontSize: '14px', outline: 'none', boxSizing: 'border-box', fontFamily: 'monospace' }} />
                             </div>
                             <div style={{ borderTop: '1px solid #E2E8F0', paddingTop: '20px' }}>
-                                <button style={{ background: '#10B981', color: 'white', padding: '10px 20px', borderRadius: '8px', fontSize: '14px', fontWeight: 600, border: 'none', cursor: 'pointer', boxShadow: '0 2px 4px rgba(16,185,129,0.2)' }}>
+                                <button onClick={() => handleSave('API')} style={{ background: '#10B981', color: 'white', padding: '10px 20px', borderRadius: '8px', fontSize: '14px', fontWeight: 600, border: 'none', cursor: 'pointer', boxShadow: '0 2px 4px rgba(16,185,129,0.2)' }}>
                                     Rotate & Save Keys
                                 </button>
                             </div>
