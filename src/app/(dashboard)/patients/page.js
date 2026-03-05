@@ -1,8 +1,36 @@
 'use client';
-import { Search, Filter, Plus, FileText, MonitorPlay, Calendar as CalIcon, Users, UserPlus } from 'lucide-react';
+import { Search, Filter, MonitorPlay, UserPlus } from 'lucide-react';
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
 
 export default function PatientsDirectoryPage() {
+    const [patients, setPatients] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchPatients = async () => {
+            try {
+                const res = await fetch('/api/patients');
+                if (res.ok) {
+                    const data = await res.json();
+                    setPatients(data.patients || []);
+                }
+            } catch (err) {
+                console.error("Failed to load patients:", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchPatients();
+    }, []);
+
+    const getAge = (dob) => {
+        if (!dob) return 'N/A';
+        const diff = Date.now() - new Date(dob).getTime();
+        const age = new Date(diff).getUTCFullYear() - 1970;
+        return age > 0 ? age : 0;
+    };
+
     return (
         <div className="fade-in">
             <div className="dashboard-header-row">
@@ -40,50 +68,64 @@ export default function PatientsDirectoryPage() {
                     <table className="data-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
                         <thead style={{ background: '#F8FAFC', borderBottom: '1px solid var(--color-border-light)' }}>
                             <tr>
-                                <th style={{ padding: '16px', fontWeight: 600, color: 'var(--color-text-secondary)', fontSize: '12px', textTransform: 'uppercase' }}>Patient Basic Demographics</th>
-                                <th style={{ padding: '16px', fontWeight: 600, color: 'var(--color-text-secondary)', fontSize: '12px', textTransform: 'uppercase' }}>Unique Health ID (UHID)</th>
+                                <th style={{ padding: '16px', fontWeight: 600, color: 'var(--color-text-secondary)', fontSize: '12px', textTransform: 'uppercase' }}>Patient Demographics</th>
+                                <th style={{ padding: '16px', fontWeight: 600, color: 'var(--color-text-secondary)', fontSize: '12px', textTransform: 'uppercase' }}>Unique Health ID</th>
                                 <th style={{ padding: '16px', fontWeight: 600, color: 'var(--color-text-secondary)', fontSize: '12px', textTransform: 'uppercase' }}>Contact Info</th>
-                                <th style={{ padding: '16px', fontWeight: 600, color: 'var(--color-text-secondary)', fontSize: '12px', textTransform: 'uppercase' }}>Last Visited</th>
+                                <th style={{ padding: '16px', fontWeight: 600, color: 'var(--color-text-secondary)', fontSize: '12px', textTransform: 'uppercase' }}>Registered</th>
                                 <th style={{ padding: '16px', fontWeight: 600, color: 'var(--color-text-secondary)', fontSize: '12px', textTransform: 'uppercase' }}>Blood Grp</th>
                                 <th style={{ padding: '16px', fontWeight: 600, color: 'var(--color-text-secondary)', fontSize: '12px', textTransform: 'uppercase', textAlign: 'right' }}>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {[
-                                { name: 'Aarav Sharma', age: '34, M', uid: 'UHID-10029', phone: '+91 98765 09876', visited: '12 Oct, 2023', bg: 'O+' },
-                                { name: 'Priya Patel', age: '28, F', uid: 'UHID-10034', phone: '+91 87654 12345', visited: '24 Oct, 2023', bg: 'A+' },
-                                { name: 'Rahul Desai', age: '45, M', uid: 'UHID-09941', phone: '+91 76543 98765', visited: '18 Sep, 2023', bg: 'B+' },
-                                { name: 'Megha Singh', age: '52, F', uid: 'UHID-10099', phone: '+91 65432 34567', visited: '10 Nov, 2023', bg: 'AB-' },
-                                { name: 'Vikram Mehta', age: '60, M', uid: 'UHID-08832', phone: '+91 54321 09812', visited: '05 Nov, 2023', bg: 'O-' }
-                            ].map((row, i) => (
-                                <tr key={i} style={{ borderBottom: '1px solid var(--color-border-light)', transition: 'background 0.2s', cursor: 'pointer' }} onMouseOver={(e) => e.currentTarget.style.background = '#F8FAFC'} onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}>
-                                    <td style={{ padding: '16px' }}>
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                            <span style={{ fontWeight: 600, color: 'var(--color-navy)', fontSize: '14px' }}>{row.name}</span>
-                                            <span style={{ fontSize: '12px', color: 'var(--color-text-secondary)' }}>{row.age}</span>
-                                        </div>
-                                    </td>
-                                    <td style={{ padding: '16px' }}>
-                                        <span style={{ fontFamily: 'monospace', fontWeight: 500, color: 'var(--color-text-primary)' }}>{row.uid}</span>
-                                    </td>
-                                    <td style={{ padding: '16px', color: 'var(--color-text-secondary)' }}>
-                                        {row.phone}
-                                    </td>
-                                    <td style={{ padding: '16px' }}>
-                                        <span style={{ color: 'var(--color-text-primary)', fontSize: '13px' }}>{row.visited}</span>
-                                    </td>
-                                    <td style={{ padding: '16px' }}>
-                                        <div style={{ width: '28px', height: '28px', borderRadius: '4px', background: 'rgba(239,68,68,0.1)', color: '#EF4444', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 700 }}>
-                                            {row.bg}
-                                        </div>
-                                    </td>
-                                    <td style={{ padding: '16px', textAlign: 'right' }}>
-                                        <button className="btn btn-secondary btn-sm" style={{ padding: '6px 12px', fontSize: '12px', background: '#F8FAFC' }}>
-                                            Open File
-                                        </button>
+                            {loading ? (
+                                <tr>
+                                    <td colSpan="6" style={{ padding: '24px', textAlign: 'center', color: 'var(--color-text-muted)' }}>
+                                        Loading patient records...
                                     </td>
                                 </tr>
-                            ))}
+                            ) : patients.length === 0 ? (
+                                <tr>
+                                    <td colSpan="6" style={{ padding: '24px', textAlign: 'center', color: 'var(--color-text-muted)' }}>
+                                        No registered patients found.
+                                    </td>
+                                </tr>
+                            ) : (
+                                patients.map((row) => (
+                                    <tr key={row.id} style={{ borderBottom: '1px solid var(--color-border-light)', transition: 'background 0.2s', cursor: 'pointer' }} onMouseOver={(e) => e.currentTarget.style.background = '#F8FAFC'} onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}>
+                                        <td style={{ padding: '16px' }}>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                <span style={{ fontWeight: 600, color: 'var(--color-navy)', fontSize: '14px' }}>{row.firstName} {row.lastName}</span>
+                                                <span style={{ fontSize: '12px', color: 'var(--color-text-secondary)' }}>
+                                                    {getAge(row.dob)}, {row.gender ? row.gender.charAt(0) : 'N/A'}
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td style={{ padding: '16px' }}>
+                                            <span style={{ fontFamily: 'monospace', fontWeight: 500, color: 'var(--color-text-primary)' }}>{row.patientCode}</span>
+                                        </td>
+                                        <td style={{ padding: '16px', color: 'var(--color-text-secondary)' }}>
+                                            {row.phone || 'N/A'}
+                                        </td>
+                                        <td style={{ padding: '16px' }}>
+                                            <span style={{ color: 'var(--color-text-primary)', fontSize: '13px' }}>
+                                                {new Date(row.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                            </span>
+                                        </td>
+                                        <td style={{ padding: '16px' }}>
+                                            <div style={{ width: '28px', height: '28px', borderRadius: '4px', background: row.bloodGroup ? 'rgba(239,68,68,0.1)' : '#F1F5F9', color: row.bloodGroup ? '#EF4444' : '#94A3B8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 700 }}>
+                                                {row.bloodGroup || '-'}
+                                            </div>
+                                        </td>
+                                        <td style={{ padding: '16px', textAlign: 'right' }}>
+                                            <Link href={`/patients/${row.patientCode}`}>
+                                                <button className="btn btn-secondary btn-sm" style={{ padding: '6px 12px', fontSize: '12px', background: '#F8FAFC' }}>
+                                                    Open File
+                                                </button>
+                                            </Link>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
                         </tbody>
                     </table>
                 </div>

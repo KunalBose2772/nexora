@@ -16,7 +16,8 @@ import {
     ChevronRight,
     X,
     Activity,
-    Shield
+    Shield,
+    Mail
 } from 'lucide-react';
 
 const NAV_GROUPS = [
@@ -37,6 +38,7 @@ const NAV_GROUPS = [
     {
         label: 'Ecosystem',
         items: [
+            { href: '/super-admin/requests', icon: Mail, label: 'Demo Requests' },
             { href: '/super-admin/resellers', icon: Users, label: 'Resellers & Partners' },
             { href: '/super-admin/support', icon: HeadphonesIcon, label: 'Support Tickets' },
         ],

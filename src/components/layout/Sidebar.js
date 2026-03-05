@@ -20,6 +20,7 @@ import {
     ChevronRight,
     Building2,
     X,
+    Palette,
 } from 'lucide-react';
 
 const NAV_GROUPS = [
@@ -57,6 +58,7 @@ const NAV_GROUPS = [
             { href: '/hr', icon: UserCog, label: 'HR & Staff' },
             { href: '/reports', icon: BarChart3, label: 'Reports' },
             { href: '/branches', icon: Building2, label: 'Branches' },
+            { href: '/branding', icon: Palette, label: 'Website Branding' },
             { href: '/settings', icon: Settings, label: 'Settings' },
         ],
     },

@@ -1,18 +1,6 @@
-@import "tailwindcss";
-
-
-@theme {
-  /* Brand Colors */
-  --color-navy: #0A2E4D;
-  --color-cyan-brand: #00C2FF;
-
-  /* Font */
-  --font-family-sans: 'Inter', system-ui, sans-serif;
-
-  /* Spacing */
-  --sidebar-width: 260px;
-  --header-height: 60px;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   /* Brand Colors */

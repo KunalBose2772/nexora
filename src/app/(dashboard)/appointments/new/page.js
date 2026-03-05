@@ -1,13 +1,107 @@
 'use client';
-import { Save, ArrowLeft, CalendarAdd, Clock, UserIcon, Stethoscope, Search, Info } from 'lucide-react';
+import { Save, ArrowLeft, Clock, UserIcon, Stethoscope, Search, Info } from 'lucide-react';
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function BookAppointmentPage() {
+    const router = useRouter();
+    const [patients, setPatients] = useState([]);
+    const [search, setSearch] = useState('');
+    const [selectedPatientId, setSelectedPatientId] = useState('');
+
+    const [formData, setFormData] = useState({
+        doctorName: '',
+        date: '',
+        time: '',
+        reason: ''
+    });
+
+    const [loading, setLoading] = useState(false);
+    const [errorMsg, setErrorMsg] = useState('');
+
+    useEffect(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const pid = urlParams.get('patientId');
+        if (pid) setSelectedPatientId(pid);
+
+        const fetchPatients = async () => {
+            try {
+                const res = await fetch('/api/patients');
+                if (res.ok) {
+                    const data = await res.json();
+                    setPatients(data.patients || []);
+                }
+            } catch (err) {
+                console.error("Failed to load patients", err);
+            }
+        };
+        fetchPatients();
+    }, []);
+
+    const filteredPatients = patients.filter(p =>
+        p.firstName.toLowerCase().includes(search.toLowerCase()) ||
+        p.lastName.toLowerCase().includes(search.toLowerCase()) ||
+        p.patientCode.toLowerCase().includes(search.toLowerCase()) ||
+        (p.phone && p.phone.includes(search))
+    );
+
+    const handlePatientSearch = (e) => setSearch(e.target.value);
+    const handleFormChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+
+    const handleSubmit = async () => {
+        setErrorMsg('');
+        if (!selectedPatientId || !formData.doctorName || !formData.date || !formData.time) {
+            setErrorMsg('Please select a patient, doctor, date, and time.');
+            return;
+        }
+
+        const patient = patients.find(p => p.id === selectedPatientId);
+        if (!patient) return;
+
+        let doctor = formData.doctorName;
+        let department = '';
+        if (doctor.includes('(')) {
+            department = doctor.split('(')[1].replace(')', '').trim();
+            doctor = doctor.split('(')[0].trim();
+        }
+
+        setLoading(true);
+        try {
+            const res = await fetch('/api/appointments', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    patientId: patient.id,
+                    patientName: `${patient.firstName} ${patient.lastName}`,
+                    doctorName: doctor,
+                    department: department,
+                    date: formData.date,
+                    time: formData.time,
+                    reason: formData.reason
+                })
+            });
+
+            if (res.ok) {
+                router.push(`/patients/${patient.patientCode}`);
+            } else {
+                const data = await res.json();
+                setErrorMsg(data.error || 'Failed to book appointment.');
+            }
+        } catch (err) {
+            setErrorMsg('An unexpected error occurred.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const selectedPatient = patients.find(p => p.id === selectedPatientId);
+
     return (
         <div className="fade-in">
             <div className="dashboard-header-row">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                    <Link href="/appointments" className="btn btn-secondary btn-sm" style={{ padding: '8px', border: 'none', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
+                    <Link href="/dashboard" className="btn btn-secondary btn-sm" style={{ padding: '8px', border: 'none', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
                         <ArrowLeft size={18} />
                     </Link>
                     <div>
@@ -16,15 +110,20 @@ export default function BookAppointmentPage() {
                     </div>
                 </div>
                 <div className="dashboard-header-buttons">
-                    <button className="btn btn-secondary btn-sm" style={{ background: '#fff' }}>
+                    <Link href="/dashboard" className="btn btn-secondary btn-sm" style={{ background: '#fff', textDecoration: 'none' }}>
                         Cancel
-                    </button>
-                    <button className="btn btn-primary btn-sm">
-                        <Save size={15} strokeWidth={1.5} />
-                        Confirm Booking
+                    </Link>
+                    <button onClick={handleSubmit} disabled={loading} className="btn btn-primary btn-sm">
+                        {loading ? 'Processing...' : <><Save size={15} strokeWidth={1.5} /> Confirm Booking</>}
                     </button>
                 </div>
             </div>
+
+            {errorMsg && (
+                <div style={{ padding: '16px', marginBottom: '20px', background: 'rgba(239,68,68,0.1)', color: '#DC2626', borderRadius: '8px', border: '1px solid rgba(239,68,68,0.2)' }}>
+                    {errorMsg}
+                </div>
+            )}
 
             <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 2fr) minmax(0, 1fr)', gap: '24px', paddingBottom: '40px' }}>
                 {/* Main Form Area */}
@@ -36,13 +135,30 @@ export default function BookAppointmentPage() {
                             <div style={{ background: 'rgba(0,194,255,0.1)', color: 'var(--color-navy)', padding: '6px', borderRadius: '8px' }}>
                                 <Search size={18} />
                             </div>
-                            <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--color-navy)' }}>Select Patient</h3>
+                            <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--color-navy)' }}>Select Patient <span style={{ color: 'red' }}>*</span></h3>
                         </div>
                         <div style={{ position: 'relative', marginBottom: '16px' }}>
                             <Search size={16} color="#94A3B8" style={{ position: 'absolute', left: '16px', top: '12px' }} />
-                            <input type="text" placeholder="Search by Patient Name, UHID, or Mobile Number..." style={{ width: '100%', padding: '12px 16px 12px 42px', border: '1px solid var(--color-border-light)', borderRadius: '8px', outline: 'none', fontSize: '14px', boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }} />
-                            <button className="btn btn-primary btn-sm" style={{ position: 'absolute', right: '6px', top: '6px' }}>Search</button>
+                            <input type="text" value={search} onChange={handlePatientSearch} placeholder="Search by Patient Name, UHID, or Mobile Number..." style={{ width: '100%', padding: '12px 16px 12px 42px', border: '1px solid var(--color-border-light)', borderRadius: '8px', outline: 'none', fontSize: '14px', boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }} />
                         </div>
+
+                        <div style={{ maxHeight: '180px', overflowY: 'auto', border: '1px solid var(--color-border-light)', borderRadius: '8px', marginBottom: '16px' }}>
+                            {filteredPatients.length > 0 ? filteredPatients.map((p) => (
+                                <div
+                                    key={p.id}
+                                    onClick={() => setSelectedPatientId(p.id)}
+                                    style={{ padding: '12px', borderBottom: '1px solid var(--color-border-light)', cursor: 'pointer', background: selectedPatientId === p.id ? 'rgba(0,194,255,0.05)' : '#fff', display: 'flex', flexDirection: 'column' }}
+                                >
+                                    <span style={{ fontWeight: 600, fontSize: '14px', color: 'var(--color-navy)' }}>{p.firstName} {p.lastName}</span>
+                                    <span style={{ fontSize: '12px', color: 'var(--color-text-secondary)' }}>{p.patientCode} • {p.phone || 'No Phone'}</span>
+                                </div>
+                            )) : (
+                                <div style={{ padding: '12px', textAlign: 'center', color: 'var(--color-text-muted)', fontSize: '13px' }}>
+                                    No patients found
+                                </div>
+                            )}
+                        </div>
+
                         <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--color-text-secondary)' }}>
                             <span>Not registered yet?</span>
                             <Link href="/patients/new" style={{ color: '#00C2FF', fontWeight: 500, textDecoration: 'none' }}>Register New Patient</Link>
@@ -60,32 +176,32 @@ export default function BookAppointmentPage() {
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px' }}>
                             <div style={{ gridColumn: '1 / -1' }}>
                                 <label style={{ display: 'block', fontSize: '13px', marginBottom: '6px', color: 'var(--color-text-secondary)', fontWeight: 500 }}>Department & Doctor <span style={{ color: 'red' }}>*</span></label>
-                                <select style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--color-border-light)', borderRadius: '8px', outline: 'none', fontSize: '14px', backgroundColor: '#fff', color: 'var(--color-text-primary)' }}>
-                                    <option>Select Doctor (Department)...</option>
-                                    <option>Dr. Priya Sharma (Cardiology)</option>
-                                    <option>Dr. Raj Malhotra (Orthopedics)</option>
-                                    <option>Dr. Kavita Patel (Neurology)</option>
+                                <select name="doctorName" value={formData.doctorName} onChange={handleFormChange} style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--color-border-light)', borderRadius: '8px', outline: 'none', fontSize: '14px', backgroundColor: '#fff', color: 'var(--color-text-primary)' }}>
+                                    <option value="">Select Doctor (Department)...</option>
+                                    <option value="Dr. Priya Sharma (Cardiology)">Dr. Priya Sharma (Cardiology)</option>
+                                    <option value="Dr. Raj Malhotra (Orthopedics)">Dr. Raj Malhotra (Orthopedics)</option>
+                                    <option value="Dr. Kavita Patel (Neurology)">Dr. Kavita Patel (Neurology)</option>
                                 </select>
                             </div>
                             <div>
                                 <label style={{ display: 'block', fontSize: '13px', marginBottom: '6px', color: 'var(--color-text-secondary)', fontWeight: 500 }}>Appointment Date <span style={{ color: 'red' }}>*</span></label>
                                 <div style={{ position: 'relative' }}>
-                                    <input type="date" style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--color-border-light)', borderRadius: '8px', outline: 'none', fontSize: '14px', color: 'var(--color-text-primary)' }} />
+                                    <input type="date" name="date" value={formData.date} onChange={handleFormChange} style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--color-border-light)', borderRadius: '8px', outline: 'none', fontSize: '14px', color: 'var(--color-text-primary)' }} />
                                 </div>
                             </div>
                             <div>
                                 <label style={{ display: 'block', fontSize: '13px', marginBottom: '6px', color: 'var(--color-text-secondary)', fontWeight: 500 }}>Time Slot <span style={{ color: 'red' }}>*</span></label>
-                                <select style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--color-border-light)', borderRadius: '8px', outline: 'none', fontSize: '14px', backgroundColor: '#fff', color: 'var(--color-text-primary)' }}>
-                                    <option>Select available time...</option>
-                                    <option>09:00 AM - 09:30 AM</option>
-                                    <option>10:00 AM - 10:30 AM</option>
-                                    <option>11:30 AM - 12:00 PM</option>
-                                    <option>02:00 PM - 02:30 PM (Afternoon)</option>
+                                <select name="time" value={formData.time} onChange={handleFormChange} style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--color-border-light)', borderRadius: '8px', outline: 'none', fontSize: '14px', backgroundColor: '#fff', color: 'var(--color-text-primary)' }}>
+                                    <option value="">Select available time...</option>
+                                    <option value="09:00 AM - 09:30 AM">09:00 AM - 09:30 AM</option>
+                                    <option value="10:00 AM - 10:30 AM">10:00 AM - 10:30 AM</option>
+                                    <option value="11:30 AM - 12:00 PM">11:30 AM - 12:00 PM</option>
+                                    <option value="02:00 PM - 02:30 PM (Afternoon)">02:00 PM - 02:30 PM (Afternoon)</option>
                                 </select>
                             </div>
                             <div style={{ gridColumn: '1 / -1' }}>
                                 <label style={{ display: 'block', fontSize: '13px', marginBottom: '6px', color: 'var(--color-text-secondary)', fontWeight: 500 }}>Chief Complaint / Reason for Visit</label>
-                                <textarea rows="3" placeholder="Briefly describe the patient's symptoms or reason for booking..." style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--color-border-light)', borderRadius: '8px', outline: 'none', fontSize: '14px', fontFamily: 'inherit', resize: 'vertical' }}></textarea>
+                                <textarea name="reason" value={formData.reason} onChange={handleFormChange} rows="3" placeholder="Briefly describe the patient's symptoms or reason for booking..." style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--color-border-light)', borderRadius: '8px', outline: 'none', fontSize: '14px', fontFamily: 'inherit', resize: 'vertical' }}></textarea>
                             </div>
                         </div>
                     </div>
@@ -103,7 +219,7 @@ export default function BookAppointmentPage() {
                                 </div>
                                 <div>
                                     <div style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>Patient Name</div>
-                                    <div style={{ fontSize: '14px', fontWeight: 500, color: 'var(--color-text-primary)' }}>- Not Selected -</div>
+                                    <div style={{ fontSize: '14px', fontWeight: 500, color: 'var(--color-text-primary)' }}>{selectedPatient ? `${selectedPatient.firstName} ${selectedPatient.lastName}` : '- Not Selected -'}</div>
                                 </div>
                             </div>
 
@@ -113,7 +229,7 @@ export default function BookAppointmentPage() {
                                 </div>
                                 <div>
                                     <div style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>Doctor & Dept</div>
-                                    <div style={{ fontSize: '14px', fontWeight: 500, color: 'var(--color-text-primary)' }}>- Not Selected -</div>
+                                    <div style={{ fontSize: '14px', fontWeight: 500, color: 'var(--color-text-primary)' }}>{formData.doctorName || '- Not Selected -'}</div>
                                 </div>
                             </div>
 
@@ -123,7 +239,9 @@ export default function BookAppointmentPage() {
                                 </div>
                                 <div>
                                     <div style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>Date & Time</div>
-                                    <div style={{ fontSize: '14px', fontWeight: 500, color: 'var(--color-text-primary)' }}>- Not Selected -</div>
+                                    <div style={{ fontSize: '14px', fontWeight: 500, color: 'var(--color-text-primary)' }}>
+                                        {formData.date && formData.time ? `${formData.date} at ${formData.time.split(' ')[0]}` : '- Not Selected -'}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -131,15 +249,15 @@ export default function BookAppointmentPage() {
                         <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '1px dashed var(--color-border-light)' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
                                 <span style={{ fontSize: '13px', color: 'var(--color-text-secondary)' }}>Consultation Fee</span>
-                                <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--color-text-primary)' }}>₹ 0.00</span>
+                                <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--color-text-primary)' }}>₹ 500.00</span>
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
                                 <span style={{ fontSize: '13px', color: 'var(--color-text-secondary)' }}>Registration</span>
-                                <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--color-text-primary)' }}>₹ 0.00</span>
+                                <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--color-text-primary)' }}>₹ 250.00</span>
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '12px', paddingTop: '12px', borderTop: '1px solid var(--color-border-light)' }}>
                                 <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-navy)' }}>Total Payable</span>
-                                <span style={{ fontSize: '16px', fontWeight: 700, color: '#16A34A' }}>₹ 0.00</span>
+                                <span style={{ fontSize: '16px', fontWeight: 700, color: '#16A34A' }}>₹ 750.00</span>
                             </div>
                         </div>
                     </div>

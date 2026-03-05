@@ -1,5 +1,8 @@
 'use client';
 
+import { Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
+import HospitalHomePage from '@/components/hospital/HospitalHomePage';
 import Image from 'next/image';
 import Link from 'next/link';
 import PublicHeader from '@/components/layout/PublicHeader';
@@ -219,6 +222,14 @@ function StarRating({ count }) {
 /* ─────────────────────── PAGE ─────────────────────── */
 
 export default function LandingPage() {
+  return (
+    <Suspense fallback={null}>
+      <LandingPageInner />
+    </Suspense>
+  );
+}
+
+function LandingPageInner() {
   return (
     <div style={{ fontFamily: "'Inter', system-ui, sans-serif", color: '#0F172A' }}>
 
@@ -985,7 +996,7 @@ export default function LandingPage() {
               We will show you exactly how Nexora Health fits into your local workflow.
             </p>
             <div className="lp-cta-buttons" style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
-              <Link href="/login" style={{
+              <Link href="/request-demo" style={{
                 display: 'inline-flex', alignItems: 'center', gap: '10px',
                 background: 'linear-gradient(90deg, #00C2FF 0%, #009FD1 100%)',
                 color: '#FFFFFF', fontWeight: 700,

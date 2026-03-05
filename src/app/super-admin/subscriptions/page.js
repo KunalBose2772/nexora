@@ -1,57 +1,113 @@
 'use client';
-import { useState } from 'react';
-import { CreditCard, Search, Download, MoreVertical, Building } from 'lucide-react';
-
-const SUBS = [
-    { name: 'Apollo Health Systems', id: 'SUB_99120', plan: 'Enterprise Tier', amount: '₹45,000', status: 'Active', next: 'Nov 12, 2026' },
-    { name: 'City General Medical Center', id: 'SUB_40212', plan: 'Pro Tier', amount: '₹12,999', status: 'Active', next: 'Oct 05, 2026' },
-    { name: 'Sunrise Dental & ENT Care', id: 'SUB_10291', plan: 'Starter Tier', amount: '₹4,999', status: 'Past Due', next: 'Sep 01, 2026' },
-    { name: 'Metro Multispeciality', id: 'SUB_44910', plan: 'Pro Tier', amount: '₹12,999', status: 'Active', next: 'Dec 22, 2026' },
-];
+import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
+import { CreditCard, Search, Download, MoreVertical, Building, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
 
 export default function SubscriptionsPage() {
-    const [subs, setSubs] = useState(SUBS);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [openActionId, setOpenActionId] = useState(null);
+    const router = useRouter();
+    const [subs, setSubs] = useState([]);
+    const [summary, setSummary] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+    const [searchQuery, setSearch] = useState('');
+    const [openActionId, setOpenAction] = useState(null);
+
+    const fetchSubs = useCallback(async () => {
+        setLoading(true); setError('');
+        try {
+            const res = await fetch('/api/subscriptions');
+            if (res.status === 401 || res.status === 403) { router.replace('/login'); return; }
+            if (!res.ok) throw new Error(await res.text());
+            const data = await res.json();
+            setSubs(data.subscriptions);
+            setSummary(data.summary);
+        } catch (e) {
+            setError('Failed to load subscriptions. ' + e.message);
+        } finally {
+            setLoading(false);
+        }
+    }, [router]);
+
+    useEffect(() => { fetchSubs(); }, [fetchSubs]);
+
+    // Update tenant status via PATCH /api/tenants/[id]
+    const updateStatus = async (sub, newStatus) => {
+        setOpenAction(null);
+        try {
+            const res = await fetch(`/api/tenants/${sub.id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: newStatus }),
+            });
+            if (!res.ok) throw new Error('Update failed');
+            await fetchSubs(); // refresh
+        } catch (e) {
+            alert('Could not update status: ' + e.message);
+        }
+    };
 
     const filteredSubs = subs.filter(s =>
         s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        s.id.toLowerCase().includes(searchQuery.toLowerCase())
+        s.slug.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        s.email?.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     const handleExport = () => {
-        const header = "Tenant,ID,Plan,Amount,Status,Next Renewal\n";
-        const csv = filteredSubs.map(s => `${s.name},${s.id},${s.plan},${s.amount.replace('₹', '')},${s.status},${s.next}`).join('\n');
+        const header = 'Tenant,Slug,Plan,Amount,Status,Users,Patients\n';
+        const csv = filteredSubs.map(s =>
+            `${s.name},${s.slug},${s.plan},${s.amount},${s.status},${s.users},${s.patients}`
+        ).join('\n');
         const blob = new Blob([header + csv], { type: 'text/csv' });
         const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'subscriptions-export.csv';
-        a.click();
+        const a = document.createElement('a'); a.href = url; a.download = 'subscriptions-export.csv'; a.click();
         URL.revokeObjectURL(url);
     };
+
+    const statusBadge = (status) => {
+        const map = {
+            'Active': { bg: '#ECFDF5', color: '#059669' },
+            'Suspended': { bg: '#FEF2F2', color: '#DC2626' },
+            'Past Due': { bg: '#FFFBEB', color: '#D97706' },
+            'Payment Due': { bg: '#FFFBEB', color: '#D97706' },
+        };
+        return map[status] || { bg: '#F1F5F9', color: '#64748B' };
+    };
+
     return (
         <div className="fade-in">
-            {/* Page Header */}
+            {/* Header */}
             <div className="saas-page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px', gap: '16px' }}>
                 <div>
                     <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#0F172A', marginBottom: '8px', letterSpacing: '-0.02em' }}>Active Subscriptions</h1>
                     <p style={{ color: '#64748B', margin: 0, fontSize: '14px' }}>Monitor recurring billing, invoices, and payment statuses across all tenants.</p>
                 </div>
-                <div>
-                    <button onClick={handleExport} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', fontWeight: 600, color: '#0F172A', cursor: 'pointer' }}>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                    <button onClick={fetchSubs} disabled={loading} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '9px 14px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', fontWeight: 600, color: '#0F172A', cursor: 'pointer' }}>
+                        <RefreshCw size={14} style={{ animation: loading ? 'spin 1s linear infinite' : 'none' }} />
+                    </button>
+                    <button onClick={handleExport} disabled={loading || subs.length === 0} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', fontWeight: 600, color: '#0F172A', cursor: 'pointer' }}>
                         <Download size={16} /> Export CSV
                     </button>
                 </div>
             </div>
 
-            {/* Metrics */}
+            {error && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: '10px', padding: '12px 16px', marginBottom: '24px', color: '#DC2626', fontSize: '14px' }}>
+                    <AlertCircle size={16} /> {error}
+                </div>
+            )}
+
+            {/* Summary Metrics from DB */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '24px' }}>
-                {[
-                    { label: 'Total Active MRR', value: '₹24.8M', color: '#0F172A' },
-                    { label: 'Active Subscriptions', value: '1,447', color: '#0F172A' },
-                    { label: 'Past Due', value: '14', color: '#EF4444' },
-                    { label: 'Avg Revenue / Account', value: '₹17,138', color: '#0F172A' },
+                {loading ? (
+                    <div style={{ gridColumn: '1/-1', padding: '24px', textAlign: 'center', color: '#94A3B8' }}>
+                        <Loader2 size={20} style={{ animation: 'spin 1s linear infinite' }} />
+                    </div>
+                ) : [
+                    { label: 'Active Tenants', value: summary?.active ?? 0, color: '#0F172A' },
+                    { label: 'Total Enrolled', value: summary?.total ?? 0, color: '#0F172A' },
+                    { label: 'Past Due', value: summary?.pastDue ?? 0, color: '#EF4444' },
+                    { label: 'Estimated MRR', value: `₹${(summary?.mrr || 0).toLocaleString('en-IN')}`, color: '#0F172A' },
                 ].map((m, i) => (
                     <div key={i} style={{ background: '#FFFFFF', padding: '20px', borderRadius: '12px', border: '1px solid #E2E8F0', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
                         <div style={{ fontSize: '13px', color: '#64748B', fontWeight: 500, marginBottom: '8px' }}>{m.label}</div>
@@ -60,116 +116,103 @@ export default function SubscriptionsPage() {
                 ))}
             </div>
 
-            {/* Table Card */}
+            {/* Table */}
             <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)' }}>
                 <div style={{ padding: '16px 20px', borderBottom: '1px solid #E2E8F0' }}>
                     <div style={{ position: 'relative' }}>
                         <Search size={16} style={{ position: 'absolute', left: '14px', top: '11px', color: '#94A3B8' }} />
-                        <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} type="text" placeholder="Search by hospital or ID..." style={{ width: '100%', padding: '10px 14px 10px 40px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', background: '#F8FAFC', boxSizing: 'border-box' }} onFocus={(e) => e.currentTarget.style.borderColor = '#10B981'} onBlur={(e) => e.currentTarget.style.borderColor = '#E2E8F0'} />
+                        <input value={searchQuery} onChange={e => setSearch(e.target.value)} type="text" placeholder="Search by hospital name, slug, or email…"
+                            style={{ width: '100%', padding: '10px 14px 10px 40px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', background: '#F8FAFC', boxSizing: 'border-box' }}
+                            onFocus={e => e.currentTarget.style.borderColor = '#10B981'} onBlur={e => e.currentTarget.style.borderColor = '#E2E8F0'} />
                     </div>
                 </div>
 
-                {/* Desktop Table */}
-                <div className="sub-dt">
+                {loading ? (
+                    <div style={{ padding: '48px', textAlign: 'center', color: '#94A3B8', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', fontSize: '14px' }}>
+                        <Loader2 size={20} style={{ animation: 'spin 1s linear infinite' }} /> Loading from database…
+                    </div>
+                ) : (
                     <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                         <thead>
                             <tr style={{ background: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
                                 <th style={{ padding: '12px 20px', fontSize: '12px', fontWeight: 600, color: '#475569', textTransform: 'uppercase' }}>Tenant / Hospital</th>
                                 <th style={{ padding: '12px 20px', fontSize: '12px', fontWeight: 600, color: '#475569', textTransform: 'uppercase' }}>Plan</th>
-                                <th style={{ padding: '12px 20px', fontSize: '12px', fontWeight: 600, color: '#475569', textTransform: 'uppercase' }}>Amount</th>
+                                <th style={{ padding: '12px 20px', fontSize: '12px', fontWeight: 600, color: '#475569', textTransform: 'uppercase' }}>Est. Amount</th>
+                                <th style={{ padding: '12px 20px', fontSize: '12px', fontWeight: 600, color: '#475569', textTransform: 'uppercase' }}>Users / Patients</th>
                                 <th style={{ padding: '12px 20px', fontSize: '12px', fontWeight: 600, color: '#475569', textTransform: 'uppercase' }}>Status</th>
-                                <th style={{ padding: '12px 20px', fontSize: '12px', fontWeight: 600, color: '#475569', textTransform: 'uppercase' }}>Next Renewal</th>
                                 <th style={{ padding: '12px 20px' }}></th>
                             </tr>
                         </thead>
                         <tbody>
                             {filteredSubs.length === 0 ? (
-                                <tr>
-                                    <td colSpan={6} style={{ padding: '40px', textAlign: 'center', color: '#64748B', fontSize: '14px' }}>No subscriptions found matching your search.</td>
-                                </tr>
-                            ) : filteredSubs.map((sub, i) => (
-                                <tr key={i} style={{ borderBottom: '1px solid #E2E8F0' }} onMouseOver={(e) => e.currentTarget.style.background = '#F8FAFC'} onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}>
-                                    <td style={{ padding: '14px 20px' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                            <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: '#F1F5F9', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748B', flexShrink: 0 }}>
-                                                <Building size={16} />
+                                <tr><td colSpan={6} style={{ padding: '40px', textAlign: 'center', color: '#64748B', fontSize: '14px' }}>No subscriptions found.</td></tr>
+                            ) : filteredSubs.map((sub) => {
+                                const badge = statusBadge(sub.status);
+                                return (
+                                    <tr key={sub.id} style={{ borderBottom: '1px solid #E2E8F0' }}
+                                        onMouseOver={e => e.currentTarget.style.background = '#F8FAFC'}
+                                        onMouseOut={e => e.currentTarget.style.background = 'transparent'}>
+                                        <td style={{ padding: '14px 20px' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                                <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: '#F1F5F9', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748B', flexShrink: 0 }}>
+                                                    <Building size={16} />
+                                                </div>
+                                                <div>
+                                                    <div style={{ fontSize: '14px', fontWeight: 600, color: '#0F172A' }}>{sub.name}</div>
+                                                    <div style={{ fontSize: '12px', color: '#64748B' }}>/{sub.slug} · {sub.email}</div>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <div style={{ fontSize: '14px', fontWeight: 600, color: '#0F172A' }}>{sub.name}</div>
-                                                <div style={{ fontSize: '12px', color: '#64748B' }}>{sub.id}</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td style={{ padding: '14px 20px', fontSize: '14px', color: '#334155', fontWeight: 500 }}>{sub.plan}</td>
-                                    <td style={{ padding: '14px 20px', fontSize: '14px', color: '#0F172A', fontWeight: 700 }}>{sub.amount}/mo</td>
-                                    <td style={{ padding: '14px 20px' }}>
-                                        <span style={{ padding: '4px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: 600, background: sub.status === 'Active' ? '#ECFDF5' : (sub.status === 'Suspended' ? '#FEF2F2' : '#FFFBEB'), color: sub.status === 'Active' ? '#059669' : (sub.status === 'Suspended' ? '#DC2626' : '#D97706'), whiteSpace: 'nowrap' }}>
-                                            {sub.status}
-                                        </span>
-                                    </td>
-                                    <td style={{ padding: '14px 20px', fontSize: '14px', color: '#64748B' }}>{sub.next}</td>
-                                    <td style={{ padding: '14px 20px', textAlign: 'right', position: 'relative' }}>
-                                        <button onClick={() => setOpenActionId(openActionId === sub.id ? null : sub.id)} style={{ padding: '7px', background: openActionId === sub.id ? '#F8FAFC' : 'none', border: openActionId === sub.id ? '1px solid #E2E8F0' : '1px solid transparent', color: '#94A3B8', cursor: 'pointer', borderRadius: '6px' }}><MoreVertical size={16} /></button>
-
-                                        {/* Row Actions Dropdown */}
-                                        {openActionId === sub.id && (
-                                            <div style={{ position: 'absolute', top: '100%', right: '20px', marginTop: '4px', background: 'white', border: '1px solid #E2E8F0', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', minWidth: '160px', zIndex: 10, overflow: 'hidden', textAlign: 'left' }}>
-                                                {sub.status !== 'Active' && (
-                                                    <button onClick={() => {
-                                                        setOpenActionId(null);
-                                                        setSubs(subs.map(s => s.id === sub.id ? { ...s, status: 'Active' } : s));
-                                                    }} style={{ display: 'block', width: '100%', padding: '10px 14px', background: 'none', border: 'none', textAlign: 'left', fontSize: '13px', color: '#10B981', cursor: 'pointer' }} onMouseOver={e => e.currentTarget.style.background = '#F8FAFC'} onMouseOut={e => e.currentTarget.style.background = 'transparent'}>Mark Active</button>
-                                                )}
-                                                <button onClick={() => {
-                                                    setOpenActionId(null);
-                                                    setSubs(subs.map(s => s.id === sub.id ? { ...s, status: 'Past Due' } : s));
-                                                }} style={{ display: 'block', width: '100%', padding: '10px 14px', background: 'none', border: 'none', textAlign: 'left', fontSize: '13px', color: '#334155', cursor: 'pointer' }} onMouseOver={e => e.currentTarget.style.background = '#F8FAFC'} onMouseOut={e => e.currentTarget.style.background = 'transparent'}>Mark Past Due</button>
-
-                                                <div style={{ height: '1px', background: '#E2E8F0', margin: '4px 0' }}></div>
-
-                                                <button onClick={() => {
-                                                    setOpenActionId(null);
-                                                    if (window.confirm('Suspending this subscription will block tenant access. Continue?')) {
-                                                        setSubs(subs.map(s => s.id === sub.id ? { ...s, status: 'Suspended' } : s));
-                                                    }
-                                                }} style={{ display: 'block', width: '100%', padding: '10px 14px', background: 'none', border: 'none', textAlign: 'left', fontSize: '13px', color: '#EF4444', cursor: 'pointer' }} onMouseOver={e => e.currentTarget.style.background = '#FEF2F2'} onMouseOut={e => e.currentTarget.style.background = 'transparent'}>Suspend Subscription</button>
-                                            </div>
-                                        )}
-                                    </td>
-                                </tr>
-                            ))}
+                                        </td>
+                                        <td style={{ padding: '14px 20px', fontSize: '14px', color: '#334155', fontWeight: 500 }}>{sub.plan}</td>
+                                        <td style={{ padding: '14px 20px', fontSize: '14px', color: '#0F172A', fontWeight: 700 }}>{sub.amount}/mo</td>
+                                        <td style={{ padding: '14px 20px', fontSize: '13px', color: '#64748B' }}>{sub.users} users · {sub.patients} patients</td>
+                                        <td style={{ padding: '14px 20px' }}>
+                                            <span style={{ padding: '4px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: 600, background: badge.bg, color: badge.color }}>{sub.status}</span>
+                                        </td>
+                                        <td style={{ padding: '14px 20px', textAlign: 'right', position: 'relative' }}>
+                                            <button onClick={() => setOpenAction(openActionId === sub.id ? null : sub.id)}
+                                                style={{ padding: '7px', background: openActionId === sub.id ? '#F8FAFC' : 'none', border: openActionId === sub.id ? '1px solid #E2E8F0' : '1px solid transparent', color: '#94A3B8', cursor: 'pointer', borderRadius: '6px' }}>
+                                                <MoreVertical size={16} />
+                                            </button>
+                                            {openActionId === sub.id && (
+                                                <div style={{ position: 'absolute', top: '100%', right: '20px', marginTop: '4px', background: 'white', border: '1px solid #E2E8F0', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', minWidth: '170px', zIndex: 10, overflow: 'hidden', textAlign: 'left' }}>
+                                                    {sub.status !== 'Active' && (
+                                                        <button onClick={() => updateStatus(sub, 'Active')} style={{ display: 'block', width: '100%', padding: '10px 14px', background: 'none', border: 'none', textAlign: 'left', fontSize: '13px', color: '#10B981', cursor: 'pointer' }}
+                                                            onMouseOver={e => e.currentTarget.style.background = '#F8FAFC'} onMouseOut={e => e.currentTarget.style.background = 'transparent'}>
+                                                            ✓ Reactivate
+                                                        </button>
+                                                    )}
+                                                    {sub.status !== 'Payment Due' && (
+                                                        <button onClick={() => updateStatus(sub, 'Payment Due')} style={{ display: 'block', width: '100%', padding: '10px 14px', background: 'none', border: 'none', textAlign: 'left', fontSize: '13px', color: '#D97706', cursor: 'pointer' }}
+                                                            onMouseOver={e => e.currentTarget.style.background = '#F8FAFC'} onMouseOut={e => e.currentTarget.style.background = 'transparent'}>
+                                                            Mark Payment Due
+                                                        </button>
+                                                    )}
+                                                    <div style={{ height: '1px', background: '#E2E8F0', margin: '4px 0' }} />
+                                                    {sub.status !== 'Suspended' && (
+                                                        <button onClick={() => { if (confirm(`Suspend ${sub.name}? This will block their login.`)) updateStatus(sub, 'Suspended'); }}
+                                                            style={{ display: 'block', width: '100%', padding: '10px 14px', background: 'none', border: 'none', textAlign: 'left', fontSize: '13px', color: '#EF4444', cursor: 'pointer' }}
+                                                            onMouseOver={e => e.currentTarget.style.background = '#FEF2F2'} onMouseOut={e => e.currentTarget.style.background = 'transparent'}>
+                                                            Suspend Tenant
+                                                        </button>
+                                                    )}
+                                                    <button onClick={() => router.push('/super-admin/tenants')} style={{ display: 'block', width: '100%', padding: '10px 14px', background: 'none', border: 'none', textAlign: 'left', fontSize: '13px', color: '#334155', cursor: 'pointer' }}
+                                                        onMouseOver={e => e.currentTarget.style.background = '#F8FAFC'} onMouseOut={e => e.currentTarget.style.background = 'transparent'}>
+                                                        Manage Tenant →
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </td>
+                                    </tr>
+                                );
+                            })}
                         </tbody>
                     </table>
-                </div>
-
-                {/* Mobile Cards */}
-                <div className="sub-mob">
-                    {filteredSubs.length === 0 ? (
-                        <div style={{ padding: '30px', textAlign: 'center', color: '#64748B', fontSize: '14px' }}>No subscriptions found.</div>
-                    ) : filteredSubs.map((sub, i) => (
-                        <div key={i} style={{ padding: '16px 20px', borderBottom: '1px solid #F1F5F9' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px', marginBottom: '6px' }}>
-                                <div style={{ fontWeight: 600, color: '#0F172A', fontSize: '14px', minWidth: 0 }}>{sub.name}</div>
-                                <span style={{ padding: '3px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: 600, background: sub.status === 'Active' ? '#ECFDF5' : (sub.status === 'Suspended' ? '#FEF2F2' : '#FFFBEB'), color: sub.status === 'Active' ? '#059669' : (sub.status === 'Suspended' ? '#DC2626' : '#D97706'), whiteSpace: 'nowrap', flexShrink: 0 }}>{sub.status}</span>
-                            </div>
-                            <div style={{ fontSize: '12px', color: '#64748B', marginBottom: '8px' }}>{sub.id}</div>
-                            <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-                                <span style={{ fontSize: '13px', color: '#475569' }}>{sub.plan}</span>
-                                <span style={{ fontSize: '13px', fontWeight: 700, color: '#0F172A' }}>{sub.amount}/mo</span>
-                                <span style={{ fontSize: '12px', color: '#94A3B8' }}>Renews {sub.next}</span>
-                            </div>
-                        </div>
-                    ))}
-                </div>
+                )}
             </div>
 
             <style>{`
-                .sub-dt { display: block; }
-                .sub-mob { display: none; }
-                @media (max-width: 768px) {
-                    .sub-dt { display: none; }
-                    .sub-mob { display: block; }
-                }
+                @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
             `}</style>
         </div>
     );

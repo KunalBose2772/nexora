@@ -121,7 +121,7 @@ export default function PublicHeader() {
 
                     {/* Request Demo */}
                     <Link
-                        href="/demo"
+                        href="/request-demo"
                         style={{
                             fontSize: '13.5px',
                             color: '#071220',
@@ -205,7 +205,7 @@ export default function PublicHeader() {
                             Sign In
                         </Link>
                         <Link
-                            href="/demo"
+                            href="/request-demo"
                             style={{
                                 flex: 1,
                                 textAlign: 'center',

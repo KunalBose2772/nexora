@@ -1,8 +1,76 @@
 'use client';
-import { Stethoscope, Plus, Search, Filter, Users, Activity, Clock, Eye, Send, ArrowRightCircle, AlertTriangle } from 'lucide-react';
+import { Stethoscope, Plus, Search, Filter, Users, Activity, Clock, Eye, Send, ArrowRightCircle, AlertTriangle, CheckCircle, Play } from 'lucide-react';
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function OPDPage() {
+    const router = useRouter();
+    const [appointments, setAppointments] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [search, setSearch] = useState('');
+
+    useEffect(() => {
+        const fetchAppointments = async () => {
+            try {
+                const res = await fetch('/api/appointments');
+                if (res.ok) {
+                    const data = await res.json();
+                    setAppointments(data.appointments || []);
+                }
+            } catch (err) {
+                console.error("Failed to load operations:", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchAppointments();
+    }, []);
+
+    const todayStr = new Date().toISOString().split('T')[0];
+
+    // We filter for active tickets scheduled for today, excluding cancelled.
+    const opdAppointments = appointments.filter(a => a.date === todayStr && a.status !== 'Cancelled');
+
+    const filteredQueue = opdAppointments.filter(apt => {
+        const matchesSearch = (apt.patientName && apt.patientName.toLowerCase().includes(search.toLowerCase())) ||
+            (apt.doctorName && apt.doctorName.toLowerCase().includes(search.toLowerCase())) ||
+            (apt.apptCode && apt.apptCode.toLowerCase().includes(search.toLowerCase()));
+        return matchesSearch;
+    });
+
+    const activeWaiting = opdAppointments.filter(a => a.status === 'Waiting' || a.status === 'Scheduled').length;
+    const inProgress = opdAppointments.filter(a => a.status === 'In Progress').length;
+    const completedToday = opdAppointments.filter(a => a.status === 'Completed').length;
+
+    const updateStatus = async (id, newStatus) => {
+        try {
+            const res = await fetch(`/api/appointments/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: newStatus })
+            });
+
+            if (res.ok) {
+                // Update local state smoothly
+                setAppointments(appointments.map(a =>
+                    (a.id === id || a.apptCode === id) ? { ...a, status: newStatus } : a
+                ));
+            } else {
+                alert("Failed to update status.");
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const getAge = (dob) => {
+        if (!dob) return '?';
+        const diff = Date.now() - new Date(dob).getTime();
+        const MathAge = new Date(diff).getUTCFullYear() - 1970;
+        return MathAge > 0 ? MathAge : '?';
+    };
+
     return (
         <div className="fade-in">
             <div className="dashboard-header-row">
@@ -13,10 +81,10 @@ export default function OPDPage() {
                     </p>
                 </div>
                 <div className="dashboard-header-buttons">
-                    <button className="btn btn-secondary btn-sm" style={{ background: '#fff' }}>
+                    <button onClick={() => window.open('/opd-display', '_blank')} className="btn btn-secondary btn-sm" style={{ background: '#fff' }}>
                         Token Display View
                     </button>
-                    <Link href="/opd/consult" className="btn btn-primary btn-sm" style={{ textDecoration: 'none' }}>
+                    <Link href="/appointments/new" className="btn btn-primary btn-sm" style={{ textDecoration: 'none' }}>
                         <Plus size={15} strokeWidth={1.5} aria-hidden="true" />
                         Initiate Consult
                     </Link>
@@ -34,8 +102,8 @@ export default function OPDPage() {
                     <div>
                         <p style={{ fontSize: '13px', color: 'var(--color-text-secondary)', margin: '0 0 4px 0', fontWeight: 500 }}>Active Queue Size</p>
                         <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-                            <h4 style={{ fontSize: '24px', fontWeight: 700, color: 'var(--color-navy)', margin: 0 }}>42</h4>
-                            <span style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>Patients Waiting</span>
+                            <h4 style={{ fontSize: '24px', fontWeight: 700, color: 'var(--color-navy)', margin: 0 }}>{activeWaiting}</h4>
+                            <span style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>Patients Waiting Today</span>
                         </div>
                     </div>
                 </div>
@@ -49,7 +117,7 @@ export default function OPDPage() {
                     <div>
                         <p style={{ fontSize: '13px', color: 'var(--color-text-secondary)', margin: '0 0 4px 0', fontWeight: 500 }}>In-Progress Consults</p>
                         <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-                            <h4 style={{ fontSize: '24px', fontWeight: 700, color: '#10B981', margin: 0 }}>5</h4>
+                            <h4 style={{ fontSize: '24px', fontWeight: 700, color: '#10B981', margin: 0 }}>{inProgress}</h4>
                             <span style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>Docs Active</span>
                         </div>
                     </div>
@@ -58,13 +126,14 @@ export default function OPDPage() {
                 <div className="stat-card" style={{ padding: '20px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
                         <div style={{ background: 'rgba(245,158,11,0.1)', color: '#F59E0B', padding: '10px', borderRadius: '10px' }}>
-                            <Clock size={20} />
+                            <CheckCircle size={20} />
                         </div>
                     </div>
                     <div>
-                        <p style={{ fontSize: '13px', color: 'var(--color-text-secondary)', margin: '0 0 4px 0', fontWeight: 500 }}>Average Wait Time</p>
+                        <p style={{ fontSize: '13px', color: 'var(--color-text-secondary)', margin: '0 0 4px 0', fontWeight: 500 }}>Completed Operations</p>
                         <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-                            <h4 style={{ fontSize: '24px', fontWeight: 700, color: '#F59E0B', margin: 0 }}>24m</h4>
+                            <h4 style={{ fontSize: '24px', fontWeight: 700, color: '#F59E0B', margin: 0 }}>{completedToday}</h4>
+                            <span style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>Discharged Today</span>
                         </div>
                     </div>
                 </div>
@@ -75,7 +144,7 @@ export default function OPDPage() {
                     <div style={{ display: 'flex', gap: '12px', flex: 1, minWidth: '300px' }}>
                         <div style={{ flex: 1, position: 'relative' }}>
                             <Search size={16} color="#94A3B8" style={{ position: 'absolute', left: '16px', top: '12px' }} />
-                            <input type="text" placeholder="Search Master Queue by Token No, Patient, or Doctor..." style={{ width: '100%', padding: '12px 16px 12px 42px', border: '1px solid var(--color-border-light)', borderRadius: '8px', outline: 'none', fontSize: '14px' }} />
+                            <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search Master Queue by Token No, Patient, or Doctor..." style={{ width: '100%', padding: '12px 16px 12px 42px', border: '1px solid var(--color-border-light)', borderRadius: '8px', outline: 'none', fontSize: '14px' }} />
                         </div>
                         <button className="btn btn-secondary" style={{ background: '#fff' }}>
                             <Filter size={16} /> Filter Rooms
@@ -90,62 +159,85 @@ export default function OPDPage() {
                                 <th style={{ padding: '16px', fontWeight: 600, color: 'var(--color-text-secondary)', fontSize: '12px', textTransform: 'uppercase' }}>Token & Patient Info</th>
                                 <th style={{ padding: '16px', fontWeight: 600, color: 'var(--color-text-secondary)', fontSize: '12px', textTransform: 'uppercase' }}>Vitals & Triage</th>
                                 <th style={{ padding: '16px', fontWeight: 600, color: 'var(--color-text-secondary)', fontSize: '12px', textTransform: 'uppercase' }}>Assigned Physician</th>
-                                <th style={{ padding: '16px', fontWeight: 600, color: 'var(--color-text-secondary)', fontSize: '12px', textTransform: 'uppercase' }}>Wait Duration</th>
+                                <th style={{ padding: '16px', fontWeight: 600, color: 'var(--color-text-secondary)', fontSize: '12px', textTransform: 'uppercase' }}>Time Slot</th>
                                 <th style={{ padding: '16px', fontWeight: 600, color: 'var(--color-text-secondary)', fontSize: '12px', textTransform: 'uppercase' }}>State</th>
                                 <th style={{ padding: '16px', fontWeight: 600, color: 'var(--color-text-secondary)', fontSize: '12px', textTransform: 'uppercase', textAlign: 'right' }}>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {[
-                                { token: 'T-402', patient: 'Vinod Mehra', age: '45, M', vitals: 'BP: 120/80', dr: 'Dr. Kavita Patel', room: 'Room 102', wait: '0m', status: 'In Session', badge: 'badge-info' },
-                                { token: 'T-403', patient: 'Anita Sharma', age: '32, F', vitals: 'Triage Pending', dr: 'Dr. Priya Sharma', room: 'Room 101', wait: '15m', status: 'Next Calling', badge: 'badge-yellow' },
-                                { token: 'T-404', patient: 'Suresh Das', age: '62, M', vitals: 'BP: 140/90, Temp: 99F', dr: 'Dr. Priya Sharma', room: 'Room 101', wait: '32m', status: 'Waiting', badge: 'badge-navy' },
-                                { token: 'T-405', patient: 'Alisha Khan', age: '28, F', vitals: 'Triage Pending', dr: 'Dr. Kavita Patel', room: 'Room 102', wait: '45m', status: 'Waiting', badge: 'badge-navy' },
-                                { token: 'T-401', patient: 'Deepak Verma', age: '24, M', vitals: 'Normal', dr: 'Dr. Arjun Nair', room: 'Room 105', wait: '-', status: 'Discharged', badge: 'badge-green' },
-                            ].map((row, i) => (
-                                <tr key={i} style={{ borderBottom: '1px solid var(--color-border-light)', transition: 'background 0.2s' }} onMouseOver={(e) => e.currentTarget.style.background = '#F8FAFC'} onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}>
-                                    <td style={{ padding: '16px' }}>
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                            <span style={{ fontWeight: 700, color: 'var(--color-navy)', fontSize: '15px' }}>{row.token}</span>
-                                            <span style={{ fontSize: '13px', color: 'var(--color-text-primary)' }}>{row.patient} <span style={{ color: 'var(--color-text-muted)' }}>({row.age})</span></span>
-                                        </div>
-                                    </td>
-                                    <td style={{ padding: '16px' }}>
-                                        <span style={{ fontSize: '12px', color: row.vitals === 'Triage Pending' ? '#F59E0B' : 'var(--color-text-secondary)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                            {row.vitals === 'Triage Pending' && <AlertTriangle size={12} />} {row.vitals}
-                                        </span>
-                                    </td>
-                                    <td style={{ padding: '16px' }}>
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                            <span style={{ color: 'var(--color-text-primary)' }}>{row.dr}</span>
-                                            <span style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>{row.room}</span>
-                                        </div>
-                                    </td>
-                                    <td style={{ padding: '16px' }}>
-                                        <span style={{ fontWeight: 600, color: row.wait.includes('45') || row.wait.includes('3') ? '#EF4444' : 'var(--color-text-primary)' }}>{row.wait}</span>
-                                    </td>
-                                    <td style={{ padding: '16px' }}>
-                                        <span className={`badge ${row.badge}`} style={{ padding: '4px 10px', fontSize: '12px' }}>
-                                            {row.status}
-                                        </span>
-                                    </td>
-                                    <td style={{ padding: '16px', textAlign: 'right' }}>
-                                        {row.status === 'Waiting' || row.status === 'Next Calling' ? (
-                                            <button className="btn btn-secondary btn-sm" style={{ padding: '6px 12px', fontSize: '12px', background: '#F8FAFC', color: 'var(--color-navy)' }}>
-                                                <ArrowRightCircle size={14} /> Send In
-                                            </button>
-                                        ) : row.status === 'In Session' ? (
-                                            <button className="btn btn-primary btn-sm" style={{ padding: '6px 12px', fontSize: '12px' }}>
-                                                Open Desk
-                                            </button>
-                                        ) : (
-                                            <button className="btn btn-secondary btn-sm" style={{ padding: '8px', background: '#F8FAFC' }}>
-                                                <Eye size={14} color="var(--color-text-secondary)" />
-                                            </button>
-                                        )}
+                            {loading ? (
+                                <tr>
+                                    <td colSpan="6" style={{ padding: '24px', textAlign: 'center', color: 'var(--color-text-muted)' }}>
+                                        Loading queue data...
                                     </td>
                                 </tr>
-                            ))}
+                            ) : filteredQueue.length === 0 ? (
+                                <tr>
+                                    <td colSpan="6" style={{ padding: '24px', textAlign: 'center', color: 'var(--color-text-muted)' }}>
+                                        No active patients in the queue for today.
+                                    </td>
+                                </tr>
+                            ) : (
+                                filteredQueue.map((row) => (
+                                    <tr key={row.id} onClick={(e) => {
+                                        // Prevents row click if an action button was clicked
+                                        if (e.target.closest('button')) return;
+                                        router.push(`/appointments/${row.apptCode}`);
+                                    }} style={{ borderBottom: '1px solid var(--color-border-light)', transition: 'background 0.2s', cursor: 'pointer' }} onMouseOver={(e) => e.currentTarget.style.background = '#F8FAFC'} onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}>
+                                        <td style={{ padding: '16px' }}>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                <span style={{ fontWeight: 700, color: 'var(--color-navy)', fontSize: '15px' }}>{row.apptCode}</span>
+                                                <span style={{ fontSize: '13px', color: 'var(--color-text-primary)' }}>
+                                                    {row.patientName}
+                                                    <span style={{ color: 'var(--color-text-muted)', marginLeft: '4px' }}>
+                                                        ({row.patient ? `${getAge(row.patient.dob)}, ${row.patient.gender?.charAt(0) || 'U'}` : 'Guest'})
+                                                    </span>
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td style={{ padding: '16px' }}>
+                                            {row.status === 'Completed' ? (
+                                                <span style={{ fontSize: '12px', color: '#10B981', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                    Discharged
+                                                </span>
+                                            ) : (
+                                                <span style={{ fontSize: '12px', color: '#F59E0B', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                    <AlertTriangle size={12} /> Triage Pending
+                                                </span>
+                                            )}
+                                        </td>
+                                        <td style={{ padding: '16px' }}>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                <span style={{ color: 'var(--color-text-primary)' }}>{row.doctorName}</span>
+                                                <span style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>{row.department || 'Consulting Room'}</span>
+                                            </div>
+                                        </td>
+                                        <td style={{ padding: '16px' }}>
+                                            <span style={{ fontWeight: 600, color: 'var(--color-text-primary)', fontSize: '13px' }}>{row.time || 'Walk-in'}</span>
+                                        </td>
+                                        <td style={{ padding: '16px' }}>
+                                            <span className={`badge ${row.status === 'In Progress' ? 'badge-blue' : row.status === 'Completed' ? 'badge-green' : row.status === 'Waiting' ? 'badge-yellow' : 'badge-navy'}`} style={{ padding: '4px 10px', fontSize: '12px' }}>
+                                                {row.status}
+                                            </span>
+                                        </td>
+                                        <td style={{ padding: '16px', textAlign: 'right' }}>
+                                            {row.status === 'Waiting' || row.status === 'Scheduled' ? (
+                                                <button onClick={(e) => { e.stopPropagation(); updateStatus(row.id, 'In Progress'); }} className="btn btn-secondary btn-sm" style={{ padding: '6px 12px', fontSize: '12px', background: '#F8FAFC', color: 'var(--color-navy)' }}>
+                                                    <ArrowRightCircle size={14} /> Call Next
+                                                </button>
+                                            ) : row.status === 'In Progress' ? (
+                                                <button onClick={(e) => { e.stopPropagation(); updateStatus(row.id, 'Completed'); }} className="btn btn-primary btn-sm" style={{ padding: '6px 12px', fontSize: '12px', background: '#3B82F6', borderColor: '#3B82F6', color: '#fff' }}>
+                                                    <Play size={14} fill="white" /> End Session
+                                                </button>
+                                            ) : (
+                                                <button onClick={(e) => { e.stopPropagation(); router.push(`/appointments/${row.apptCode}`); }} className="btn btn-secondary btn-sm" style={{ padding: '8px', background: '#F8FAFC' }}>
+                                                    <Eye size={14} color="var(--color-text-secondary)" /> Detail
+                                                </button>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
                         </tbody>
                     </table>
                 </div>

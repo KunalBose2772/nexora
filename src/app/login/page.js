@@ -4,11 +4,13 @@ import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ShieldCheck, Eye, EyeOff, CheckCircle2 } from 'lucide-react';
+import { ShieldCheck, Eye, EyeOff, CheckCircle2, AlertCircle } from 'lucide-react';
 
 export default function LoginPage() {
     const [showPassword, setShowPassword] = useState(false);
     const [role, setRole] = useState('hospital');
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
     const router = useRouter();
 
     const FEATURES = [
@@ -24,7 +26,7 @@ export default function LoginPage() {
                 .login-wrap {
                     min-height: 100vh;
                     display: grid;
-                    grid-template-columns: 1fr 1fr;
+                    grid-template-columns: 55% 45%;
                     font-family: 'Inter', system-ui, sans-serif;
                 }
                 .login-left {
@@ -204,12 +206,33 @@ export default function LoginPage() {
                             </button>
                         </div>
 
-                        <form aria-label="Sign in form" noValidate onSubmit={(e) => {
+                        <form aria-label="Sign in form" noValidate onSubmit={async (e) => {
                             e.preventDefault();
-                            if (role === 'superadmin') {
-                                router.push('/super-admin');
-                            } else {
-                                router.push('/dashboard');
+                            setError('');
+                            setLoading(true);
+                            try {
+                                const email = e.target.email.value.trim();
+                                const password = e.target.password.value;
+                                const res = await fetch('/api/auth/login', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ email, password }),
+                                });
+                                const data = await res.json();
+                                if (!res.ok) {
+                                    setError(data.error || 'Login failed.');
+                                    return;
+                                }
+                                // Redirect based on role
+                                if (data.user.role === 'superadmin') {
+                                    router.push('/super-admin');
+                                } else {
+                                    router.push('/dashboard');
+                                }
+                            } catch {
+                                setError('Network error. Please try again.');
+                            } finally {
+                                setLoading(false);
                             }
                         }}>
                             <div className="form-group" style={{ marginBottom: '16px' }}>
@@ -217,7 +240,8 @@ export default function LoginPage() {
                                 <input
                                     id="email" name="email" type="email" required
                                     autoComplete="email"
-                                    placeholder={role === 'superadmin' ? "admin@globalwebify.com" : "doctor@hospital.com"}
+                                    onChange={() => setError('')}
+                                    placeholder={role === 'superadmin' ? "admin@nexorahealth.com" : "admin@apollo.com"}
                                     className="form-input"
                                     aria-required="true"
                                 />
@@ -230,6 +254,7 @@ export default function LoginPage() {
                                         id="password" name="password"
                                         type={showPassword ? 'text' : 'password'}
                                         required autoComplete="current-password"
+                                        onChange={() => setError('')}
                                         placeholder="••••••••"
                                         className="form-input"
                                         aria-required="true"
@@ -251,6 +276,14 @@ export default function LoginPage() {
                                 </div>
                             </div>
 
+                            {/* Error message */}
+                            {error && (
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: '8px', padding: '10px 12px', marginBottom: '12px' }}>
+                                    <AlertCircle size={15} color="#EF4444" style={{ flexShrink: 0 }} />
+                                    <span style={{ fontSize: '13px', color: '#B91C1C' }}>{error}</span>
+                                </div>
+                            )}
+
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
                                 <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#475569', cursor: 'pointer' }}>
                                     <input type="checkbox" id="remember" name="remember" style={{ accentColor: '#0A2E4D' }} />
@@ -264,17 +297,18 @@ export default function LoginPage() {
                             <button
                                 type="submit"
                                 id="sign-in-btn"
+                                disabled={loading}
                                 style={{
                                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                                     gap: '8px', width: '100%', padding: '13px',
                                     background: role === 'superadmin' ? 'linear-gradient(135deg, #064E3B 0%, #065F46 100%)' : 'linear-gradient(135deg, #0A2E4D 0%, #071220 100%)',
                                     color: 'white', fontWeight: 700, fontSize: '15px',
-                                    borderRadius: '10px', textDecoration: 'none', border: 'none', cursor: 'pointer',
-                                    transition: 'opacity 150ms', marginBottom: '16px',
+                                    borderRadius: '10px', textDecoration: 'none', border: 'none', cursor: loading ? 'not-allowed' : 'pointer',
+                                    transition: 'opacity 150ms', marginBottom: '16px', opacity: loading ? 0.7 : 1,
                                     boxShadow: role === 'superadmin' ? '0 4px 14px rgba(6,78,59,0.35)' : '0 4px 14px rgba(10,46,77,0.35)',
                                 }}
                             >
-                                Sign In
+                                {loading ? 'Signing in…' : 'Sign In'}
                             </button>
                         </form>
 

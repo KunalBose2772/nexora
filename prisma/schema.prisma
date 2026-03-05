@@ -1,0 +1,130 @@
+// Prisma v5 schema — SQLite for local development, swap to PostgreSQL for prod
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ── TENANT (Hospital / Clinic) ───────────────────────────────────────────────
+model Tenant {
+  id           String   @id @default(cuid())
+  tenantCode   String   @unique    // e.g. TEN-9201
+  slug         String   @unique    // e.g. "apollo" — used in ?tenant= URLs
+  name         String
+  plan         String   @default("Starter Tier")
+  status       String   @default("Active")  // Active | Suspended | Payment Due
+  adminEmail   String
+  phone        String?
+  address      String?
+  tagline      String?
+  description  String?
+  logoInitials String?
+  primaryColor String?  @default("#10B981")
+  logoUrl      String?  // URL to uploaded logo image
+  heroImage    String?  // URL to hero background image
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  users        User[]
+  patients     Patient[]
+  appointments Appointment[]
+  records      PatientRecord[]
+}
+
+// ── USER ─────────────────────────────────────────────────────────────────────
+model User {
+  id           String   @id @default(cuid())
+  userId       String   @unique  // e.g. USR-0001
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         String   // superadmin | hospital_admin | doctor | nurse | receptionist
+  status       String   @default("Active")  // Active | Suspended
+
+  tenantId     String?
+  tenant       Tenant?  @relation(fields: [tenantId], references: [id])
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// ── PATIENT ──────────────────────────────────────────────────────────────────
+model Patient {
+  id          String   @id @default(cuid())
+  patientCode String   // e.g. NXR-2026-00001 (unique per tenant)
+  firstName   String
+  lastName    String
+  dob         String?
+  gender      String?
+  phone       String?
+  email       String?
+  address     String?
+  bloodGroup  String?
+  allergies   String?
+  status      String   @default("Active")
+
+  tenantId    String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+
+  appointments Appointment[]
+  records     PatientRecord[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ── APPOINTMENT ───────────────────────────────────────────────────────────────
+model Appointment {
+  id          String   @id @default(cuid())
+  apptCode    String   // e.g. APT-0001 (unique per tenant)
+  patientName String
+  doctorName  String
+  department  String?
+  date        String
+  time        String?
+  type        String   @default("OPD")        // OPD | IPD | Follow-up
+  status      String   @default("Scheduled")  // Scheduled | Completed | Cancelled
+
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+
+  patientId   String?
+  patient     Patient? @relation(fields: [patientId], references: [id])
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ── DEMO REQUESTS (New) ──────────────────────────────────────────────────────
+model DemoRequest {
+  id              String   @id @default(cuid())
+  hospitalName    String
+  email           String
+  phone           String
+  logoUrl         String?
+  heroImage       String?
+  status          String   @default("Pending") // Pending | Approved | Rejected
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// ── PATIENT RECORD ───────────────────────────────────────────────────────────
+model PatientRecord {
+  id          String   @id @default(cuid())
+  categoryTag String
+  title       String
+  date        String
+  fileUrl     String
+  
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  
+  patientId   String
+  patient     Patient  @relation(fields: [patientId], references: [id])
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
