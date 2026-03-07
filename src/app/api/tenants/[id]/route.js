@@ -12,7 +12,8 @@ function requireSuperAdmin(session) {
 }
 
 export async function GET(request, context) {
-    const { id } = context.params;
+    const params = await context.params;
+    const { id } = params;
     const session = await getSessionFromRequest(request);
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
 
@@ -86,7 +87,8 @@ export async function PATCH(request, context) {
 }
 
 export async function DELETE(request, context) {
-    const { id } = context.params;
+    const params = await context.params;
+    const { id } = params;
     const session = await getSessionFromRequest(request);
     const deny = requireSuperAdmin(session);
     if (deny) return deny;

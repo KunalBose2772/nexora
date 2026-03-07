@@ -21,7 +21,8 @@ export default async function PatientPortalPage() {
         include: {
             appointments: { orderBy: { date: 'desc' }, take: 5 },
             prescriptions: { orderBy: { createdAt: 'desc' }, take: 5 },
-            labRequests: { orderBy: { createdAt: 'desc' }, take: 5 }
+            labRequests: { orderBy: { createdAt: 'desc' }, take: 5 },
+            records: { orderBy: { createdAt: 'desc' }, take: 5 }
         }
     });
 
@@ -121,6 +122,29 @@ export default async function PatientPortalPage() {
                                         </div>
                                         <div style={{ fontSize: '13px', color: '#64748B' }}>{new Date(l.createdAt).toLocaleDateString()}</div>
                                         {l.result && <div style={{ marginTop: '8px', fontSize: '13px', color: '#334155', background: '#E2E8F0', padding: '8px', borderRadius: '6px' }}>{l.result}</div>}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                    {/* Patient Records Card */}
+                    <div style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: '16px', padding: '24px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+                            <div style={{ background: '#ECFDF5', padding: '10px', borderRadius: '10px', color: '#10B981' }}><FileText size={20} /></div>
+                            <h2 style={{ fontSize: '18px', fontWeight: 700, margin: 0, color: '#0F172A' }}>Billing & Records</h2>
+                        </div>
+                        {patientData.records.length === 0 ? (
+                            <p style={{ color: '#94A3B8', fontSize: '14px', margin: 0 }}>No records or bills found.</p>
+                        ) : (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                {patientData.records.map(r => (
+                                    <div key={r.id} style={{ padding: '12px', border: '1px solid #F1F5F9', borderRadius: '10px', background: '#F8FAFC' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                                            <strong style={{ fontSize: '14px', color: '#1E293B' }}>{r.title}</strong>
+                                            <span className="badge badge-navy" style={{ fontSize: '10px', padding: '2px 6px' }}>{r.categoryTag}</span>
+                                        </div>
+                                        <div style={{ fontSize: '13px', color: '#64748B' }}>{new Date(r.createdAt).toLocaleDateString()}</div>
+                                        {r.fileUrl !== '#' && <Link href={r.fileUrl} target="_blank" style={{ display: 'inline-block', marginTop: '8px', fontSize: '12px', color: '#0EA5E9', textDecoration: 'none', fontWeight: 500 }}>View Document &rarr;</Link>}
                                     </div>
                                 ))}
                             </div>

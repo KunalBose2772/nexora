@@ -92,6 +92,41 @@ export async function POST(req) {
                 });
             }
 
+            // Create Invoice
+            const invCount = await tx.invoice.count({ where: { tenantId: session.tenantId } });
+            const invoiceCode = `INV-${new Date().getFullYear()}-${String(invCount + 1).padStart(4, '0')}`;
+            await tx.invoice.create({
+                data: {
+                    invoiceCode,
+                    patientName,
+                    patientUhId: patientUhId || null,
+                    patientId: patientId || null,
+                    serviceType: 'Pharmacy Sale',
+                    amount: subtotal,
+                    discount: parseFloat(discount) || 0,
+                    tax: taxAmount,
+                    netAmount,
+                    paymentMethod: 'Cash',
+                    status: 'Paid',
+                    notes: `Auto-generated for Dispensation ${billCode}`,
+                    tenantId: session.tenantId
+                }
+            });
+
+            // Add to patient records if registered patient
+            if (patientId) {
+                await tx.patientRecord.create({
+                    data: {
+                        tenantId: session.tenantId,
+                        patientId,
+                        categoryTag: 'Billing',
+                        title: `Pharmacy Bill - ${billCode}`,
+                        date: new Date().toISOString().slice(0, 10),
+                        fileUrl: '#'
+                    }
+                });
+            }
+
             return disp;
         });
 
