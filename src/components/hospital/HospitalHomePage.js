@@ -351,7 +351,7 @@ export default function HospitalHomePage({ slug }) {
             </section>
 
             {/* ─── WHY US ─────────────────────────────────────────────────── */}
-            <section id="about" style={{ padding: '96px 28px', background: `linear-gradient(140deg, #0A1628 0%, #0F2D4A 50%, ${c}dd 100%)`, position: 'relative', overflow: 'hidden' }}>
+            <section id="about" style={{ padding: '96px 28px', background: `radial-gradient(circle at 50% -20%, ${c}40 0%, #0A1628 50%, #050B14 100%)`, position: 'relative', overflow: 'hidden' }}>
                 <div style={{ position: 'absolute', top: '-100px', right: '-100px', width: '500px', height: '500px', borderRadius: '50%', background: `${c}20`, filter: 'blur(100px)', pointerEvents: 'none' }} />
                 <div style={{ maxWidth: '1280px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
                     <div style={{ textAlign: 'center', marginBottom: '60px' }}>
@@ -364,7 +364,7 @@ export default function HospitalHomePage({ slug }) {
                         </p>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '18px' }}>
+                    <div className={WHY_US.length === 6 ? "hosp-why-grid-6" : "hosp-why-grid"} style={{ gap: '18px' }}>
                         {WHY_US.map(({ title, desc }) => (
                             <div key={title}
                                 style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.13)', borderRadius: '16px', padding: '26px', backdropFilter: 'blur(8px)', transition: 'all 0.25s' }}
@@ -605,16 +605,20 @@ export default function HospitalHomePage({ slug }) {
                 .hosp-nav-links   { display: flex; }
                 .hosp-hamburger   { display: none; }
                 .hosp-hero-cards  { display: flex; }
-                .hosp-stats-grid  { grid-template-columns: repeat(4, 1fr); }
-                .hosp-steps       { grid-template-columns: repeat(3, 1fr); }
+                .hosp-stats-grid  { display: grid; grid-template-columns: repeat(4, 1fr); }
+                .hosp-steps       { display: grid; grid-template-columns: repeat(3, 1fr); }
+                .hosp-why-grid    { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+                .hosp-why-grid-6  { display: grid; grid-template-columns: repeat(3, 1fr); }
                 .hosp-footer-grid { grid-template-columns: 2fr 1fr 1fr; }
                 @media (max-width: 1024px) {
                     .hosp-hero-cards  { display: none; }
+                    .hosp-why-grid-6  { grid-template-columns: repeat(2, 1fr) !important; }
                 }
                 @media (max-width: 768px) {
                     .hosp-nav-links   { display: none !important; }
                     .hosp-hamburger   { display: flex !important; }
                     .hosp-stats-grid  { grid-template-columns: repeat(2, 1fr) !important; }
+                    .hosp-why-grid-6  { grid-template-columns: 1fr !important; }
                     .hosp-steps       { grid-template-columns: 1fr !important; }
                     .hosp-footer-grid { grid-template-columns: 1fr !important; gap: 28px !important; }
                 }
