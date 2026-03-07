@@ -46,7 +46,7 @@ export async function PATCH(request, context) {
 
     try {
         const body = await request.json();
-        const { name, slug, plan, status, phone, address, tagline, description, primaryColor, logoInitials, logoUrl, heroImage } = body;
+        const { name, slug, plan, status, phone, address, tagline, description, primaryColor, logoInitials, logoUrl, heroImage, mapUrl, metaTitle, metaDescription, faviconUrl, servicesContent } = body;
 
         const data = {};
         if (name) data.name = name.trim();
@@ -61,6 +61,11 @@ export async function PATCH(request, context) {
         if (logoInitials) data.logoInitials = logoInitials;
         if (logoUrl !== undefined) data.logoUrl = logoUrl;
         if (heroImage !== undefined) data.heroImage = heroImage;
+        if (mapUrl !== undefined) data.mapUrl = mapUrl;
+        if (metaTitle !== undefined) data.metaTitle = metaTitle;
+        if (metaDescription !== undefined) data.metaDescription = metaDescription;
+        if (faviconUrl !== undefined) data.faviconUrl = faviconUrl;
+        if (servicesContent !== undefined) data.servicesContent = servicesContent;
 
         const tenant = await prisma.tenant.update({ where: { id }, data });
 

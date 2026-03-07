@@ -24,6 +24,8 @@ export async function GET(request, context) {
                 phone: true,
                 address: true,
                 adminEmail: true,
+                mapUrl: true,
+                servicesContent: true,
                 createdAt: true,
                 _count: { select: { patients: true, appointments: true, users: true } },
             },

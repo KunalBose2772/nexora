@@ -24,7 +24,8 @@ export default function SettingsPage() {
 
     const [form, setForm] = useState({
         name: '', phone: '', address: '', tagline: '', description: '',
-        primaryColor: '#10B981', logoInitials: '', logoUrl: '', heroImage: '',
+        primaryColor: '#10B981', logoInitials: '', logoUrl: '', heroImage: '', mapUrl: '',
+        metaTitle: '', metaDescription: '', faviconUrl: '', servicesContent: '',
     });
 
     const f = (k) => (v) => setForm(prev => ({ ...prev, [k]: v.target ? v.target.value : v }));
@@ -48,6 +49,11 @@ export default function SettingsPage() {
                         logoInitials: t.logoInitials || '',
                         logoUrl: t.logoUrl || '',
                         heroImage: t.heroImage || '',
+                        mapUrl: t.mapUrl || '',
+                        metaTitle: t.metaTitle || '',
+                        metaDescription: t.metaDescription || '',
+                        faviconUrl: t.faviconUrl || '',
+                        servicesContent: t.servicesContent || '',
                     });
                 }
             } catch (e) { setError('Failed to load settings.'); }
@@ -196,6 +202,13 @@ export default function SettingsPage() {
                                                 <input type="url" style={inputStyle} value={form.heroImage} onChange={f('heroImage')} placeholder="https://example.com/hero.jpg" />
                                             </div>
                                         </Row>
+                                        <Row>
+                                            <div>
+                                                <label style={labelStyle}>Map iframe src URL</label>
+                                                <p style={hintStyle}>Google Maps Embed src URL (e.g. https://www.google.com/maps/embed?...)</p>
+                                                <input type="url" style={inputStyle} value={form.mapUrl} onChange={f('mapUrl')} placeholder="https://www.google.com/maps/embed?..." />
+                                            </div>
+                                        </Row>
 
                                         {/* Live preview strip */}
                                         <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -209,6 +222,31 @@ export default function SettingsPage() {
                                                 <div style={{ fontSize: '12px', color: '#94A3B8' }}>{form.tagline || 'Your Health, Our Priority'}</div>
                                             </div>
                                             <div style={{ marginLeft: 'auto', fontSize: '12px', color: '#94A3B8' }}>Live Preview</div>
+                                        </div>
+                                    </SectionCard>
+
+                                    <SectionCard title="SEO, Meta & Services" subtitle="Configure page titles, descriptions, favicon and services displayed on the public landing page.">
+                                        <Row>
+                                            <div>
+                                                <label style={labelStyle}>Meta Title</label>
+                                                <p style={hintStyle}>Browser tab title (SEO)</p>
+                                                <input type="text" style={inputStyle} value={form.metaTitle} onChange={f('metaTitle')} placeholder="Apollo Hospital - Your Health Priority" />
+                                            </div>
+                                            <div>
+                                                <label style={labelStyle}>Favicon URL</label>
+                                                <p style={hintStyle}>Direct URL to .ico or .png file</p>
+                                                <input type="url" style={inputStyle} value={form.faviconUrl} onChange={f('faviconUrl')} placeholder="https://example.com/favicon.png" />
+                                            </div>
+                                        </Row>
+                                        <div style={{ marginBottom: '20px' }}>
+                                            <label style={labelStyle}>Meta Description</label>
+                                            <p style={hintStyle}>Short description for search engines</p>
+                                            <textarea rows={2} style={{ ...inputStyle, resize: 'vertical' }} value={form.metaDescription} onChange={f('metaDescription')} placeholder="Best hospital providing 24x7 emergency and top doctors..." />
+                                        </div>
+                                        <div style={{ marginBottom: '20px' }}>
+                                            <label style={labelStyle}>Services / Departments List</label>
+                                            <p style={hintStyle}>Comma-separated list of services provided. e.g. Cardiology, Neurology, Pediatrics</p>
+                                            <textarea rows={3} style={{ ...inputStyle, resize: 'vertical' }} value={form.servicesContent} onChange={f('servicesContent')} placeholder="Cardiology, Neurology, Pediatrics, Orthopedics..." />
                                         </div>
                                     </SectionCard>
 

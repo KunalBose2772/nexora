@@ -94,6 +94,39 @@ export default function HospitalHomePage({ slug }) {
     const [menuOpen, setMenuOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const heroRef = useRef(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    // Form States
+    const [booking, setBooking] = useState({ firstName: '', lastName: '', phone: '', email: '', date: '', doctor: '', department: '', notes: '' });
+    const [bookingStatus, setBookingStatus] = useState({ loading: false, success: false, message: '' });
+    const [contact, setContact] = useState({ name: '', email: '', phone: '', message: '' });
+    const [contactStatus, setContactStatus] = useState({ loading: false, success: false });
+
+    const handleBook = async (e) => {
+        e.preventDefault();
+        setBookingStatus({ loading: true, success: false, message: '' });
+        try {
+            const res = await fetch(`/api/hospital/${slug}/book`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(booking)
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Failed to book appointment');
+            setBookingStatus({ loading: false, success: true, message: data.message || 'Appointment requested successfully' });
+            setBooking({ firstName: '', lastName: '', phone: '', email: '', date: '', doctor: '', department: '', notes: '' });
+        } catch (err) {
+            setBookingStatus({ loading: false, success: false, message: err.message });
+        }
+    };
+
+    const handleContact = (e) => {
+        e.preventDefault();
+        setContactStatus({ loading: true, success: false });
+        setTimeout(() => {
+            setContactStatus({ loading: false, success: true });
+            setContact({ name: '', email: '', phone: '', message: '' });
+            setTimeout(() => setContactStatus(s => ({ ...s, success: false })), 3000);
+        }, 1200);
+    };
 
     useEffect(() => {
         if (!slug) return;
@@ -153,6 +186,14 @@ export default function HospitalHomePage({ slug }) {
         { value: '24/7', label: 'Emergency Care', icon: Shield },
     ];
 
+    const activeServices = tenant.servicesContent
+        ? tenant.servicesContent.split(',').map(s => {
+            const trimmed = s.trim();
+            const existing = SERVICES.find(x => x.name.toLowerCase() === trimmed.toLowerCase());
+            return existing || { icon: Activity, name: trimmed, desc: 'Specialised consulting & advanced medical care.' };
+        })
+        : SERVICES;
+
     const heroStyle = tenant.heroImage
         ? { backgroundImage: `url(${tenant.heroImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }
         : {};
@@ -187,7 +228,7 @@ export default function HospitalHomePage({ slug }) {
                     </div>
 
                     <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                        <a href={`/login?tenant=${slug}`} style={{ padding: '10px 22px', background: c, color: '#fff', borderRadius: '8px', textDecoration: 'none', fontSize: '13px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '7px', boxShadow: `0 4px 14px ${c}50`, transition: 'transform 0.2s' }}
+                        <a href="#" onClick={(e) => { e.preventDefault(); setIsModalOpen(true); }} style={{ padding: '10px 22px', background: c, color: '#fff', borderRadius: '8px', textDecoration: 'none', fontSize: '13px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '7px', boxShadow: `0 4px 14px ${c}50`, transition: 'transform 0.2s' }}
                             onMouseOver={e => e.currentTarget.style.transform = 'translateY(-1px)'}
                             onMouseOut={e => e.currentTarget.style.transform = 'translateY(0)'}>
                             <CalendarDays size={14} /> Book Appointment
@@ -204,9 +245,9 @@ export default function HospitalHomePage({ slug }) {
                             <a key={l} href={`#${l.toLowerCase()}`} onClick={() => setMenuOpen(false)}
                                 style={{ fontSize: '15px', fontWeight: 600, color: '#334155', textDecoration: 'none' }}>{l}</a>
                         ))}
-                        <a href={`/login?tenant=${slug}`} style={{ marginTop: '4px', padding: '12px', background: c, color: '#fff', borderRadius: '8px', textDecoration: 'none', fontSize: '14px', fontWeight: 700, textAlign: 'center' }}>
+                        <button onClick={(e) => { e.preventDefault(); setMenuOpen(false); setIsModalOpen(true); }} style={{ marginTop: '4px', padding: '12px', background: c, color: '#fff', borderRadius: '8px', border: 'none', fontSize: '14px', fontWeight: 700, textAlign: 'center', cursor: 'pointer' }}>
                             Book Appointment
-                        </a>
+                        </button>
                     </div>
                 )}
             </nav>
@@ -255,7 +296,7 @@ export default function HospitalHomePage({ slug }) {
                         </p>
 
                         <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap' }}>
-                            <a href={`/login?tenant=${slug}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#FFFFFF', color: '#0A1628', padding: '15px 30px', borderRadius: '10px', fontWeight: 700, fontSize: '15px', textDecoration: 'none', boxShadow: '0 8px 32px rgba(0,0,0,0.25)', transition: 'transform 0.2s' }}
+                            <a href="#" onClick={(e) => { e.preventDefault(); setIsModalOpen(true); }} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#FFFFFF', color: '#0A1628', padding: '15px 30px', borderRadius: '10px', fontWeight: 700, fontSize: '15px', textDecoration: 'none', boxShadow: '0 8px 32px rgba(0,0,0,0.25)', transition: 'transform 0.2s' }}
                                 onMouseOver={e => e.currentTarget.style.transform = 'translateY(-2px)'}
                                 onMouseOut={e => e.currentTarget.style.transform = 'translateY(0)'}>
                                 <CalendarDays size={16} style={{ color: c }} /> Book Appointment
@@ -331,7 +372,7 @@ export default function HospitalHomePage({ slug }) {
                     </div>
 
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(270px, 1fr))', gap: '20px' }}>
-                        {SERVICES.map(({ icon: Icon, name, desc }) => (
+                        {activeServices.map(({ icon: Icon, name, desc }) => (
                             <div key={name}
                                 style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '16px', padding: '28px', transition: 'all 0.25s ease', cursor: 'default', position: 'relative', overflow: 'hidden' }}
                                 onMouseEnter={e => { e.currentTarget.style.boxShadow = `0 12px 32px ${c}18`; e.currentTarget.style.borderColor = `${c}45`; e.currentTarget.style.transform = 'translateY(-3px)'; }}
@@ -351,8 +392,20 @@ export default function HospitalHomePage({ slug }) {
             </section>
 
             {/* ─── WHY US ─────────────────────────────────────────────────── */}
-            <section id="about" style={{ padding: '96px 28px', background: `radial-gradient(circle at 50% -20%, ${c}40 0%, #0A1628 50%, #050B14 100%)`, position: 'relative', overflow: 'hidden' }}>
-                <div style={{ position: 'absolute', top: '-100px', right: '-100px', width: '500px', height: '500px', borderRadius: '50%', background: `${c}20`, filter: 'blur(100px)', pointerEvents: 'none' }} />
+            <section id="about" className="hosp-why-section-anim" style={{ padding: '96px 28px', position: 'relative', overflow: 'hidden' }}>
+                <style>{`
+                    .hosp-why-section-anim {
+                        background-color: color-mix(in srgb, ${c}, black 75%);
+                        background-image: radial-gradient(circle, ${c}10 0%, ${c} 100%);
+                        background-size: 200% 200%;
+                        animation: pulseBg 15s ease-in-out infinite alternate;
+                    }
+                    @keyframes pulseBg {
+                        0%   { background-position: 0% 0%; }
+                        100% { background-position: 100% 100%; }
+                    }
+                `}</style>
+                <div style={{ position: 'absolute', top: '-100px', right: '-100px', width: '500px', height: '500px', borderRadius: '50%', background: `rgba(255,255,255,0.05)`, filter: 'blur(100px)', pointerEvents: 'none' }} />
                 <div style={{ maxWidth: '1280px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
                     <div style={{ textAlign: 'center', marginBottom: '60px' }}>
                         <div style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '100px', padding: '6px 16px', fontSize: '12px', fontWeight: 700, color: '#fff', marginBottom: '18px', letterSpacing: '0.04em', textTransform: 'uppercase', backdropFilter: 'blur(8px)' }}>
@@ -371,7 +424,7 @@ export default function HospitalHomePage({ slug }) {
                                 onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.12)'; e.currentTarget.style.transform = 'translateY(-3px)'; }}
                                 onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.07)'; e.currentTarget.style.transform = 'translateY(0)'; }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-                                    <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: `${c}30`, border: `1px solid ${c}60`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                    <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#FFFFFF', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                                         <CheckCircle size={16} style={{ color: c }} />
                                     </div>
                                     <span style={{ fontSize: '15px', fontWeight: 700, color: '#FFFFFF' }}>{title}</span>
@@ -431,7 +484,7 @@ export default function HospitalHomePage({ slug }) {
                                     <span style={{ fontSize: '12px', fontWeight: 600, color: '#10B981' }}>Accepting new patients</span>
                                 </div>
 
-                                <a href={`/login?tenant=${slug}`}
+                                <a href="#" onClick={(e) => { e.preventDefault(); setIsModalOpen(true); }}
                                     style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '11px', background: `${c}12`, color: c, borderRadius: '10px', textDecoration: 'none', fontSize: '13px', fontWeight: 700, transition: 'all 0.2s', border: `1px solid ${c}25` }}
                                     onMouseOver={e => { e.currentTarget.style.background = c; e.currentTarget.style.color = '#fff'; }}
                                     onMouseOut={e => { e.currentTarget.style.background = `${c}12`; e.currentTarget.style.color = c; }}>
@@ -447,31 +500,77 @@ export default function HospitalHomePage({ slug }) {
                 </div>
             </section>
 
-            {/* ─── PROCESS / HOW IT WORKS ─────────────────────────────────── */}
-            <section style={{ padding: '80px 28px', background: '#F8FAFC', borderTop: '1px solid #F1F5F9', borderBottom: '1px solid #F1F5F9' }}>
-                <div style={{ maxWidth: '960px', margin: '0 auto' }}>
-                    <div style={{ textAlign: 'center', marginBottom: '52px' }}>
-                        <h2 style={{ fontSize: 'clamp(24px, 3.5vw, 36px)', fontWeight: 900, color: '#0F172A', letterSpacing: '-0.025em', marginBottom: '12px' }}>How It Works</h2>
-                        <p style={{ fontSize: '15px', color: '#64748B' }}>Book an appointment in 3 simple steps.</p>
-                    </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }} className="hosp-steps">
-                        {[
-                            { step: '01', title: 'Register & Login', desc: 'Create your patient account with your mobile number. Takes under 60 seconds.', icon: Users },
-                            { step: '02', title: 'Choose & Book', desc: 'Pick your specialist, select a preferred date and time slot. Confirm instantly.', icon: CalendarDays },
-                            { step: '03', title: 'Visit or Teleconsult', desc: 'Walk in at your scheduled time or join a video consult from anywhere.', icon: HeartPulse },
-                        ].map(({ step, title, desc, icon: Icon }) => (
-                            <div key={step} style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '16px', padding: '32px 26px', position: 'relative', textAlign: 'center' }}>
-                                <div style={{ position: 'absolute', top: '-1px', left: '50%', transform: 'translateX(-50%) translateY(-50%)', background: c, color: '#fff', fontWeight: 900, fontSize: '11px', padding: '4px 12px', borderRadius: '100px', letterSpacing: '0.05em' }}>{step}</div>
-                                <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: `${c}12`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '16px auto 18px' }}>
-                                    <Icon size={26} style={{ color: c }} />
-                                </div>
-                                <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#0F172A', marginBottom: '10px' }}>{title}</h3>
-                                <p style={{ fontSize: '13.5px', color: '#64748B', lineHeight: 1.7, margin: 0 }}>{desc}</p>
+            {/* ─── BOOK APPOINTMENT MODAL ────────────────────────────────────────────── */}
+            {isModalOpen && (
+                <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(15, 23, 42, 0.65)', backdropFilter: 'blur(8px)', padding: '20px' }}>
+                    <div style={{ maxWidth: '800px', width: '100%', background: '#FFFFFF', borderRadius: '24px', padding: '44px 48px', boxShadow: '0 24px 64px rgba(0,0,0,0.15)', border: '1px solid #E2E8F0', position: 'relative', overflowY: 'auto', maxHeight: '90vh' }}>
+
+                        <button onClick={() => setIsModalOpen(false)} style={{ position: 'absolute', top: '24px', right: '28px', background: 'none', border: 'none', cursor: 'pointer', padding: '6px', color: '#64748B', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', transition: 'background 0.2s' }} onMouseOver={e => e.currentTarget.style.background = '#F1F5F9'} onMouseOut={e => e.currentTarget.style.background = 'none'}>
+                            <X size={24} />
+                        </button>
+
+                        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+                            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', background: `${c}12`, border: `1px solid ${c}30`, borderRadius: '100px', padding: '6px 16px', fontSize: '12px', fontWeight: 700, color: c, marginBottom: '14px', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+                                <CalendarDays size={12} /> Book Appointment
                             </div>
-                        ))}
+                            <h2 style={{ fontSize: 'clamp(22px, 3.5vw, 32px)', fontWeight: 900, color: '#0F172A', letterSpacing: '-0.02em', marginBottom: '8px' }}>Request a Consultation</h2>
+                            <p style={{ fontSize: '15px', color: '#64748B', margin: 0 }}>Fill out the form below. Your patient profile will be securely created.</p>
+                        </div>
+
+                        {bookingStatus.message && (
+                            <div style={{ padding: '16px 20px', borderRadius: '12px', marginBottom: '24px', fontSize: '14px', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '10px', background: bookingStatus.success ? '#ECFDF5' : '#FEF2F2', color: bookingStatus.success ? '#065F46' : '#991B1B', border: `1px solid ${bookingStatus.success ? '#A7F3D0' : '#FECACA'}` }}>
+                                {bookingStatus.success ? <CheckCircle size={18} flexShrink={0} /> : <Zap size={18} flexShrink={0} />}
+                                {bookingStatus.message}
+                            </div>
+                        )}
+
+                        <form onSubmit={handleBook} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }} className="hosp-booking-form">
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155' }}>First Name *</label>
+                                <input required type="text" value={booking.firstName} onChange={e => setBooking({ ...booking, firstName: e.target.value })} style={{ padding: '12px 16px', borderRadius: '10px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '14px', width: '100%', boxSizing: 'border-box' }} placeholder="John" />
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155' }}>Last Name</label>
+                                <input type="text" value={booking.lastName} onChange={e => setBooking({ ...booking, lastName: e.target.value })} style={{ padding: '12px 16px', borderRadius: '10px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '14px', width: '100%', boxSizing: 'border-box' }} placeholder="Doe" />
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155' }}>Phone Number *</label>
+                                <input required type="tel" value={booking.phone} onChange={e => setBooking({ ...booking, phone: e.target.value })} style={{ padding: '12px 16px', borderRadius: '10px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '14px', width: '100%', boxSizing: 'border-box' }} placeholder="+91 98765 43210" />
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155' }}>Email Address *</label>
+                                <input required type="email" value={booking.email} onChange={e => setBooking({ ...booking, email: e.target.value })} style={{ padding: '12px 16px', borderRadius: '10px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '14px', width: '100%', boxSizing: 'border-box' }} placeholder="john@example.com" />
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155' }}>Preferred Department</label>
+                                <select value={booking.department} onChange={e => setBooking({ ...booking, department: e.target.value })} style={{ padding: '12px 16px', borderRadius: '10px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '14px', width: '100%', boxSizing: 'border-box', background: '#fff' }}>
+                                    <option value="">Select Department...</option>
+                                    {activeServices.map(s => <option key={s.name} value={s.name}>{s.name}</option>)}
+                                </select>
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155' }}>Preferred Doctor *</label>
+                                <select required value={booking.doctor} onChange={e => setBooking({ ...booking, doctor: e.target.value })} style={{ padding: '12px 16px', borderRadius: '10px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '14px', width: '100%', boxSizing: 'border-box', background: '#fff' }}>
+                                    <option value="">Select Specialist...</option>
+                                    {DOCTORS.map(d => <option key={d.dept} value={`${d.dept} Specialist`}>{d.dept} Specialist</option>)}
+                                </select>
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155' }}>Preferred Date *</label>
+                                <input required type="date" value={booking.date} onChange={e => setBooking({ ...booking, date: e.target.value })} style={{ padding: '12px 16px', borderRadius: '10px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '14px', width: '100%', boxSizing: 'border-box' }} />
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', gridColumn: '1 / -1' }}>
+                                <label style={{ fontSize: '13px', fontWeight: 600, color: '#334155' }}>Additional Notes / Symptoms</label>
+                                <textarea rows={3} value={booking.notes} onChange={e => setBooking({ ...booking, notes: e.target.value })} style={{ padding: '12px 16px', borderRadius: '10px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '14px', width: '100%', boxSizing: 'border-box', resize: 'vertical', fontFamily: 'inherit' }} placeholder="Briefly describe your issue..." />
+                            </div>
+                            <button disabled={bookingStatus.loading} type="submit" style={{ gridColumn: '1 / -1', marginTop: '12px', padding: '16px', background: c, color: '#fff', borderRadius: '12px', border: 'none', fontSize: '15px', fontWeight: 700, cursor: bookingStatus.loading ? 'not-allowed' : 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px', transition: 'all 0.2s', opacity: bookingStatus.loading ? 0.7 : 1 }}>
+                                {bookingStatus.loading ? <Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} /> : <CalendarDays size={18} />}
+                                {bookingStatus.loading ? 'Processing...' : 'Confirm Appointment'}
+                            </button>
+                        </form>
                     </div>
                 </div>
-            </section>
+            )}
 
             {/* ─── FAQ ────────────────────────────────────────────────────── */}
             <section id="faq" style={{ padding: '96px 28px', background: '#FFFFFF' }}>
@@ -497,25 +596,78 @@ export default function HospitalHomePage({ slug }) {
                         <p style={{ fontSize: '16px', color: '#64748B', maxWidth: '440px', margin: '0 auto', lineHeight: 1.65 }}>We&apos;re here to help — reach out to schedule a visit or ask any questions.</p>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(236px, 1fr))', gap: '18px', maxWidth: '960px', margin: '0 auto 48px' }}>
-                        {[
-                            { icon: Phone, label: 'Call Us', value: tenant.phone || 'Contact via email', href: tenant.phone ? `tel:${tenant.phone}` : '#', sub: 'Available 24/7 for emergencies' },
-                            { icon: Mail, label: 'Email Us', value: tenant.adminEmail, href: `mailto:${tenant.adminEmail}`, sub: 'We reply within 24 hours' },
-                            { icon: MapPin, label: 'Visit Us', value: tenant.address || 'Address not listed', href: '#', sub: 'OPD: 8 AM – 8 PM daily' },
-                            { icon: Clock, label: 'Working Hours', value: 'OPD: 8 AM – 8 PM', href: '#', sub: 'Emergency: 24 × 7 always open' },
-                        ].map(({ icon: Icon, label, value, href, sub }) => (
-                            <a key={label} href={href}
-                                style={{ display: 'block', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '16px', padding: '26px', textDecoration: 'none', transition: 'all 0.25s' }}
-                                onMouseEnter={e => { e.currentTarget.style.borderColor = `${c}50`; e.currentTarget.style.boxShadow = `0 8px 24px ${c}14`; e.currentTarget.style.transform = 'translateY(-3px)'; }}
-                                onMouseLeave={e => { e.currentTarget.style.borderColor = '#E2E8F0'; e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'translateY(0)'; }}>
-                                <div style={{ width: '46px', height: '46px', borderRadius: '13px', background: `${c}12`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '14px' }}>
-                                    <Icon size={20} style={{ color: c }} />
+                    <div className="hosp-contact-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px', maxWidth: '1100px', margin: '0 auto 60px' }}>
+                        {/* Map & Info */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                            {tenant.mapUrl ? (
+                                <div style={{ width: '100%', height: '280px', borderRadius: '16px', overflow: 'hidden', border: '1px solid #E2E8F0', background: '#E2E8F0' }}>
+                                    <iframe
+                                        src={tenant.mapUrl.includes('<iframe') ? (tenant.mapUrl.match(/src="([^"]+)"/) || [])[1] || tenant.mapUrl : (tenant.mapUrl.includes('/place/') && !tenant.mapUrl.includes('/embed') ? tenant.mapUrl.replace('/place/', '/embed/place/') : tenant.mapUrl)}
+                                        width="100%" height="100%" style={{ border: 0 }} allowFullScreen="" loading="lazy" referrerPolicy="no-referrer-when-downgrade">
+                                    </iframe>
                                 </div>
-                                <div style={{ fontSize: '11px', fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '6px' }}>{label}</div>
-                                <div style={{ fontSize: '14px', fontWeight: 600, color: '#0F172A', lineHeight: 1.45, marginBottom: '5px' }}>{value}</div>
-                                <div style={{ fontSize: '12px', color: '#94A3B8', lineHeight: 1.5 }}>{sub}</div>
-                            </a>
-                        ))}
+                            ) : (
+                                <div style={{ width: '100%', height: '280px', borderRadius: '16px', border: '1px dashed #CBD5E1', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '12px', color: '#94A3B8' }}>
+                                    <MapPin size={32} />
+                                    <span style={{ fontSize: '14px', fontWeight: 500 }}>Map not configured by hospital</span>
+                                </div>
+                            )}
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                                {[
+                                    { icon: Phone, label: 'Call Us', value: tenant.phone || 'Contact via email', href: tenant.phone ? `tel:${tenant.phone}` : '#' },
+                                    { icon: Mail, label: 'Email Us', value: tenant.adminEmail, href: `mailto:${tenant.adminEmail}` },
+                                    { icon: MapPin, label: 'Visit Us', value: tenant.address || 'Address not listed', href: '#' },
+                                    { icon: Clock, label: 'Working Hours', value: '24 × 7 Emergency', href: '#' },
+                                ].map(({ icon: Icon, label, value, href }) => (
+                                    <a key={label} href={href} style={{ display: 'flex', alignItems: 'center', gap: '14px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '14px', padding: '16px', textDecoration: 'none' }}>
+                                        <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: `${c}12`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                            <Icon size={18} style={{ color: c }} />
+                                        </div>
+                                        <div>
+                                            <div style={{ fontSize: '11px', fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase', marginBottom: '2px' }}>{label}</div>
+                                            <div style={{ fontSize: '13px', fontWeight: 600, color: '#0F172A', lineHeight: 1.3 }}>{value}</div>
+                                        </div>
+                                    </a>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Contact Form */}
+                        <div style={{ background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0', padding: '36px' }}>
+                            <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#0F172A', marginBottom: '6px' }}>Send us a Message</h3>
+                            <p style={{ fontSize: '14px', color: '#64748B', marginBottom: '28px' }}>Have a question? Our support team is here to help.</p>
+
+                            {contactStatus.success && (
+                                <div style={{ padding: '14px', borderRadius: '10px', marginBottom: '20px', fontSize: '13px', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '8px', background: '#ECFDF5', color: '#065F46', border: '1px solid #A7F3D0' }}>
+                                    <CheckCircle size={16} /> Message sent! We will contact you shortly.
+                                </div>
+                            )}
+
+                            <form onSubmit={handleContact} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                        <label style={{ fontSize: '12px', fontWeight: 600, color: '#334155' }}>Your Name *</label>
+                                        <input required type="text" value={contact.name} onChange={e => setContact({ ...contact, name: e.target.value })} style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '14px', fontFamily: 'inherit' }} placeholder="John Doe" />
+                                    </div>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                        <label style={{ fontSize: '12px', fontWeight: 600, color: '#334155' }}>Phone Number *</label>
+                                        <input required type="tel" value={contact.phone} onChange={e => setContact({ ...contact, phone: e.target.value })} style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '14px', fontFamily: 'inherit' }} placeholder="+1 234 567 89" />
+                                    </div>
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                    <label style={{ fontSize: '12px', fontWeight: 600, color: '#334155' }}>Email Address *</label>
+                                    <input required type="email" value={contact.email} onChange={e => setContact({ ...contact, email: e.target.value })} style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '14px', fontFamily: 'inherit' }} placeholder="john@example.com" />
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                    <label style={{ fontSize: '12px', fontWeight: 600, color: '#334155' }}>Your Message *</label>
+                                    <textarea required rows={4} value={contact.message} onChange={e => setContact({ ...contact, message: e.target.value })} style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '14px', resize: 'vertical', fontFamily: 'inherit' }} placeholder="How can we help you?" />
+                                </div>
+                                <button disabled={contactStatus.loading} type="submit" style={{ marginTop: '8px', padding: '14px', background: c, color: '#fff', borderRadius: '10px', border: 'none', fontSize: '14px', fontWeight: 700, cursor: contactStatus.loading ? 'not-allowed' : 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', opacity: contactStatus.loading ? 0.7 : 1 }}>
+                                    {contactStatus.loading ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> : 'Send Message'}
+                                </button>
+                            </form>
+                        </div>
                     </div>
 
                     {/* Appointment CTA inline */}
@@ -525,7 +677,7 @@ export default function HospitalHomePage({ slug }) {
                         <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.72)', marginBottom: '28px', lineHeight: 1.65, position: 'relative' }}>
                             Book an appointment online in under 2 minutes. Our care coordinators are ready to assist you.
                         </p>
-                        <a href={`/login?tenant=${slug}`}
+                        <a href="#" onClick={(e) => { e.preventDefault(); setIsModalOpen(true); }}
                             style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', background: '#FFFFFF', color: '#0A1628', padding: '14px 32px', borderRadius: '10px', fontWeight: 700, fontSize: '15px', textDecoration: 'none', boxShadow: '0 8px 32px rgba(0,0,0,0.2)', position: 'relative', transition: 'transform 0.2s' }}
                             onMouseOver={e => e.currentTarget.style.transform = 'translateY(-2px)'}
                             onMouseOut={e => e.currentTarget.style.transform = 'translateY(0)'}>

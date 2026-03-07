@@ -19,6 +19,7 @@ export default function BrandingPage() {
         phone: '', address: '',
         primaryColor: '#10B981',
         logoInitials: '', logoUrl: '', heroImage: '',
+        mapUrl: '', metaTitle: '', metaDescription: '', faviconUrl: '', servicesContent: '',
     });
 
     const load = useCallback(async () => {
@@ -43,6 +44,11 @@ export default function BrandingPage() {
                 logoInitials: t.logoInitials || '',
                 logoUrl: t.logoUrl || '',
                 heroImage: t.heroImage || '',
+                mapUrl: t.mapUrl || '',
+                metaTitle: t.metaTitle || '',
+                metaDescription: t.metaDescription || '',
+                faviconUrl: t.faviconUrl || '',
+                servicesContent: t.servicesContent || '',
             });
         } catch (e) {
             setError('Could not load branding settings.');
@@ -289,6 +295,36 @@ export default function BrandingPage() {
                             <a href="https://cloudinary.com" target="_blank" rel="noreferrer" style={{ color: accent, fontWeight: 600 }}>Cloudinary</a> (free tier),
                             then paste the <strong>direct image URL</strong> here. For logos, use a transparent PNG or SVG for best results.
                         </p>
+                    </div>
+                </div>
+
+                {/* ── SEO, Meta & Services Card ── */}
+                <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '16px', overflow: 'hidden' }}>
+                    <div style={{ padding: '18px 24px', borderBottom: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <div style={{ width: '32px', height: '32px', borderRadius: '9px', background: `${accent}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <Globe size={16} style={{ color: accent }} />
+                        </div>
+                        <div>
+                            <h2 style={{ margin: 0, fontSize: '15px', fontWeight: 700, color: '#0F172A' }}>SEO, Meta & Services</h2>
+                            <p style={{ margin: 0, fontSize: '12px', color: '#94A3B8' }}>Configure search indexing and the services displayed to patients.</p>
+                        </div>
+                    </div>
+                    <div style={{ padding: '24px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px 28px' }}>
+                        <Field label="Meta Title" hint="Browser tab title (SEO)">
+                            <input style={inputStyle} type="text" value={form.metaTitle} onChange={e => setForm(f => ({ ...f, metaTitle: e.target.value }))} placeholder={`${form.name || 'Hospital'} - Your Health Priority`} />
+                        </Field>
+                        <Field label="Favicon URL" hint="Direct URL to .ico or .png file">
+                            <input style={inputStyle} type="url" value={form.faviconUrl} onChange={e => setForm(f => ({ ...f, faviconUrl: e.target.value }))} placeholder="https://example.com/favicon.png" />
+                        </Field>
+                        <Field label="Meta Description" hint="Short description for search engines" full>
+                            <textarea rows={2} style={{ ...inputStyle, resize: 'vertical' }} value={form.metaDescription} onChange={e => setForm(f => ({ ...f, metaDescription: e.target.value }))} placeholder="Best hospital providing 24x7 emergency and top doctors..." />
+                        </Field>
+                        <Field label="Services / Departments List" hint="Comma-separated list. e.g. Cardiology, Neurology, Pediatrics" full>
+                            <textarea rows={3} style={{ ...inputStyle, resize: 'vertical' }} value={form.servicesContent} onChange={e => setForm(f => ({ ...f, servicesContent: e.target.value }))} placeholder="Cardiology, Neurology, Pediatrics, Orthopedics..." />
+                        </Field>
+                        <Field label="Map iframe src URL" hint="Google Maps Embed URL" full>
+                            <input style={inputStyle} type="url" value={form.mapUrl} onChange={e => setForm(f => ({ ...f, mapUrl: e.target.value }))} placeholder="https://www.google.com/maps/embed?..." />
+                        </Field>
                     </div>
                 </div>
 

@@ -14,7 +14,8 @@ export async function GET(req) {
                 id: true, tenantCode: true, slug: true, name: true,
                 plan: true, status: true, adminEmail: true,
                 phone: true, address: true, tagline: true, description: true,
-                primaryColor: true, logoInitials: true, logoUrl: true, heroImage: true,
+                primaryColor: true, logoInitials: true, logoUrl: true, heroImage: true, mapUrl: true,
+                metaTitle: true, metaDescription: true, faviconUrl: true, servicesContent: true,
                 createdAt: true,
             }
         });
@@ -34,7 +35,7 @@ export async function PATCH(req) {
         if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
         const data = await req.json();
-        const allowed = ['name', 'phone', 'address', 'tagline', 'description', 'primaryColor', 'logoInitials', 'logoUrl', 'heroImage'];
+        const allowed = ['name', 'phone', 'address', 'tagline', 'description', 'primaryColor', 'logoInitials', 'logoUrl', 'heroImage', 'mapUrl', 'metaTitle', 'metaDescription', 'faviconUrl', 'servicesContent'];
         const updateData = {};
         for (const key of allowed) {
             if (data[key] !== undefined) updateData[key] = data[key];

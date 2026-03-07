@@ -26,7 +26,12 @@ model Tenant {
   primaryColor String?  @default("#10B981")
   logoUrl      String?
   heroImage    String?
-  createdAt    DateTime @default(now())
+  mapUrl          String?
+  metaTitle       String?
+  metaDescription String?
+  faviconUrl      String?
+  servicesContent String?
+  createdAt       DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
   users         User[]
