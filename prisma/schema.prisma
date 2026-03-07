@@ -1,11 +1,11 @@
-// Prisma v5 schema — SQLite for local development, swap to PostgreSQL for prod
+// Prisma v5 schema — PostgreSQL for production (Neon / Supabase)
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
