@@ -12,18 +12,24 @@ const STATUS_STYLE = {
     'Trial': { bg: 'rgba(139,92,246,0.1)', color: '#8B5CF6' },
 };
 
-const SYSTEM_LOGS = [
-    { title: 'Database Backup Completed', desc: 'Auto-backup successful', time: '10m ago', icon: HardDrive, color: '#10B981', bg: 'rgba(16,185,129,0.1)' },
-    { title: 'JWT Sessions Active', desc: '1,492 tokens verified in last 10m', time: '10m ago', icon: Activity, color: '#3B82F6', bg: 'rgba(59,130,246,0.1)' },
-    { title: 'Tenant Provisioning', desc: 'New hospital onboarded successfully', time: '2h ago', icon: Building, color: '#8B5CF6', bg: 'rgba(139,92,246,0.1)' },
-    { title: 'Payment Gateway Sync', desc: 'Daily reconciliation completed', time: '12h ago', icon: CreditCard, color: '#F59E0B', bg: 'rgba(245,158,11,0.1)' },
-    { title: 'Security Scan', desc: 'No threats detected. All systems clean.', time: '1d ago', icon: ShieldCheck, color: '#10B981', bg: 'rgba(16,185,129,0.1)' },
-];
+const LOG_ICONS = {
+    info: Activity,
+    success: ShieldCheck,
+    warning: AlertCircle,
+    error: ShieldCheck
+};
+const LOG_COLORS = {
+    info: { color: '#3B82F6', bg: 'rgba(59,130,246,0.1)' },
+    success: { color: '#10B981', bg: 'rgba(16,185,129,0.1)' },
+    warning: { color: '#F59E0B', bg: 'rgba(245,158,11,0.1)' },
+    error: { color: '#EF4444', bg: 'rgba(239,68,68,0.1)' }
+};
 
 export default function SuperAdminDashboard() {
     const router = useRouter();
     const [stats, setStats] = useState(null);
     const [tenants, setTenants] = useState([]);
+    const [logs, setLogs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
@@ -31,12 +37,18 @@ export default function SuperAdminDashboard() {
         setLoading(true);
         setError('');
         try {
-            const res = await fetch('/api/admin/stats');
-            if (res.status === 401 || res.status === 403) { router.replace('/login'); return; }
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            const data = await res.json();
+            const statsRes = await fetch('/api/admin/stats');
+            if (statsRes.status === 401 || statsRes.status === 403) { router.replace('/login'); return; }
+            if (!statsRes.ok) throw new Error(`HTTP ${statsRes.status}`);
+            const data = await statsRes.json();
             setStats(data.stats);
             setTenants(data.recentTenants || []);
+
+            const logsRes = await fetch('/api/admin/system-logs');
+            if (logsRes.ok) {
+                const logsData = await logsRes.json();
+                setLogs(logsData.logs || []);
+            }
         } catch (e) {
             setError('Could not load platform stats.');
         } finally {
@@ -153,18 +165,26 @@ export default function SuperAdminDashboard() {
                         <button onClick={loadStats} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748B', transition: 'transform 0.2s' }} onMouseEnter={e => e.currentTarget.style.transform = 'rotate(180deg)'} onMouseLeave={e => e.currentTarget.style.transform = 'rotate(0deg)'}><RefreshCcw size={16} /></button>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                        {SYSTEM_LOGS.map((log, i) => (
-                            <div key={i} style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
-                                <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: log.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: log.color, flexShrink: 0 }}>
-                                    <log.icon size={18} />
+                        {logs.length === 0 ? (
+                            <div style={{ fontSize: '13px', color: '#64748B', textAlign: 'center' }}>No system logs yet.</div>
+                        ) : logs.map((log, i) => {
+                            const IconComponent = LOG_ICONS[log.type] || Activity;
+                            const colors = LOG_COLORS[log.type] || LOG_COLORS.info;
+                            return (
+                                <div key={i} style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+                                    <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: colors.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: colors.color, flexShrink: 0 }}>
+                                        <IconComponent size={18} />
+                                    </div>
+                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                        <div style={{ fontSize: '14px', fontWeight: 600, color: '#0F172A', marginBottom: '2px' }}>{log.title}</div>
+                                        <div style={{ fontSize: '13px', color: '#64748B' }}>{log.description}</div>
+                                    </div>
+                                    <div style={{ fontSize: '12px', color: '#94A3B8', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                                        {new Date(log.createdAt).toLocaleDateString()}
+                                    </div>
                                 </div>
-                                <div style={{ flex: 1, minWidth: 0 }}>
-                                    <div style={{ fontSize: '14px', fontWeight: 600, color: '#0F172A', marginBottom: '2px' }}>{log.title}</div>
-                                    <div style={{ fontSize: '13px', color: '#64748B' }}>{log.desc}</div>
-                                </div>
-                                <div style={{ fontSize: '12px', color: '#94A3B8', whiteSpace: 'nowrap', flexShrink: 0 }}>{log.time}</div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                     <button onClick={() => router.push('/super-admin/logs')} style={{ width: '100%', padding: '12px', marginTop: '24px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', fontWeight: 600, color: '#475569', cursor: 'pointer' }}
                         onMouseEnter={e => e.currentTarget.style.background = '#F1F5F9'} onMouseLeave={e => e.currentTarget.style.background = '#F8FAFC'}>

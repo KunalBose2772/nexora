@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Settings, Shield, Server, Bell, Database, Key } from 'lucide-react';
 
 const NAV_ITEMS = [
@@ -13,16 +13,61 @@ const NAV_ITEMS = [
 export default function PlatformSettingsPage() {
     const [activeTab, setActiveTab] = useState('general');
 
-    // Mock States for the various inputs to make them "editable"
-    const [generalSettings, setGeneralSettings] = useState({ name: 'Nexora Health SaaS', email: 'support@globalwebify.com', currency: 'INR (₹)', allowSignups: true });
+    // States for the various inputs
+    const [generalSettings, setGeneralSettings] = useState({ name: '', email: '', currency: '', allowSignups: true });
     const [security, setSecurity] = useState({ mfa: true, strictPass: true, timeout: 60 });
-    const [infra, setInfra] = useState({ region: 'ap-south-1 (Mumbai)', bucket: 'nexora-tenant-storage-prod-ap-south' });
-    const [db, setDb] = useState({ maxTenants: 250, isolation: 'Pool-based (Logical Separation)' });
-    const [keys, setKeys] = useState({ stripe: 'sk_live_123456789', twilio: 'AC123xyz', sendgrid: 'SG.xyz.123' });
+    const [infra, setInfra] = useState({ region: '', bucket: '' });
+    const [db, setDb] = useState({ maxTenants: 250, isolation: '' });
+    const [keys, setKeys] = useState({ stripe: '', twilio: '', sendgrid: '' });
+    const [loading, setLoading] = useState(true);
 
-    const handleSave = (tabName) => {
-        alert(`${tabName} Settings have been saved successfully!`);
+    useEffect(() => {
+        const fetchSettings = async () => {
+            try {
+                const res = await fetch('/api/super-admin/settings');
+                const data = await res.json();
+                if (data.ok && data.settings) {
+                    if (data.settings.generalSettings) setGeneralSettings(data.settings.generalSettings);
+                    if (data.settings.security) setSecurity(data.settings.security);
+                    if (data.settings.infra) setInfra(data.settings.infra);
+                    if (data.settings.db) setDb(data.settings.db);
+                    if (data.settings.keys) setKeys(data.settings.keys);
+                }
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchSettings();
+    }, []);
+
+    const handleSave = async (tabName) => {
+        try {
+            const payload = {
+                generalSettings,
+                security,
+                infra,
+                db,
+                keys
+            };
+            const res = await fetch('/api/super-admin/settings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            if (data.ok) {
+                alert(`${tabName} Settings have been saved successfully!`);
+            } else {
+                alert(`Error saving: ${data.error}`);
+            }
+        } catch (err) {
+            alert('Failed to save settings.');
+        }
     };
+
+    if (loading) return <div style={{ padding: '24px' }}>Loading platform settings...</div>;
 
     return (
         <div className="fade-in">

@@ -66,7 +66,8 @@ export async function PUT(request, { params }) {
                 date: data.date || existing.date,
                 time: data.time || existing.time,
                 doctorName: data.doctorName || existing.doctorName,
-                department: data.department || existing.department
+                department: data.department || existing.department,
+                paymentStatus: data.paymentStatus !== undefined ? data.paymentStatus : existing.paymentStatus
             }
         });
 

@@ -76,7 +76,7 @@ export default function PublicFooter() {
                                 />
                             </Link>
                             <p style={{ fontSize: '13.5px', color: 'rgba(255,255,255,0.40)', lineHeight: 1.75, maxWidth: '280px' }}>
-                                India's enterprise-grade multi-tenant SaaS Hospital ERP.
+                                India&apos;s enterprise-grade multi-tenant SaaS Hospital ERP.
                                 Built for clinical excellence and operational efficiency.
                             </p>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '24px' }}>

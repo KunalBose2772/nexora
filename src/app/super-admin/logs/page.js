@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Activity, Server, Database, HardDrive, RefreshCcw, Loader2 } from 'lucide-react';
 
 function TerminalSquare() {
@@ -18,22 +18,39 @@ const LOGS = [
 ];
 
 export default function LogsPage() {
-    const [logs, setLogs] = useState(LOGS);
-    const [isRefreshing, setIsRefreshing] = useState(false);
+    const [logs, setLogs] = useState([]);
+    const [metrics, setMetrics] = useState({
+        apiInstances: 4,
+        dbClusters: 1,
+        activeConnections: 0,
+        s3Storage: '0 GB',
+        errorRate: '0.00%'
+    });
+    const [isRefreshing, setIsRefreshing] = useState(true);
     const [isRestarting, setIsRestarting] = useState(false);
 
-    const handleRefresh = () => {
+    const fetchLogs = async () => {
         setIsRefreshing(true);
-        setTimeout(() => {
-            const num1 = Math.floor(Math.random() * 50);
-            const num2 = Math.floor(Math.random() * 10);
-            setLogs(prev => [
-                ...prev,
-                { time: new Date().toISOString().substring(0, 19), level: 'INFO', msg: `[AUTH] ${num1} active JWTs verified in last 2m window.`, color: '#3B82F6' },
-                { time: new Date().toISOString().substring(0, 19), level: 'WARN', msg: `[API-GW] Rate limit approached for tenant ip: 10.0.${num2}.1`, color: '#F59E0B' }
-            ]);
+        try {
+            const res = await fetch('/api/super-admin/logs');
+            const data = await res.json();
+            if (data.ok) {
+                setLogs(data.logs || []);
+                if (data.metrics) setMetrics(data.metrics);
+            }
+        } catch (e) {
+            console.error(e);
+        } finally {
             setIsRefreshing(false);
-        }, 1200);
+        }
+    };
+
+    useEffect(() => {
+        fetchLogs();
+    }, []);
+
+    const handleRefresh = () => {
+        fetchLogs();
     };
 
     const handleRestart = () => {
@@ -73,29 +90,29 @@ export default function LogsPage() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', color: '#10B981' }}>
                         <Server size={18} /> <span style={{ fontSize: '14px', fontWeight: 600 }}>API Instances</span>
                     </div>
-                    <div style={{ fontSize: '24px', fontWeight: 800, color: '#0F172A' }}>99.98% <span style={{ fontSize: '14px', fontWeight: 500, color: '#64748B' }}>Uptime</span></div>
-                    <div style={{ fontSize: '12px', color: '#64748B', marginTop: '6px' }}>4/4 Nodes Healthy. Load: 32%</div>
+                    <div style={{ fontSize: '24px', fontWeight: 800, color: '#0F172A' }}>{metrics.apiInstances} <span style={{ fontSize: '14px', fontWeight: 500, color: '#64748B' }}>Nodes</span></div>
+                    <div style={{ fontSize: '12px', color: '#64748B', marginTop: '6px' }}>{metrics.apiInstances}/{metrics.apiInstances} Nodes Healthy. Load: 32%</div>
                 </div>
                 <div style={{ background: '#FFFFFF', padding: '20px', borderRadius: '12px', border: '1px solid #10B981', boxShadow: '0 4px 12px rgba(16,185,129,0.05)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', color: '#10B981' }}>
                         <Database size={18} /> <span style={{ fontSize: '14px', fontWeight: 600 }}>PostgreSQL Clusters</span>
                     </div>
-                    <div style={{ fontSize: '24px', fontWeight: 800, color: '#0F172A' }}>1,142 <span style={{ fontSize: '14px', fontWeight: 500, color: '#64748B' }}>DBs</span></div>
-                    <div style={{ fontSize: '12px', color: '#64748B', marginTop: '6px' }}>Active Connections: 8,491</div>
+                    <div style={{ fontSize: '24px', fontWeight: 800, color: '#0F172A' }}>{metrics.dbClusters} <span style={{ fontSize: '14px', fontWeight: 500, color: '#64748B' }}>DBs</span></div>
+                    <div style={{ fontSize: '12px', color: '#64748B', marginTop: '6px' }}>Active Connections: {metrics.activeConnections}</div>
                 </div>
                 <div style={{ background: '#FFFFFF', padding: '20px', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', color: '#475569' }}>
                         <HardDrive size={18} /> <span style={{ fontSize: '14px', fontWeight: 600 }}>S3 Storage Used</span>
                     </div>
-                    <div style={{ fontSize: '24px', fontWeight: 800, color: '#0F172A' }}>8.4 TB</div>
-                    <div style={{ fontSize: '12px', color: '#64748B', marginTop: '6px' }}>Costs: ₹42k/mo. Growing 5% MoM.</div>
+                    <div style={{ fontSize: '24px', fontWeight: 800, color: '#0F172A' }}>{metrics.s3Storage}</div>
+                    <div style={{ fontSize: '12px', color: '#64748B', marginTop: '6px' }}>Growing organically MoM.</div>
                 </div>
-                <div style={{ background: '#FEF2F2', padding: '20px', borderRadius: '12px', border: '1px solid #FECACA' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', color: '#DC2626' }}>
+                <div style={{ background: '#F8FAFC', padding: '20px', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', color: '#0F172A' }}>
                         <Activity size={18} /> <span style={{ fontSize: '14px', fontWeight: 600 }}>Error Rate</span>
                     </div>
-                    <div style={{ fontSize: '24px', fontWeight: 800, color: '#DC2626' }}>1.2% <span style={{ fontSize: '14px', fontWeight: 500, color: '#EF4444' }}>(Elevated)</span></div>
-                    <div style={{ fontSize: '12px', color: '#991B1B', marginTop: '6px' }}>Spikes detected in last 10 minutes.</div>
+                    <div style={{ fontSize: '24px', fontWeight: 800, color: '#059669' }}>{metrics.errorRate} <span style={{ fontSize: '14px', fontWeight: 500, color: '#059669' }}>(Healthy)</span></div>
+                    <div style={{ fontSize: '12px', color: '#64748B', marginTop: '6px' }}>Normal range across globally distributed nodes.</div>
                 </div>
             </div>
 
@@ -112,13 +129,17 @@ export default function LogsPage() {
                     </div>
                 </div>
                 <div style={{ padding: '20px', fontFamily: 'monospace', fontSize: '13px', color: '#94A3B8', lineHeight: 1.7, height: '380px', overflowY: 'auto', overflowX: 'auto' }}>
-                    {logs.map((log, i) => (
-                        <div key={i} style={{ display: 'flex', gap: '12px', marginBottom: '6px', borderBottom: '1px solid rgba(255,255,255,0.04)', paddingBottom: '4px', flexWrap: 'wrap', animation: 'fadeInBottom 0.3s ease-out' }}>
-                            <span style={{ color: '#64748B', whiteSpace: 'nowrap', fontSize: '12px' }}>{log.time}</span>
-                            <span style={{ color: log.color, fontWeight: 700, minWidth: '50px', fontSize: '12px' }}>{log.level}</span>
-                            <span style={{ color: '#E2E8F0', wordBreak: 'break-word', flex: 1, minWidth: '0', fontSize: '12px' }}>{log.msg}</span>
-                        </div>
-                    ))}
+                    {logs.length === 0 ? (
+                        <div style={{ color: '#64748B' }}>No system logs found...</div>
+                    ) : (
+                        logs.map((log, i) => (
+                            <div key={i} style={{ display: 'flex', gap: '12px', marginBottom: '6px', borderBottom: '1px solid rgba(255,255,255,0.04)', paddingBottom: '4px', flexWrap: 'wrap', animation: 'fadeInBottom 0.3s ease-out' }}>
+                                <span style={{ color: '#64748B', whiteSpace: 'nowrap', fontSize: '12px' }}>{log.time}</span>
+                                <span style={{ color: log.color, fontWeight: 700, minWidth: '50px', fontSize: '12px' }}>{log.level}</span>
+                                <span style={{ color: '#E2E8F0', wordBreak: 'break-word', flex: 1, minWidth: '0', fontSize: '12px' }}>{log.msg}</span>
+                            </div>
+                        ))
+                    )}
                     <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '16px', color: '#10B981' }}>
                         <div style={{ width: '8px', height: '8px', background: '#10B981', borderRadius: '50%' }}></div>
                         Tailing active logs...

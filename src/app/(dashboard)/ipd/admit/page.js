@@ -1,8 +1,104 @@
 'use client';
 import { Save, ArrowLeft, Search, BedDouble, UserPlus, Clock } from 'lucide-react';
 import Link from 'next/link';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 
-export default function IPDAdmitPage() {
+function AdmitForm() {
+    const router = useRouter();
+    const searchParams = useSearchParams();
+
+    const [patients, setPatients] = useState([]);
+    const [searchPatient, setSearchPatient] = useState('');
+    const [selectedPatient, setSelectedPatient] = useState(null);
+
+    const [doctorName, setDoctorName] = useState('');
+    const [date, setDate] = useState('');
+    const [time, setTime] = useState('');
+    const [ward, setWard] = useState('');
+    const [floor, setFloor] = useState('');
+    const [bed, setBed] = useState('');
+    const [admitNotes, setAdmitNotes] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [dbWards, setDbWards] = useState([]);
+
+    useEffect(() => {
+        // Parse query params for ward and bed
+        if (searchParams.get('ward')) {
+            setWard(searchParams.get('ward'));
+        }
+        if (searchParams.get('bed')) {
+            setBed(searchParams.get('bed'));
+        }
+
+        const fetchData = async () => {
+            try {
+                const [ptRes, wRes] = await Promise.all([
+                    fetch('/api/patients'),
+                    fetch('/api/facility/wards')
+                ]);
+
+                if (ptRes.ok) {
+                    const ptData = await ptRes.json();
+                    setPatients(ptData.patients || []);
+                }
+                if (wRes.ok) {
+                    const wData = await wRes.json();
+                    setDbWards(wData.wards || []);
+                }
+            } catch (err) {
+                console.error("Failed to load data:", err);
+            }
+        };
+        fetchData();
+    }, [searchParams]);
+
+    const activeWardObj = dbWards.find(w => w.name === ward) || null;
+    const availableBeds = activeWardObj ? (activeWardObj.beds || []) : [];
+
+    const filteredPatients = searchPatient
+        ? patients.filter(p =>
+            p.firstName.toLowerCase().includes(searchPatient.toLowerCase()) ||
+            p.lastName.toLowerCase().includes(searchPatient.toLowerCase()) ||
+            p.patientCode.toLowerCase().includes(searchPatient.toLowerCase()))
+        : [];
+
+    const handleAdmit = async () => {
+        if (!selectedPatient || !doctorName || !date || !ward || !bed) {
+            alert('Please fill out all required fields.');
+            return;
+        }
+
+        setLoading(true);
+        try {
+            const res = await fetch('/api/ipd', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    patientId: selectedPatient.id,
+                    patientName: `${selectedPatient.firstName} ${selectedPatient.lastName}`,
+                    doctorName: doctorName,
+                    date: date,
+                    time: time,
+                    ward: ward,
+                    bed: bed,
+                    admitNotes: admitNotes
+                })
+            });
+
+            if (res.ok) {
+                router.push('/ipd');
+            } else {
+                alert('Failed to admit patient');
+            }
+        } catch (err) {
+            console.error('Admission error:', err);
+            alert('An error occurred during admission');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <div className="fade-in">
             <div className="dashboard-header-row">
@@ -16,12 +112,12 @@ export default function IPDAdmitPage() {
                     </div>
                 </div>
                 <div className="dashboard-header-buttons">
-                    <button className="btn btn-secondary btn-sm" style={{ background: '#fff' }}>
+                    <button className="btn btn-secondary btn-sm" style={{ background: '#fff' }} onClick={() => router.push('/ipd')}>
                         Cancel Admission
                     </button>
-                    <button className="btn btn-primary btn-sm">
+                    <button className="btn btn-primary btn-sm" onClick={handleAdmit} disabled={loading}>
                         <Save size={15} strokeWidth={1.5} />
-                        Confirm Admission
+                        {loading ? 'Admitting...' : 'Confirm Admission'}
                     </button>
                 </div>
             </div>
@@ -37,22 +133,68 @@ export default function IPDAdmitPage() {
                             </div>
                             <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--color-navy)' }}>Patient Directory</h3>
                         </div>
-                        <div style={{ position: 'relative', marginBottom: '16px' }}>
-                            <Search size={16} color="#94A3B8" style={{ position: 'absolute', left: '16px', top: '12px' }} />
-                            <input type="text" placeholder="Search Patient by UHID to pull records..." style={{ width: '100%', padding: '12px 16px 12px 42px', border: '1px solid var(--color-border-light)', borderRadius: '8px', outline: 'none', fontSize: '14px' }} />
-                        </div>
+
+                        {!selectedPatient ? (
+                            <div style={{ position: 'relative', marginBottom: '16px' }}>
+                                <Search size={16} color="#94A3B8" style={{ position: 'absolute', left: '16px', top: '12px' }} />
+                                <input
+                                    type="text"
+                                    placeholder="Search Patient by UHID or Name to pull records..."
+                                    value={searchPatient}
+                                    onChange={(e) => setSearchPatient(e.target.value)}
+                                    style={{ width: '100%', padding: '12px 16px 12px 42px', border: '1px solid var(--color-border-light)', borderRadius: '8px', outline: 'none', fontSize: '14px' }}
+                                />
+                                {filteredPatients.length > 0 && (
+                                    <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: '#fff', border: '1px solid var(--color-border-light)', borderRadius: '8px', marginTop: '4px', zIndex: 10, boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}>
+                                        {filteredPatients.map(p => (
+                                            <div
+                                                key={p.id}
+                                                style={{ padding: '12px 16px', borderBottom: '1px solid #f1f5f9', cursor: 'pointer', fontSize: '14px' }}
+                                                onClick={() => { setSelectedPatient(p); setSearchPatient(''); }}
+                                                onMouseOver={(e) => e.currentTarget.style.background = '#f8fafc'}
+                                                onMouseOut={(e) => e.currentTarget.style.background = '#fff'}
+                                            >
+                                                <div style={{ fontWeight: 600 }}>{p.firstName} {p.lastName}</div>
+                                                <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)' }}>{p.patientCode}</div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <div style={{ marginBottom: '20px', padding: '16px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div>
+                                    <div style={{ fontWeight: 600, color: 'var(--color-navy)' }}>{selectedPatient.firstName} {selectedPatient.lastName}</div>
+                                    <div style={{ fontSize: '13px', color: 'var(--color-text-secondary)' }}>UHID: {selectedPatient.patientCode}</div>
+                                </div>
+                                <button className="btn btn-secondary btn-sm" onClick={() => setSelectedPatient(null)} style={{ padding: '6px 12px', fontSize: '12px' }}>Change</button>
+                            </div>
+                        )}
+
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
                             <div>
                                 <label style={{ display: 'block', fontSize: '13px', marginBottom: '6px', color: 'var(--color-text-secondary)', fontWeight: 500 }}>Admitting Doctor / Consultant <span style={{ color: 'red' }}>*</span></label>
-                                <select style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--color-border-light)', borderRadius: '8px', outline: 'none', fontSize: '14px', backgroundColor: '#fff', color: 'var(--color-text-primary)' }}>
-                                    <option>Select Attending Provider</option>
-                                    <option>Dr. Raj Malhotra (Orthopedics)</option>
-                                    <option>Dr. Vinita Singh (General Surgery)</option>
+                                <select
+                                    value={doctorName}
+                                    onChange={(e) => setDoctorName(e.target.value)}
+                                    style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--color-border-light)', borderRadius: '8px', outline: 'none', fontSize: '14px', backgroundColor: '#fff', color: 'var(--color-text-primary)' }}
+                                >
+                                    <option value="">Select Attending Provider</option>
+                                    <option value="Dr. Raj Malhotra">Dr. Raj Malhotra (Orthopedics)</option>
+                                    <option value="Dr. Vinita Singh">Dr. Vinita Singh (General Surgery)</option>
+                                    <option value="Dr. Priya Sharma">Dr. Priya Sharma (Internal Medicine)</option>
+                                    <option value="Dr. Arjun Nair">Dr. Arjun Nair (Cardiology)</option>
                                 </select>
                             </div>
-                            <div>
-                                <label style={{ display: 'block', fontSize: '13px', marginBottom: '6px', color: 'var(--color-text-secondary)', fontWeight: 500 }}>Admission Date & Time</label>
-                                <input type="datetime-local" style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--color-border-light)', borderRadius: '8px', outline: 'none', fontSize: '14px', color: 'var(--color-text-primary)' }} />
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '13px', marginBottom: '6px', color: 'var(--color-text-secondary)', fontWeight: 500 }}>Date <span style={{ color: 'red' }}>*</span></label>
+                                    <input type="date" value={date} onChange={(e) => setDate(e.target.value)} style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--color-border-light)', borderRadius: '8px', outline: 'none', fontSize: '14px', color: 'var(--color-text-primary)' }} />
+                                </div>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '13px', marginBottom: '6px', color: 'var(--color-text-secondary)', fontWeight: 500 }}>Time</label>
+                                    <input type="time" value={time} onChange={(e) => setTime(e.target.value)} style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--color-border-light)', borderRadius: '8px', outline: 'none', fontSize: '14px', color: 'var(--color-text-primary)' }} />
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -68,35 +210,46 @@ export default function IPDAdmitPage() {
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px' }}>
                             <div>
                                 <label style={{ display: 'block', fontSize: '13px', marginBottom: '6px', color: 'var(--color-text-secondary)', fontWeight: 500 }}>Ward Type <span style={{ color: 'red' }}>*</span></label>
-                                <select style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--color-border-light)', borderRadius: '8px', outline: 'none', fontSize: '14px', backgroundColor: '#fff', color: 'var(--color-text-primary)' }}>
-                                    <option>Select Type</option>
-                                    <option>General Ward</option>
-                                    <option>Semi-Private</option>
-                                    <option>Private Room</option>
-                                    <option>Pre-Op Area</option>
-                                    <option>Intensive Care (ICU)</option>
+                                <select
+                                    value={ward}
+                                    onChange={(e) => { setWard(e.target.value); setBed(''); }}
+                                    style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--color-border-light)', borderRadius: '8px', outline: 'none', fontSize: '14px', backgroundColor: '#fff', color: 'var(--color-text-primary)' }}
+                                >
+                                    <option value="">Select Ward</option>
+                                    {dbWards.map(w => (
+                                        <option key={w.id} value={w.name}>{w.name}</option>
+                                    ))}
                                 </select>
                             </div>
                             <div>
                                 <label style={{ display: 'block', fontSize: '13px', marginBottom: '6px', color: 'var(--color-text-secondary)', fontWeight: 500 }}>Floor / Wing</label>
-                                <select style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--color-border-light)', borderRadius: '8px', outline: 'none', fontSize: '14px', backgroundColor: '#fff', color: 'var(--color-text-primary)' }}>
-                                    <option>Select Wing</option>
-                                    <option>East Wing - Floor 2</option>
-                                    <option>South Wing - Floor 1</option>
-                                </select>
+                                <div style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--color-border-light)', borderRadius: '8px', fontSize: '14px', backgroundColor: '#F8FAFC', color: 'var(--color-text-secondary)' }}>
+                                    {activeWardObj?.floorWing ? activeWardObj.floorWing : 'N/A (Select Ward First)'}
+                                </div>
                             </div>
                             <div>
                                 <label style={{ display: 'block', fontSize: '13px', marginBottom: '6px', color: 'var(--color-text-secondary)', fontWeight: 500 }}>Bed Number <span style={{ color: 'red' }}>*</span></label>
-                                <select style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--color-border-light)', borderRadius: '8px', outline: 'none', fontSize: '14px', backgroundColor: '#fff', color: 'var(--color-text-primary)' }}>
-                                    <option>Available Beds...</option>
-                                    <option>Bed 204-A (Vacant)</option>
-                                    <option>Bed 204-B (Vacant)</option>
-                                    <option>Bed 205 (Vacant - Window)</option>
+                                <select
+                                    value={bed}
+                                    onChange={(e) => setBed(e.target.value)}
+                                    style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--color-border-light)', borderRadius: '8px', outline: 'none', fontSize: '14px', backgroundColor: '#fff', color: 'var(--color-text-primary)' }}
+                                    disabled={!ward}
+                                >
+                                    <option value="">Available Beds...</option>
+                                    {availableBeds.map(b => (
+                                        <option key={b.id} value={`Bed ${b.bedNumber}`}>Bed {b.bedNumber}</option>
+                                    ))}
                                 </select>
                             </div>
                             <div style={{ gridColumn: '1 / -1' }}>
                                 <label style={{ display: 'block', fontSize: '13px', marginBottom: '6px', color: 'var(--color-text-secondary)', fontWeight: 500 }}>Admitting Diagnosis / Remarks</label>
-                                <textarea rows="3" placeholder="Enter clinical reasoning for ward admission and initial orders..." style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--color-border-light)', borderRadius: '8px', outline: 'none', fontSize: '14px', resize: 'vertical' }}></textarea>
+                                <textarea
+                                    value={admitNotes}
+                                    onChange={(e) => setAdmitNotes(e.target.value)}
+                                    rows="3"
+                                    placeholder="Enter clinical reasoning for ward admission and initial orders..."
+                                    style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--color-border-light)', borderRadius: '8px', outline: 'none', fontSize: '14px', resize: 'vertical' }}
+                                />
                             </div>
                         </div>
                     </div>
@@ -134,3 +287,12 @@ export default function IPDAdmitPage() {
         </div>
     );
 }
+
+export default function IPDAdmitPageWrapper() {
+    return (
+        <Suspense fallback={<div style={{ padding: '20px' }}>Loading admission form...</div>}>
+            <AdmitForm />
+        </Suspense>
+    );
+}
+

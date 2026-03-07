@@ -130,6 +130,56 @@ async function main() {
         console.log(`✅ ${h.name}: ${h.adminEmail} / ${pw}`);
     }
 
+    // ── Resellers ───────────────────────────────────────────
+    const resellers = [
+        { name: 'TechMed Solutions', contact: 'Ravi Kumar', email: 'ravi@techmed.in', hospitals: 45, revShare: '20%', status: 'Active' },
+        { name: 'CareLogic IT', contact: 'Anita Desai', email: 'anita@carelogic.com', hospitals: 12, revShare: '15%', status: 'Active' },
+        { name: 'MediSys Integrators', contact: 'Sumit Patel', email: 'sumit@medisys.in', hospitals: 3, revShare: '10%', status: 'Inactive' },
+        { name: 'Global Webify Resellers', contact: 'Kunal Bose', email: 'kunal@gw.com', hospitals: 68, revShare: '30%', status: 'Active' },
+    ];
+
+    for (const r of resellers) {
+        await prisma.reseller.create({ data: r });
+    }
+    console.log(`✅ Seeded ${resellers.length} Resellers`);
+
+    // ── System Logs ───────────────────────────────────────────
+    const logs = [
+        { title: 'Database Backup Completed', description: 'Auto-backup successful', type: 'success' },
+        { title: 'JWT Sessions Active', description: '1,492 tokens verified in last 10m', type: 'info' },
+        { title: 'Tenant Provisioning', description: 'New hospital onboarded successfully', type: 'success' },
+        { title: 'Payment Gateway Sync', description: 'Daily reconciliation completed', type: 'warning' },
+        { title: 'Security Scan', description: 'No threats detected. All systems clean.', type: 'info' },
+    ];
+
+    for (const l of logs) {
+        await prisma.systemLog.create({ data: l });
+    }
+    console.log(`✅ Seeded ${logs.length} System Logs`);
+
+    // ── Expenses ───────────────────────────────────────────
+    // Get the first active tenant to attach expenses to
+    const targetTenant = await prisma.tenant.findFirst({ where: { status: 'Active' } });
+
+    if (targetTenant) {
+        const expenses = [
+            { voucherId: 'EXP-4509', date: '2023-10-24', category: 'Pharmacy Procurement', vendor: 'Cipla Distributors Pvt Ltd', status: 'Paid', amount: 45000, tenantId: targetTenant.id },
+            { voucherId: 'EXP-4510', date: '2023-10-23', category: 'Utility Bills', vendor: 'State Electricity Board', status: 'Paid', amount: 18500, tenantId: targetTenant.id },
+            { voucherId: 'EXP-4511', date: '2023-10-22', category: 'Lab Reagents', vendor: 'Transasia Biomedicals', status: 'Pending', amount: 124000, tenantId: targetTenant.id },
+            { voucherId: 'EXP-4512', date: '2023-10-21', category: 'Maintenance / Housekeeping', vendor: 'CleanWorks Agency', status: 'Paid', amount: 32000, tenantId: targetTenant.id },
+            { voucherId: 'EXP-4513', date: '2023-10-20', category: 'Stationery & Admin', vendor: 'OfficeMart Supplies', status: 'Draft', amount: 5400, tenantId: targetTenant.id },
+        ];
+
+        for (const e of expenses) {
+            await prisma.expense.upsert({
+                where: { voucherId: e.voucherId },
+                update: {},
+                create: e,
+            });
+        }
+        console.log(`✅ Seeded ${expenses.length} Expenses for tenant: ${targetTenant.name}`);
+    }
+
     console.log('\n🎉 Seed complete!');
     console.log('\nLogin at http://localhost:3000/login');
     console.log('Super Admin:  admin@nexorahealth.com / admin@123');

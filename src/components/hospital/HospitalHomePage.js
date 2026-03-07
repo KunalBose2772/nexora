@@ -125,7 +125,7 @@ export default function HospitalHomePage({ slug }) {
         <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '16px', fontFamily: "'Inter', sans-serif", background: '#F8FAFC' }}>
             <HeartPulse size={56} color="#CBD5E1" />
             <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#0F172A' }}>Hospital Not Found</h1>
-            <p style={{ color: '#64748B', fontSize: '15px' }}>No hospital registered as <strong>"{slug}"</strong>.</p>
+            <p style={{ color: '#64748B', fontSize: '15px' }}>No hospital registered as <strong>&quot;{slug}&quot;</strong>.</p>
             <Link href="/" style={{ marginTop: '8px', padding: '11px 24px', background: '#10B981', color: 'white', borderRadius: '8px', textDecoration: 'none', fontWeight: 600, fontSize: '14px' }}>
                 Back to Nexora Health
             </Link>
@@ -494,7 +494,7 @@ export default function HospitalHomePage({ slug }) {
                 <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
                     <div style={{ textAlign: 'center', marginBottom: '60px' }}>
                         <h2 style={{ fontSize: 'clamp(28px, 4vw, 42px)', fontWeight: 900, color: '#0F172A', letterSpacing: '-0.025em', marginBottom: '14px' }}>Get in Touch</h2>
-                        <p style={{ fontSize: '16px', color: '#64748B', maxWidth: '440px', margin: '0 auto', lineHeight: 1.65 }}>We're here to help — reach out to schedule a visit or ask any questions.</p>
+                        <p style={{ fontSize: '16px', color: '#64748B', maxWidth: '440px', margin: '0 auto', lineHeight: 1.65 }}>We&apos;re here to help — reach out to schedule a visit or ask any questions.</p>
                     </div>
 
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(236px, 1fr))', gap: '18px', maxWidth: '960px', margin: '0 auto 48px' }}>
@@ -590,7 +590,7 @@ export default function HospitalHomePage({ slug }) {
                         </p>
                         <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.22)', margin: 0 }}>
                             Powered by{' '}
-                            <a href="/" style={{ color: c, textDecoration: 'none', fontWeight: 600 }}>Nexora Health</a>
+                            <Link href="/" style={{ color: c, textDecoration: 'none', fontWeight: 600 }}>Nexora Health</Link>
                         </p>
                     </div>
                 </div>

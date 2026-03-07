@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
     Bell,
     ChevronDown,
@@ -11,6 +11,7 @@ import {
     Settings,
     Command,
     Menu,
+    HelpCircle,
 } from 'lucide-react';
 import Image from 'next/image';
 
@@ -22,21 +23,46 @@ function getBreadcrumb(pathname) {
     }));
 }
 
-const NOTIFICATIONS = [
-    { id: 1, text: 'Lab report ready: Patient #GW-001234', time: '2 min ago', dot: '#00C2FF' },
-    { id: 2, text: 'Low stock alert: Paracetamol 500mg', time: '18 min ago', dot: '#D97706' },
-    { id: 3, text: 'Appointment confirmed: Dr. Sharma', time: '1 hr ago', dot: '#16A34A' },
-];
+// Replaced static NOTIFICATIONS with dynamic fetch below
 
 export default function Header({ user, setMobileOpen }) {
     const pathname = usePathname();
+    const router = useRouter();
     const crumbs = getBreadcrumb(pathname);
     const [showUser, setShowUser] = useState(false);
     const [showNotif, setShowNotif] = useState(false);
+    const [notifications, setNotifications] = useState([]);
+    const [loadingNotifs, setLoadingNotifs] = useState(false);
 
-    const me = user || { name: 'Admin User', role: 'Super Admin' };
+    // Fetch dynamic notifications based on db state
+    const fetchNotifications = async () => {
+        setLoadingNotifs(true);
+        try {
+            const res = await fetch('/api/notifications');
+            if (res.ok) {
+                const data = await res.json();
+                if (data.ok) setNotifications(data.notifications || []);
+            }
+        } catch (e) {
+            console.error('Failed to fetch notifications', e);
+        } finally {
+            setLoadingNotifs(false);
+        }
+    };
+
+    // Provide a more descriptive default during loading
+    const me = user || { name: 'Loading...', role: 'Please wait' };
 
     const closeAll = () => { setShowUser(false); setShowNotif(false); };
+
+    const handleLogout = async () => {
+        try {
+            await fetch('/api/auth/me', { method: 'POST' }); // Posts to /logout by convention from your route.js
+            router.push('/login');
+        } catch (e) {
+            console.error('Logout failed', e);
+        }
+    };
 
     return (
         <header
@@ -210,7 +236,11 @@ export default function Header({ user, setMobileOpen }) {
                     aria-label="Notifications"
                     aria-haspopup="true"
                     aria-expanded={showNotif}
-                    onClick={() => { setShowNotif(!showNotif); setShowUser(false); }}
+                    onClick={() => {
+                        setShowNotif(!showNotif);
+                        setShowUser(false);
+                        if (!showNotif) fetchNotifications();
+                    }}
                     style={{
                         position: 'relative',
                         width: '36px',
@@ -230,19 +260,21 @@ export default function Header({ user, setMobileOpen }) {
                     onMouseLeave={(e) => { if (!showNotif) { e.currentTarget.style.background = '#FFFFFF'; } }}
                 >
                     <Bell size={17} strokeWidth={1.5} aria-hidden="true" />
-                    <span
-                        aria-label="3 unread"
-                        style={{
-                            position: 'absolute',
-                            top: '6px',
-                            right: '6px',
-                            width: '8px',
-                            height: '8px',
-                            background: '#00C2FF',
-                            borderRadius: '50%',
-                            border: '1.5px solid #FFFFFF',
-                        }}
-                    />
+                    {notifications.length > 0 && (
+                        <span
+                            aria-label={`${notifications.length} unread`}
+                            style={{
+                                position: 'absolute',
+                                top: '6px',
+                                right: '6px',
+                                width: '8px',
+                                height: '8px',
+                                background: '#00C2FF',
+                                borderRadius: '50%',
+                                border: '1.5px solid #FFFFFF',
+                            }}
+                        />
+                    )}
                 </button>
 
                 {showNotif && (
@@ -271,9 +303,13 @@ export default function Header({ user, setMobileOpen }) {
                         >
                             <div style={{ padding: '14px 16px', borderBottom: '1px solid #E2E8F0', fontSize: '13px', fontWeight: 600, color: '#0F172A', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 Notifications
-                                <span style={{ fontSize: '11px', color: '#00C2FF', fontWeight: 500, cursor: 'pointer' }}>Mark all as read</span>
+                                {notifications.length > 0 && <span style={{ fontSize: '11px', color: '#00C2FF', fontWeight: 500, cursor: 'pointer' }}>Mark all as read</span>}
                             </div>
-                            {NOTIFICATIONS.map((n) => (
+                            {loadingNotifs ? (
+                                <div style={{ padding: '20px', textAlign: 'center', color: '#94A3B8', fontSize: '13px' }}>Loading...</div>
+                            ) : notifications.length === 0 ? (
+                                <div style={{ padding: '20px', textAlign: 'center', color: '#94A3B8', fontSize: '13px' }}>No new notifications</div>
+                            ) : notifications.map((n) => (
                                 <button
                                     key={n.id}
                                     role="menuitem"
@@ -423,8 +459,29 @@ export default function Header({ user, setMobileOpen }) {
                                         {label}
                                     </button>
                                 ))}
+                                <button
+                                    role="menuitem"
+                                    onClick={() => {
+                                        localStorage.removeItem('nexora_onboarding_done');
+                                        window.location.reload();
+                                    }}
+                                    style={{
+                                        display: 'flex', alignItems: 'center', gap: '8px',
+                                        padding: '8px 10px', width: '100%', background: 'none',
+                                        border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: 500,
+                                        color: '#3B82F6', fontFamily: 'inherit',
+                                        borderRadius: '6px',
+                                        transition: 'background 150ms',
+                                    }}
+                                    onMouseEnter={(e) => { e.currentTarget.style.background = '#EFF6FF'; }}
+                                    onMouseLeave={(e) => { e.currentTarget.style.background = 'none'; }}
+                                >
+                                    <HelpCircle size={15} strokeWidth={1.5} aria-hidden="true" />
+                                    Start Tour
+                                </button>
                                 <div style={{ borderTop: '1px solid #E2E8F0', margin: '4px 0' }} />
                                 <button
+                                    onClick={handleLogout}
                                     role="menuitem"
                                     style={{
                                         display: 'flex', alignItems: 'center', gap: '8px',

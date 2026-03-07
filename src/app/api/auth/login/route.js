@@ -12,39 +12,74 @@ export async function POST(request) {
             return NextResponse.json({ error: 'Email and password are required.' }, { status: 400 });
         }
 
-        const user = await prisma.user.findUnique({
+        let user = await prisma.user.findUnique({
             where: { email: email.toLowerCase().trim() },
             include: { tenant: { select: { id: true, slug: true, name: true, status: true } } },
         });
 
-        if (!user) {
-            return NextResponse.json({ error: 'Invalid email or password.' }, { status: 401 });
-        }
+        let payload = null;
 
-        const valid = await bcrypt.compare(password, user.passwordHash);
-        if (!valid) {
-            return NextResponse.json({ error: 'Invalid email or password.' }, { status: 401 });
-        }
+        if (user) {
+            // It's a standard user/staff/admin
+            const valid = await bcrypt.compare(password, user.passwordHash);
+            if (!valid) {
+                return NextResponse.json({ error: 'Invalid email or password.' }, { status: 401 });
+            }
 
-        if (user.status === 'Suspended') {
-            return NextResponse.json({ error: 'Your account has been suspended. Contact your administrator.' }, { status: 403 });
-        }
+            if (user.status === 'Suspended') {
+                return NextResponse.json({ error: 'Your account has been suspended. Contact your administrator.' }, { status: 403 });
+            }
 
-        // Also check if tenant is suspended
-        if (user.tenant && user.tenant.status === 'Suspended') {
-            return NextResponse.json({ error: 'Your hospital account is currently suspended. Contact Nexora support.' }, { status: 403 });
-        }
+            // Also check if tenant is suspended
+            if (user.tenant && user.tenant.status === 'Suspended') {
+                return NextResponse.json({ error: 'Your hospital account is currently suspended. Contact Nexora support.' }, { status: 403 });
+            }
 
-        const payload = {
-            id: user.id,
-            userId: user.userId,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-            tenantId: user.tenantId,
-            tenantSlug: user.tenant?.slug || null,
-            tenantName: user.tenant?.name || null,
-        };
+            payload = {
+                id: user.id,
+                userId: user.userId,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                tenantId: user.tenantId,
+                tenantSlug: user.tenant?.slug || null,
+                tenantName: user.tenant?.name || null,
+            };
+        } else {
+            // Check if it's a patient
+            const patient = await prisma.patient.findFirst({
+                where: { email: email.toLowerCase().trim() },
+                include: { tenant: { select: { id: true, slug: true, name: true, status: true } } },
+            });
+
+            if (!patient) {
+                return NextResponse.json({ error: 'Invalid email or password.' }, { status: 401 });
+            }
+
+            if (!patient.passwordHash) {
+                return NextResponse.json({ error: 'Patient account has no password set.' }, { status: 401 });
+            }
+
+            const valid = await bcrypt.compare(password, patient.passwordHash);
+            if (!valid) {
+                return NextResponse.json({ error: 'Invalid email or password.' }, { status: 401 });
+            }
+
+            if (patient.status === 'Suspended') {
+                return NextResponse.json({ error: 'Your patient profile is suspended.' }, { status: 403 });
+            }
+
+            payload = {
+                id: patient.id,
+                patientCode: patient.patientCode,
+                name: `${patient.firstName} ${patient.lastName}`,
+                email: patient.email,
+                role: 'patient', // Specific role mapping
+                tenantId: patient.tenantId,
+                tenantSlug: patient.tenant?.slug || null,
+                tenantName: patient.tenant?.name || null,
+            };
+        }
 
         const token = signToken(payload);
         const cookie = buildCookieHeader(token);

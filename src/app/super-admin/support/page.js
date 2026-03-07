@@ -1,42 +1,15 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AlertCircle, Clock, CheckCircle2, X } from 'lucide-react';
 
 function BuildingIcon({ size = 12 }) {
     return <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><path d="M9 22v-4h6v4"></path><path d="M8 6h.01"></path><path d="M16 6h.01"></path><path d="M12 6h.01"></path><path d="M12 10h.01"></path><path d="M12 14h.01"></path><path d="M16 10h.01"></path><path d="M16 14h.01"></path><path d="M8 10h.01"></path><path d="M8 14h.01"></path></svg>;
 }
 
-const COLUMNS = [
-    {
-        key: 'open',
-        label: 'Open / Unassigned',
-        dot: '#EF4444',
-        count: '3',
-        tickets: [
-            { id: '#TKT-8901', hospital: 'City General', issue: 'Cannot upload PDF lab reports larger than 5MB.', priority: 'High', time: '10m ago' },
-            { id: '#TKT-8902', hospital: 'Apollo Health', issue: 'Database connection timeout on historical billing search.', priority: 'Critical', time: '25m ago' },
-            { id: '#TKT-8903', hospital: 'Metro Multi', issue: 'New user creation failing with RBAC error.', priority: 'Medium', time: '1h ago' },
-        ]
-    },
-    {
-        key: 'progress',
-        label: 'In Progress (Engineering)',
-        dot: '#F59E0B',
-        count: '1',
-        tickets: [
-            { id: '#TKT-8898', hospital: 'Sunrise Care', issue: 'Missing GST export button on pro plan.', priority: 'Medium', time: '1d ago' },
-        ]
-    },
-    {
-        key: 'resolved',
-        label: 'Recently Resolved',
-        dot: '#10B981',
-        count: '12+',
-        resolved: true,
-        tickets: [
-            { id: '#TKT-8850', hospital: 'Care Hospital', issue: 'Password reset email not delivering.', priority: 'High', time: '2d ago' },
-        ]
-    },
+const COLUMNS_DEF = [
+    { key: 'open', label: 'Open / Unassigned', dot: '#EF4444' },
+    { key: 'progress', label: 'In Progress (Engineering)', dot: '#F59E0B' },
+    { key: 'resolved', label: 'Recently Resolved', dot: '#10B981', resolved: true },
 ];
 
 const priorityStyle = {
@@ -46,37 +19,72 @@ const priorityStyle = {
 };
 
 export default function SupportPage() {
-    const [boardCols, setBoardCols] = useState(COLUMNS);
+    const [tickets, setTickets] = useState([]);
     const [selectedTicket, setSelectedTicket] = useState(null);
     const [modalOpen, setModalOpen] = useState(false);
     const [replyText, setReplyText] = useState('');
+    const [loading, setLoading] = useState(true);
+
+    const fetchTickets = async () => {
+        try {
+            const res = await fetch('/api/super-admin/support');
+            const data = await res.json();
+            if (data.ok) setTickets(data.tickets);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchTickets();
+    }, []);
+
+    const boardCols = COLUMNS_DEF.map(col => ({
+        ...col,
+        tickets: tickets.filter(t => t.status === col.key),
+        count: tickets.filter(t => t.status === col.key).length
+    }));
 
     const openTicket = (ticket, colKey) => {
         setSelectedTicket({ ...ticket, columnKey: colKey });
-        setReplyText('');
+        setReplyText(ticket.reply || '');
         setModalOpen(true);
     };
 
-    const handleReply = (e) => {
+    const handleReply = async (e) => {
         e.preventDefault();
-        alert(`Reply successfully sent to ${selectedTicket.hospital}.`);
-        setModalOpen(false);
+        try {
+            const res = await fetch(`/api/super-admin/support/${selectedTicket.id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ reply: replyText })
+            });
+            if (res.ok) {
+                alert(`Reply successfully sent to ${selectedTicket.hospital}.`);
+                setModalOpen(false);
+                fetchTickets();
+            }
+        } catch (err) {
+            alert('Failed to send reply');
+        }
     };
 
-    const handleMove = (targetColKey) => {
-        const newCols = boardCols.map(c => {
-            if (c.key === selectedTicket.columnKey) {
-                return { ...c, tickets: c.tickets.filter(t => t.id !== selectedTicket.id) };
+    const handleMove = async (targetColKey) => {
+        try {
+            const res = await fetch(`/api/super-admin/support/${selectedTicket.id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: targetColKey })
+            });
+            if (res.ok) {
+                setModalOpen(false);
+                fetchTickets();
             }
-            if (c.key === targetColKey) {
-                const pureTicket = { ...selectedTicket };
-                delete pureTicket.columnKey;
-                return { ...c, tickets: [pureTicket, ...c.tickets] };
-            }
-            return c;
-        });
-        setBoardCols(newCols);
-        setModalOpen(false);
+        } catch (err) {
+            alert('Failed to update status');
+        }
     };
 
     return (
@@ -110,7 +118,7 @@ export default function SupportPage() {
                             {col.tickets.map(ticket => (
                                 <div key={ticket.id} onClick={() => openTicket(ticket, col.key)} style={{ background: '#FFFFFF', padding: '16px', borderRadius: '8px', border: '1px solid #E2E8F0', boxShadow: '0 1px 3px rgba(0,0,0,0.02)', cursor: 'pointer', transition: 'box-shadow 0.2s' }} onMouseEnter={e => e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0,0,0,0.1)'} onMouseLeave={e => e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.02)'}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                                        <span style={{ fontSize: '11px', fontWeight: 600, color: '#64748B', textDecoration: col.resolved ? 'line-through' : 'none' }}>{ticket.id}</span>
+                                        <span style={{ fontSize: '11px', fontWeight: 600, color: '#64748B', textDecoration: col.resolved ? 'line-through' : 'none' }}>{ticket.ticketId}</span>
                                         {col.resolved
                                             ? <CheckCircle2 size={16} color="#10B981" />
                                             : <span style={{ fontSize: '11px', fontWeight: 600, background: (priorityStyle[ticket.priority] || priorityStyle.Medium).bg, color: (priorityStyle[ticket.priority] || priorityStyle.Medium).color, padding: '2px 7px', borderRadius: '4px' }}>{ticket.priority}</span>
@@ -138,8 +146,8 @@ export default function SupportPage() {
 
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 24px', borderBottom: '1px solid #E2E8F0' }}>
                             <div>
-                                <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#0F172A', margin: '0 0 4px 0' }}>Ticket Details {selectedTicket.id}</h2>
-                                <div style={{ fontSize: '13px', color: '#64748B' }}>{selectedTicket.hospital} • {selectedTicket.time}</div>
+                                <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#0F172A', margin: '0 0 4px 0' }}>Ticket Details {selectedTicket.ticketId}</h2>
+                                <div style={{ fontSize: '13px', color: '#64748B' }}>{selectedTicket.hospital}</div>
                             </div>
                             <button onClick={() => setModalOpen(false)} style={{ background: 'none', border: 'none', color: '#64748B', cursor: 'pointer', padding: '4px' }}>
                                 <X size={20} />

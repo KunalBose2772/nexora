@@ -6,6 +6,16 @@ import SuperAdminHeader from '@/components/layout/SuperAdminHeader';
 export default function SuperAdminShell({ children }) {
     const [collapsed, setCollapsed] = useState(false);
     const [mobileOpen, setMobileOpen] = useState(false);
+    const [user, setUser] = useState(null);
+
+    useEffect(() => {
+        fetch('/api/auth/me')
+            .then(res => res.json())
+            .then(data => {
+                if (data.user) setUser(data.user);
+            })
+            .catch(() => { });
+    }, []);
 
     // Close mobile menu on resize to desktop
     useEffect(() => {
@@ -47,7 +57,7 @@ export default function SuperAdminShell({ children }) {
                     transition: 'margin-left 220ms cubic-bezier(0.4,0,0.2,1)',
                 }}
             >
-                <SuperAdminHeader setMobileOpen={setMobileOpen} />
+                <SuperAdminHeader setMobileOpen={setMobileOpen} user={user} />
                 <main
                     id="saas-main-content"
                     tabIndex={-1}

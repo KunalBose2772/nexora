@@ -221,19 +221,32 @@ export default function OPDPage() {
                                             </span>
                                         </td>
                                         <td style={{ padding: '16px', textAlign: 'right' }}>
-                                            {row.status === 'Waiting' || row.status === 'Scheduled' ? (
-                                                <button onClick={(e) => { e.stopPropagation(); updateStatus(row.id, 'In Progress'); }} className="btn btn-secondary btn-sm" style={{ padding: '6px 12px', fontSize: '12px', background: '#F8FAFC', color: 'var(--color-navy)' }}>
-                                                    <ArrowRightCircle size={14} /> Call Next
-                                                </button>
-                                            ) : row.status === 'In Progress' ? (
-                                                <button onClick={(e) => { e.stopPropagation(); updateStatus(row.id, 'Completed'); }} className="btn btn-primary btn-sm" style={{ padding: '6px 12px', fontSize: '12px', background: '#3B82F6', borderColor: '#3B82F6', color: '#fff' }}>
-                                                    <Play size={14} fill="white" /> End Session
-                                                </button>
-                                            ) : (
-                                                <button onClick={(e) => { e.stopPropagation(); router.push(`/appointments/${row.apptCode}`); }} className="btn btn-secondary btn-sm" style={{ padding: '8px', background: '#F8FAFC' }}>
-                                                    <Eye size={14} color="var(--color-text-secondary)" /> Detail
-                                                </button>
-                                            )}
+                                            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', alignItems: 'center' }}>
+                                                {(row.status === 'Waiting' || row.status === 'Scheduled') && (
+                                                    <button onClick={(e) => { e.stopPropagation(); updateStatus(row.id, 'In Progress'); }} className="btn btn-secondary btn-sm" style={{ padding: '6px 12px', fontSize: '12px', background: '#F8FAFC', color: 'var(--color-navy)' }}>
+                                                        <ArrowRightCircle size={14} /> Call Next
+                                                    </button>
+                                                )}
+                                                {row.status === 'In Progress' && (
+                                                    <button onClick={(e) => { e.stopPropagation(); updateStatus(row.id, 'Completed'); }} className="btn btn-secondary btn-sm" style={{ padding: '6px 12px', fontSize: '12px' }}>
+                                                        <Play size={14} /> End
+                                                    </button>
+                                                )}
+                                                {row.status !== 'Completed' && row.status !== 'Cancelled' && (
+                                                    <Link
+                                                        href={`/opd/consult?appointmentId=${row.id}&patient=${encodeURIComponent(row.patientName)}&doctor=${encodeURIComponent(row.doctorName)}`}
+                                                        onClick={e => e.stopPropagation()}
+                                                        className="btn btn-primary btn-sm"
+                                                        style={{ padding: '6px 12px', fontSize: '12px', textDecoration: 'none', background: '#8B5CF6', borderColor: '#8B5CF6' }}>
+                                                        <Stethoscope size={13} /> Consult
+                                                    </Link>
+                                                )}
+                                                {(row.status === 'Completed' || row.status === 'Cancelled') && (
+                                                    <button onClick={(e) => { e.stopPropagation(); router.push(`/appointments/${row.apptCode}`); }} className="btn btn-secondary btn-sm" style={{ padding: '6px 10px', background: '#F8FAFC' }}>
+                                                        <Eye size={14} /> View
+                                                    </button>
+                                                )}
+                                            </div>
                                         </td>
                                     </tr>
                                 ))

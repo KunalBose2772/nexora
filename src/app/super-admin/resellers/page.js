@@ -1,35 +1,43 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Building, Plus, Search, Activity, Download, MoreVertical, Users, X } from 'lucide-react';
 
-const INITIAL_RESELLERS = [
-    { name: 'TechMed Solutions', contact: 'Ravi Kumar', email: 'ravi@techmed.in', hospitals: 45, revShare: '20%', status: 'Active' },
-    { name: 'CareLogic IT', contact: 'Anita Desai', email: 'anita@carelogic.com', hospitals: 12, revShare: '15%', status: 'Active' },
-    { name: 'MediSys Integrators', contact: 'Sumit Patel', email: 'sumit@medisys.in', hospitals: 3, revShare: '10%', status: 'Inactive' },
-    { name: 'Global Webify Resellers', contact: 'Kunal Bose', email: 'kunal@gw.com', hospitals: 68, revShare: '30%', status: 'Active' },
-];
-
 export default function ResellersPage() {
-    const [resellers, setResellers] = useState(INITIAL_RESELLERS);
+    const [resellers, setResellers] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [isResellerModalOpen, setIsResellerModalOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [openActionId, setOpenActionId] = useState(null);
     const [modalAction, setModalAction] = useState('create');
-    const [editingResellerName, setEditingResellerName] = useState(null);
+    const [editingResellerId, setEditingResellerId] = useState(null);
+
+    const fetchResellers = async () => {
+        try {
+            const res = await fetch('/api/super-admin/resellers');
+            const data = await res.json();
+            if (data.ok) setResellers(data.resellers);
+        } catch (err) {
+            console.error('Failed to fetch resellers', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => { fetchResellers(); }, []);
 
     const openCreateModal = () => {
         setModalAction('create');
-        setEditingResellerName(null);
+        setEditingResellerId(null);
         setIsResellerModalOpen(true);
     };
 
-    const openEditModal = (resellerName) => {
+    const openEditModal = (resellerId) => {
         setModalAction('edit');
-        setEditingResellerName(resellerName);
+        setEditingResellerId(resellerId);
         setIsResellerModalOpen(true);
     };
 
-    const editingReseller = resellers.find(r => r.name === editingResellerName);
+    const editingReseller = resellers.find(r => r.id === editingResellerId);
 
     const filteredResellers = resellers.filter(r =>
         r.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -37,29 +45,41 @@ export default function ResellersPage() {
         r.email.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    const handleOnboard = (e) => {
+    const activePartners = resellers.filter(r => r.status === 'Active').length;
+    const referredTenants = resellers.reduce((sum, r) => sum + r.hospitals, 0);
+    const avgRevShare = resellers.length ? (resellers.reduce((sum, r) => sum + parseInt(r.revShare), 0) / resellers.length).toFixed(0) + '%' : '0%';
+
+    const handleOnboard = async (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
 
-        if (modalAction === 'create') {
-            const newReseller = {
-                name: formData.get('agencyName'),
-                contact: formData.get('contactName'),
-                email: formData.get('email'),
-                hospitals: 0,
-                revShare: `${formData.get('revShare')}%`,
-                status: 'Active'
-            };
-            setResellers([newReseller, ...resellers]);
-        } else {
-            setResellers(resellers.map(r => r.name === editingResellerName ? {
-                ...r,
-                name: formData.get('agencyName'),
-                contact: formData.get('contactName'),
-                email: formData.get('email'),
-                revShare: `${formData.get('revShare')}%`
-            } : r));
+        const payload = {
+            name: formData.get('agencyName'),
+            contact: formData.get('contactName'),
+            email: formData.get('email'),
+            revShare: `${formData.get('revShare')}%`
+        };
+
+        try {
+            if (modalAction === 'create') {
+                const res = await fetch('/api/super-admin/resellers', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (res.ok) await fetchResellers();
+            } else {
+                const res = await fetch(`/api/super-admin/resellers/${editingResellerId}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (res.ok) await fetchResellers();
+            }
+        } catch (err) {
+            console.error('Failed to save reseller', err);
         }
+
         setIsResellerModalOpen(false);
     };
 
@@ -81,9 +101,9 @@ export default function ResellersPage() {
             {/* Stats */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '24px' }}>
                 {[
-                    { label: 'Active Partners', value: '24', icon: Users, color: '#10B981', bg: '#ECFDF5' },
-                    { label: 'Partner-Referred Tenants', value: '128', icon: Building, color: '#3B82F6', bg: '#EFF6FF' },
-                    { label: 'Total Earned Commission', value: '₹1.2M', icon: Activity, color: '#8B5CF6', bg: '#F5F3FF' },
+                    { label: 'Active Partners', value: activePartners, icon: Users, color: '#10B981', bg: '#ECFDF5' },
+                    { label: 'Partner-Referred Tenants', value: referredTenants, icon: Building, color: '#3B82F6', bg: '#EFF6FF' },
+                    { label: 'Avg. Revenue Share', value: avgRevShare, icon: Activity, color: '#8B5CF6', bg: '#F5F3FF' },
                 ].map((s, i) => (
                     <div key={i} style={{ background: '#FFFFFF', padding: '20px', borderRadius: '12px', border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', gap: '16px' }}>
                         <div style={{ width: '44px', height: '44px', borderRadius: '10px', background: s.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: s.color, flexShrink: 0 }}>
@@ -136,23 +156,25 @@ export default function ResellersPage() {
                                         <span style={{ padding: '4px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: 600, background: r.status === 'Active' ? '#ECFDF5' : '#F1F5F9', color: r.status === 'Active' ? '#059669' : '#64748B' }}>{r.status}</span>
                                     </td>
                                     <td style={{ padding: '14px 20px', textAlign: 'right', position: 'relative' }}>
-                                        <button onClick={() => setOpenActionId(openActionId === r.name ? null : r.name)} style={{ padding: '7px', background: openActionId === r.name ? '#F8FAFC' : 'none', border: openActionId === r.name ? '1px solid #E2E8F0' : '1px solid transparent', color: '#94A3B8', cursor: 'pointer', borderRadius: '6px' }}><MoreVertical size={16} /></button>
+                                        <button onClick={() => setOpenActionId(openActionId === r.id ? null : r.id)} style={{ padding: '7px', background: openActionId === r.id ? '#F8FAFC' : 'none', border: openActionId === r.id ? '1px solid #E2E8F0' : '1px solid transparent', color: '#94A3B8', cursor: 'pointer', borderRadius: '6px' }}><MoreVertical size={16} /></button>
 
                                         {/* Row Actions Dropdown */}
-                                        {openActionId === r.name && (
+                                        {openActionId === r.id && (
                                             <div style={{ position: 'absolute', top: '100%', right: '20px', marginTop: '4px', background: 'white', border: '1px solid #E2E8F0', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', minWidth: '160px', zIndex: 10, overflow: 'hidden', textAlign: 'left' }}>
-                                                <button onClick={() => { setOpenActionId(null); openEditModal(r.name); }} style={{ display: 'block', width: '100%', padding: '10px 14px', background: 'none', border: 'none', textAlign: 'left', fontSize: '13px', color: '#334155', cursor: 'pointer' }} onMouseOver={e => e.currentTarget.style.background = '#F8FAFC'} onMouseOut={e => e.currentTarget.style.background = 'transparent'}>Edit Partner</button>
-                                                <button onClick={() => {
+                                                <button onClick={() => { setOpenActionId(null); openEditModal(r.id); }} style={{ display: 'block', width: '100%', padding: '10px 14px', background: 'none', border: 'none', textAlign: 'left', fontSize: '13px', color: '#334155', cursor: 'pointer' }} onMouseOver={e => e.currentTarget.style.background = '#F8FAFC'} onMouseOut={e => e.currentTarget.style.background = 'transparent'}>Edit Partner</button>
+                                                <button onClick={async () => {
                                                     setOpenActionId(null);
                                                     if (window.confirm('Are you sure you want to disable this partner?')) {
-                                                        setResellers(resellers.map(res => res.name === r.name ? { ...res, status: 'Inactive' } : res));
+                                                        const res = await fetch(`/api/super-admin/resellers/${r.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'Inactive' }) });
+                                                        if (res.ok) await fetchResellers();
                                                     }
                                                 }} style={{ display: 'block', width: '100%', padding: '10px 14px', background: 'none', border: 'none', textAlign: 'left', fontSize: '13px', color: '#334155', cursor: 'pointer' }} onMouseOver={e => e.currentTarget.style.background = '#F8FAFC'} onMouseOut={e => e.currentTarget.style.background = 'transparent'}>Disable Partner</button>
                                                 <div style={{ height: '1px', background: '#E2E8F0', margin: '4px 0' }}></div>
-                                                <button onClick={() => {
+                                                <button onClick={async () => {
                                                     setOpenActionId(null);
                                                     if (window.confirm('Delete this partner permanently? This cannot be undone.')) {
-                                                        setResellers(resellers.filter(res => res.name !== r.name));
+                                                        const res = await fetch(`/api/super-admin/resellers/${r.id}`, { method: 'DELETE' });
+                                                        if (res.ok) await fetchResellers();
                                                     }
                                                 }} style={{ display: 'block', width: '100%', padding: '10px 14px', background: 'none', border: 'none', textAlign: 'left', fontSize: '13px', color: '#EF4444', cursor: 'pointer' }} onMouseOver={e => e.currentTarget.style.background = '#FEF2F2'} onMouseOut={e => e.currentTarget.style.background = 'transparent'}>Remove</button>
                                             </div>
@@ -221,7 +243,7 @@ export default function ResellersPage() {
                                     </div>
                                     <div>
                                         <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Revenue Share (%)</label>
-                                        <input defaultValue={editingReseller ? parseInt(editingReseller.revShare) : 20} required name="revShare" type="number" placeholder="20" style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} onFocus={(e) => e.currentTarget.style.borderColor = '#10B981'} onBlur={(e) => e.currentTarget.style.borderColor = '#E2E8F0'} />
+                                        <input defaultValue={editingReseller ? parseInt(editingReseller.revShare.replace('%', '')) : 20} required name="revShare" type="number" placeholder="20" style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} onFocus={(e) => e.currentTarget.style.borderColor = '#10B981'} onBlur={(e) => e.currentTarget.style.borderColor = '#E2E8F0'} />
                                     </div>
                                 </div>
 

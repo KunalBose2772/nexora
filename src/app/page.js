@@ -324,7 +324,7 @@ function LandingPageInner() {
               maxWidth: '680px',
               margin: '0 auto 40px',
             }}>
-              Nexora Health is India's most comprehensive multi-tenant SaaS Hospital ERP — managing patients,
+              Nexora Health is India&apos;s most comprehensive multi-tenant SaaS Hospital ERP — managing patients,
               appointments, IPD, laboratory, pharmacy, billing, HR, and your hospital website, all from a
               single enterprise-grade platform.
             </p>
@@ -646,7 +646,7 @@ function LandingPageInner() {
                 <span style={{ color: '#00C2FF' }}>Your Data is 100% Yours.</span>
               </h2>
               <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.55)', lineHeight: 1.75, marginBottom: '32px' }}>
-                We treat your patients' data with the highest level of security. Unlike generic platforms, we give your hospital a dedicated, isolated space. Your medical and financial records are never mixed with anyone else's.
+                We treat your patients&apos; data with the highest level of security. Unlike generic platforms, we give your hospital a dedicated, isolated space. Your medical and financial records are never mixed with anyone else&apos;s.
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                 {[
@@ -742,7 +742,7 @@ function LandingPageInner() {
               >
                 <StarRating count={rating} />
                 <p style={{ fontSize: '14.5px', color: '#334155', lineHeight: 1.70, margin: '14px 0 20px', fontStyle: 'normal' }}>
-                  "{content}"
+                  &quot;{content}&quot;
                 </p>
                 <footer>
                   <div style={{ fontSize: '14px', fontWeight: 700, color: '#0F172A' }}>{name}</div>
@@ -885,7 +885,7 @@ function LandingPageInner() {
               Frequently Asked Questions
             </h2>
             <p style={{ fontSize: '18px', color: '#64748B', maxWidth: '640px', margin: '0 auto', lineHeight: 1.6 }}>
-              Everything you need to know about the product, onboarding, and how we handle your hospital's data.
+              Everything you need to know about the product, onboarding, and how we handle your hospital&apos;s data.
             </p>
           </div>
 

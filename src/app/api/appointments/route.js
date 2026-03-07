@@ -50,8 +50,26 @@ export async function POST(request) {
                 time: data.time || null,
                 type: 'OPD',
                 status: 'Scheduled',
-            }
+            },
+            include: { patient: true }
         });
+
+        // If patient has an email, "send" them an appointment slip
+        if (newAppointment.patient?.email) {
+            console.log(`\n\n[MOCK EMAIL SEND: APPOINTMENT CONFIRMATION]
+To: ${newAppointment.patient.email}
+Subject: Appointment Confirmation - ${apptCode}
+
+Dear ${newAppointment.patientName},
+Your appointment has been confirmed at our facility.
+
+Doctor: Dr. ${newAppointment.doctorName}
+Date & Time: ${newAppointment.date} ${newAppointment.time ? 'at ' + newAppointment.time : ''}
+Type: ${newAppointment.type} Consult
+
+Please arrive 15 minutes prior to your scheduled time. You can view your slip and records by logging into the Patient Portal.
+------------------------------------------------------\n\n`);
+        }
 
         return NextResponse.json({ ok: true, appointment: newAppointment }, { status: 201 });
     } catch (err) {

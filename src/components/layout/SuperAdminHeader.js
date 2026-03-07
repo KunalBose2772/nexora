@@ -33,13 +33,17 @@ export default function SuperAdminHeader({ user, setMobileOpen }) {
     const [showUser, setShowUser] = useState(false);
     const [showNotif, setShowNotif] = useState(false);
 
-    const me = user || { name: 'Kunal Bose', role: 'SaaS Creator' };
+    const me = user || { name: 'Loading...', role: 'Please wait' };
     const router = useRouter();
 
-    const handleSignOut = () => {
+    const handleSignOut = async () => {
         closeAll();
-        // Clear any auth tokens/cookies here if added later
-        router.push('/login');
+        try {
+            await fetch('/api/auth/me', { method: 'POST' });
+            router.push('/login');
+        } catch (e) {
+            console.error('Logout failed', e);
+        }
     };
 
     const closeAll = () => { setShowUser(false); setShowNotif(false); };

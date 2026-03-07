@@ -13,6 +13,10 @@ export function signToken(payload) {
     return jwt.sign(payload, SECRET, { expiresIn: '7d' });
 }
 
+export function signResetToken(payload) {
+    return jwt.sign(payload, SECRET, { expiresIn: '15m' });
+}
+
 export function verifyToken(token) {
     try {
         return jwt.verify(token, SECRET);

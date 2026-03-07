@@ -58,6 +58,7 @@ const NAV_GROUPS = [
             { href: '/hr', icon: UserCog, label: 'HR & Staff' },
             { href: '/reports', icon: BarChart3, label: 'Reports' },
             { href: '/branches', icon: Building2, label: 'Branches' },
+            { href: '/settings/facility', icon: BedDouble, label: 'Facility Setup' },
             { href: '/branding', icon: Palette, label: 'Website Branding' },
             { href: '/settings', icon: Settings, label: 'Settings' },
         ],
@@ -192,6 +193,7 @@ export default function Sidebar({ collapsed, setCollapsed, mobileOpen }) {
                                 <Link
                                     key={href}
                                     href={href}
+                                    id={`nav-${href.replace(/\//g, '').replace(/\s/g, '-')}`}
                                     title={collapsed ? label : undefined}
                                     onClick={() => { if (setMobileOpen) setMobileOpen(false); }}
                                     style={{

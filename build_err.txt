@@ -1,0 +1,231 @@
+[33m[1m⚠[22m[39m Unsupported metadata themeColor is configured in metadata export in /patients/records. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata colorScheme is configured in metadata export in /patients/records. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata viewport is configured in metadata export in /patients/records. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata themeColor is configured in metadata export in /pharmacy/prescribe. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata colorScheme is configured in metadata export in /pharmacy/prescribe. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata viewport is configured in metadata export in /pharmacy/prescribe. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata themeColor is configured in metadata export in /appointments/new. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata colorScheme is configured in metadata export in /appointments/new. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata viewport is configured in metadata export in /appointments/new. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata themeColor is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata colorScheme is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata viewport is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata themeColor is configured in metadata export in /billing/expenses. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata colorScheme is configured in metadata export in /billing/expenses. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata viewport is configured in metadata export in /billing/expenses. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata themeColor is configured in metadata export in /_not-found. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata colorScheme is configured in metadata export in /_not-found. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata viewport is configured in metadata export in /_not-found. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata themeColor is configured in metadata export in /branches/new. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata colorScheme is configured in metadata export in /branches/new. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata viewport is configured in metadata export in /branches/new. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata themeColor is configured in metadata export in /settings/facility. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata colorScheme is configured in metadata export in /settings/facility. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata viewport is configured in metadata export in /settings/facility. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata themeColor is configured in metadata export in /pharmacy. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata colorScheme is configured in metadata export in /pharmacy. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata viewport is configured in metadata export in /pharmacy. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata themeColor is configured in metadata export in /reports. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata colorScheme is configured in metadata export in /reports. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata viewport is configured in metadata export in /reports. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata themeColor is configured in metadata export in /settings. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata colorScheme is configured in metadata export in /settings. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata viewport is configured in metadata export in /settings. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata themeColor is configured in metadata export in /. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata colorScheme is configured in metadata export in /. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata viewport is configured in metadata export in /. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata themeColor is configured in metadata export in /request-demo. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata colorScheme is configured in metadata export in /request-demo. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata viewport is configured in metadata export in /request-demo. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata themeColor is configured in metadata export in /super-admin/logs. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata colorScheme is configured in metadata export in /super-admin/logs. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata viewport is configured in metadata export in /super-admin/logs. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata themeColor is configured in metadata export in /opd-display. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata colorScheme is configured in metadata export in /opd-display. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata viewport is configured in metadata export in /opd-display. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata themeColor is configured in metadata export in /appointments. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata colorScheme is configured in metadata export in /appointments. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata viewport is configured in metadata export in /appointments. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata themeColor is configured in metadata export in /billing. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata colorScheme is configured in metadata export in /billing. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata viewport is configured in metadata export in /billing. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata themeColor is configured in metadata export in /billing/new. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata colorScheme is configured in metadata export in /billing/new. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata viewport is configured in metadata export in /billing/new. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata themeColor is configured in metadata export in /super-admin. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata colorScheme is configured in metadata export in /super-admin. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata viewport is configured in metadata export in /super-admin. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata themeColor is configured in metadata export in /hr/doctors. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata colorScheme is configured in metadata export in /hr/doctors. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata viewport is configured in metadata export in /hr/doctors. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata themeColor is configured in metadata export in /ipd/admit. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata colorScheme is configured in metadata export in /ipd/admit. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata viewport is configured in metadata export in /ipd/admit. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata themeColor is configured in metadata export in /branches. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata colorScheme is configured in metadata export in /branches. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata viewport is configured in metadata export in /branches. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata themeColor is configured in metadata export in /super-admin/plans. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata colorScheme is configured in metadata export in /super-admin/plans. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata viewport is configured in metadata export in /super-admin/plans. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata themeColor is configured in metadata export in /super-admin/resellers. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata colorScheme is configured in metadata export in /super-admin/resellers. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata viewport is configured in metadata export in /super-admin/resellers. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata themeColor is configured in metadata export in /super-admin/requests. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata colorScheme is configured in metadata export in /super-admin/requests. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata viewport is configured in metadata export in /super-admin/requests. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata themeColor is configured in metadata export in /super-admin/settings. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata colorScheme is configured in metadata export in /super-admin/settings. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata viewport is configured in metadata export in /super-admin/settings. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata themeColor is configured in metadata export in /super-admin/subscriptions. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata colorScheme is configured in metadata export in /super-admin/subscriptions. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata viewport is configured in metadata export in /super-admin/subscriptions. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata themeColor is configured in metadata export in /branding. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata colorScheme is configured in metadata export in /branding. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata viewport is configured in metadata export in /branding. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata themeColor is configured in metadata export in /dashboard. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata colorScheme is configured in metadata export in /dashboard. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata viewport is configured in metadata export in /dashboard. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata themeColor is configured in metadata export in /hr/new. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata colorScheme is configured in metadata export in /hr/new. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata viewport is configured in metadata export in /hr/new. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata themeColor is configured in metadata export in /hr. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata colorScheme is configured in metadata export in /hr. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata viewport is configured in metadata export in /hr. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata themeColor is configured in metadata export in /ipd. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata colorScheme is configured in metadata export in /ipd. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata viewport is configured in metadata export in /ipd. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata themeColor is configured in metadata export in /super-admin/support. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata colorScheme is configured in metadata export in /super-admin/support. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata viewport is configured in metadata export in /super-admin/support. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata themeColor is configured in metadata export in /super-admin/tenants. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata colorScheme is configured in metadata export in /super-admin/tenants. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata viewport is configured in metadata export in /super-admin/tenants. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata themeColor is configured in metadata export in /laboratory/new. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata colorScheme is configured in metadata export in /laboratory/new. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata viewport is configured in metadata export in /laboratory/new. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata themeColor is configured in metadata export in /opd/consult. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata colorScheme is configured in metadata export in /opd/consult. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[33m[1m⚠[22m[39m Unsupported metadata viewport is configured in metadata export in /opd/consult. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[31m[1m⨯[22m[39m useSearchParams() should be wrapped in a suspense boundary at page "/opd/consult". Read more: https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
+    at Q (C:\Users\kunal\OneDrive\Desktop\Next Projects\Nexora\nexora-health\.next\server\chunks\7471.js:2:2111)
+    at o (C:\Users\kunal\OneDrive\Desktop\Next Projects\Nexora\nexora-health\.next\server\chunks\7471.js:11:50315)
+    at x (C:\Users\kunal\OneDrive\Desktop\Next Projects\Nexora\nexora-health\.next\server\app\(dashboard)\opd\consult\page.js:1:3842)
+    at an (C:\Users\kunal\OneDrive\Desktop\Next Projects\Nexora\nexora-health\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:2:84360)
+    at ai (C:\Users\kunal\OneDrive\Desktop\Next Projects\Nexora\nexora-health\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:2:86179)
+    at al (C:\Users\kunal\OneDrive\Desktop\Next Projects\Nexora\nexora-health\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:2:107953)
+    at as (C:\Users\kunal\OneDrive\Desktop\Next Projects\Nexora\nexora-health\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:2:105368)
+    at aa (C:\Users\kunal\OneDrive\Desktop\Next Projects\Nexora\nexora-health\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:2:84712)
+    at ai (C:\Users\kunal\OneDrive\Desktop\Next Projects\Nexora\nexora-health\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:2:86228)
+    at ai (C:\Users\kunal\OneDrive\Desktop\Next Projects\Nexora\nexora-health\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:2:104708)
+Error occurred prerendering page "/opd/consult". Read more: https://nextjs.org/docs/messages/prerender-error
+Export encountered an error on /(dashboard)/opd/consult/page: /opd/consult, exiting the build.
+[31m[1m⨯[22m[39m Next.js build worker exited with code: 1 and signal: null
+[?25h

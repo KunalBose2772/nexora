@@ -2,10 +2,21 @@
 import { useState, useEffect } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
 import Header from '@/components/layout/Header';
+import OnboardingJourney from '@/components/layout/OnboardingJourney';
 
 export default function DashboardShell({ children }) {
     const [collapsed, setCollapsed] = useState(false);
     const [mobileOpen, setMobileOpen] = useState(false);
+    const [user, setUser] = useState(null);
+
+    useEffect(() => {
+        fetch('/api/auth/me')
+            .then(res => res.json())
+            .then(data => {
+                if (data.user) setUser(data.user);
+            })
+            .catch(() => { });
+    }, []);
 
     // Close mobile menu on resize to desktop
     useEffect(() => {
@@ -47,7 +58,8 @@ export default function DashboardShell({ children }) {
                     transition: 'margin-left 220ms cubic-bezier(0.4,0,0.2,1)',
                 }}
             >
-                <Header setMobileOpen={setMobileOpen} />
+                <Header setMobileOpen={setMobileOpen} user={user} />
+                <OnboardingJourney />
                 <main
                     id="main-content"
                     tabIndex={-1}

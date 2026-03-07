@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Layers, Plus, Edit2, CheckCircle2, XCircle, Building, X } from 'lucide-react';
 
 const INITIAL_PLANS = [
@@ -10,10 +10,21 @@ const INITIAL_PLANS = [
 ];
 
 export default function PlansPage() {
-    const [plans, setPlans] = useState(INITIAL_PLANS);
+    const [plans, setPlans] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
     const [modalAction, setModalAction] = useState('create'); // 'create' or 'edit'
     const [editingPlanId, setEditingPlanId] = useState(null);
+
+    useEffect(() => {
+        fetch('/api/super-admin/plans')
+            .then(res => res.json())
+            .then(data => {
+                if (data.plans) setPlans(data.plans);
+            })
+            .catch(err => console.error(err))
+            .finally(() => setLoading(false));
+    }, []);
 
     const openCreateModal = () => {
         setModalAction('create');
@@ -27,28 +38,43 @@ export default function PlansPage() {
         setIsPlanModalOpen(true);
     };
 
-    const handleSavePlan = (e) => {
+    const handleSavePlan = async (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
 
-        const newPlan = {
-            id: modalAction === 'create' ? `plan_${Math.random().toString(36).substr(2, 6)}` : editingPlanId,
+        const payload = {
             name: formData.get('planName'),
             price: formData.get('planPrice').toLowerCase() === 'custom' ? 'Custom' : `₹${formData.get('planPrice')}/mo`,
             maxUsers: formData.get('maxUsers'),
             maxBranches: formData.get('maxBranches'),
             features: formData.get('features').split(',').map(f => f.trim()),
-            status: formData.get('status'),
-            tenantsCount: modalAction === 'create' ? 0 : plans.find(p => p.id === editingPlanId)?.tenantsCount || 0
+            status: formData.get('status')
         };
 
-        if (modalAction === 'create') {
-            setPlans([...plans, newPlan]);
-        } else {
-            setPlans(plans.map(p => p.id === editingPlanId ? newPlan : p));
+        try {
+            if (modalAction === 'create') {
+                const res = await fetch('/api/super-admin/plans', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.ok) setPlans([data.plan, ...plans]);
+            } else {
+                const res = await fetch(`/api/super-admin/plans/${editingPlanId}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.ok) {
+                    setPlans(plans.map(p => p.id === editingPlanId ? { ...data.plan, tenantsCount: p.tenantsCount } : p));
+                }
+            }
+            setIsPlanModalOpen(false);
+        } catch (err) {
+            alert('Error saving plan');
         }
-
-        setIsPlanModalOpen(false);
     };
 
     return (

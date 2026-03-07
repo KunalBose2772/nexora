@@ -10,7 +10,7 @@ const PROTECTED = ['/super-admin', '/dashboard'];
 const COOKIE = 'nexora_token';
 const SECRET = process.env.JWT_SECRET || 'nexora-health-dev-secret';
 
-export function middleware(request) {
+export function proxy(request) {
     const { pathname } = request.nextUrl;
 
     const isProtected = PROTECTED.some(p => pathname.startsWith(p));

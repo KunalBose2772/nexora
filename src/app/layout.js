@@ -65,9 +65,13 @@ export const metadata = {
     ],
   },
   manifest: '/site.webmanifest',
+};
+
+export const viewport = {
   themeColor: '#0A2E4D',
   colorScheme: 'light',
-  viewport: 'width=device-width, initial-scale=1',
+  width: 'device-width',
+  initialScale: 1,
 };
 
 export default function RootLayout({ children }) {
