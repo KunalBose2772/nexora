@@ -69,8 +69,9 @@ export async function POST(request, context) {
         });
 
         // 5. Send Email to the User
-        const loginUrl = `http://localhost:3000/login`;
-        const frontEndUrl = `http://localhost:3000/${slug}`;
+        const baseUrl = request.headers.get('origin') || process.env.NEXT_PUBLIC_BASE_URL || 'https://nexora-health.vercel.app';
+        const loginUrl = `${baseUrl}/login`;
+        const frontEndUrl = `${baseUrl}/${slug}`;
 
         const html = `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">

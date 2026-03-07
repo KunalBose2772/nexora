@@ -24,6 +24,7 @@ export async function POST(request) {
         });
 
         // 2. Send notification email to the admin
+        const baseUrl = request.headers.get('origin') || process.env.NEXT_PUBLIC_BASE_URL || 'https://nexora-health.vercel.app';
         const adminHtml = `
             <h2>New Demo Request Received</h2>
             <p><strong>Hospital Name:</strong> ${demoReq.hospitalName}</p>
@@ -33,7 +34,7 @@ export async function POST(request) {
             <p><strong>Hero Image URL:</strong> ${demoReq.heroImage || 'Not provided'}</p>
             <br/>
             <p>Please log in to the Super Admin panel to approve or reject this request.</p>
-            <p><a href="http://localhost:3000/super-admin/requests">View Demo Requests</a></p>
+            <p><a href="${baseUrl}/super-admin/requests">View Demo Requests</a></p>
         `;
 
         await sendEmail({

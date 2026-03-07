@@ -740,10 +740,18 @@ export default function HospitalHomePage({ slug }) {
                         <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.22)', margin: 0 }}>
                             © {new Date().getFullYear()} {tenant.name}. All rights reserved.
                         </p>
-                        <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.22)', margin: 0 }}>
-                            Powered by{' '}
-                            <Link href="/" style={{ color: c, textDecoration: 'none', fontWeight: 600 }}>Nexora Health</Link>
-                        </p>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap', justifyContent: 'center' }}>
+                            <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.22)', margin: 0 }}>
+                                Powered by{' '}
+                                <Link href="/" style={{ color: c, textDecoration: 'none', fontWeight: 600 }}>Nexora Health</Link>
+                            </p>
+                            <span style={{ color: 'rgba(255,255,255,0.12)', fontSize: '12px' }}>·</span>
+                            <Link href="/login" style={{ fontSize: '12px', color: 'rgba(255,255,255,0.25)', textDecoration: 'none', fontWeight: 500, transition: 'color 0.2s' }}
+                                onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.6)'}
+                                onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.25)'}>
+                                Staff Login
+                            </Link>
+                        </div>
                     </div>
                 </div>
             </footer>
