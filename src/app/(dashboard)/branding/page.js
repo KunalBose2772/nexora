@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import {
     Palette, Globe, Image as ImageIcon, Save, CheckCircle,
-    ImagePlus, Link2, Loader2, ExternalLink, Eye, RefreshCw
+    ImagePlus, Link2, Loader2, ExternalLink, Eye, RefreshCw, Upload
 } from 'lucide-react';
 
 export default function BrandingPage() {
@@ -13,6 +13,8 @@ export default function BrandingPage() {
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
     const [error, setError] = useState('');
+    const [logoUploading, setLogoUploading] = useState(false);
+    const [heroUploading, setHeroUploading] = useState(false);
 
     const [form, setForm] = useState({
         name: '', tagline: '', description: '',
@@ -58,6 +60,36 @@ export default function BrandingPage() {
     }, [router]);
 
     useEffect(() => { load(); }, [load]);
+
+    const handleUpload = async (e, type) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        if (type === 'logo') setLogoUploading(true);
+        else setHeroUploading(true);
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const res = await fetch('/api/upload', {
+                method: 'POST',
+                body: formData,
+            });
+            const data = await res.json();
+            if (data.ok) {
+                if (type === 'logo') setForm(f => ({ ...f, logoUrl: data.url }));
+                else setForm(f => ({ ...f, heroImage: data.url }));
+            } else {
+                alert(data.error || 'Upload failed');
+            }
+        } catch (err) {
+            alert('Upload error');
+        } finally {
+            if (type === 'logo') setLogoUploading(false);
+            else setHeroUploading(false);
+        }
+    };
 
     const handleSave = async () => {
         if (!tenant) return;
@@ -225,7 +257,7 @@ export default function BrandingPage() {
                     <div style={{ padding: '24px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '28px' }}>
                         {/* Logo URL */}
                         <div>
-                            <Field label="Logo Image URL" hint="Direct URL to PNG, SVG, or WebP. Leave empty to use initials placeholder.">
+                            <Field label="Logo Image URL or Upload" hint="Direct URL to PNG, SVG, or WebP. Leave empty to use initials placeholder.">
                                 <div style={{ display: 'flex', gap: '8px' }}>
                                     <div style={{ position: 'relative', flex: 1 }}>
                                         <Link2 size={14} style={{ position: 'absolute', left: '12px', top: '12px', color: '#94A3B8' }} />
@@ -233,6 +265,11 @@ export default function BrandingPage() {
                                             placeholder="https://example.com/logo.png"
                                             style={{ ...inputStyle, paddingLeft: '36px' }} />
                                     </div>
+                                    <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '0 16px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#475569', fontSize: '13px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s', whiteSpace: 'nowrap' }} onMouseEnter={e => { e.currentTarget.style.background = '#E2E8F0'; }} onMouseLeave={e => { e.currentTarget.style.background = '#F8FAFC'; }}>
+                                        {logoUploading ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <Upload size={16} />}
+                                        {logoUploading ? 'Uploading...' : 'Upload File'}
+                                        <input type="file" accept="image/*" onChange={(e) => handleUpload(e, 'logo')} style={{ display: 'none' }} disabled={logoUploading} />
+                                    </label>
                                     {form.logoUrl && (
                                         <a href={form.logoUrl} target="_blank" rel="noreferrer"
                                             style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '42px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#64748B', flexShrink: 0, textDecoration: 'none' }}>
@@ -256,7 +293,7 @@ export default function BrandingPage() {
 
                         {/* Hero Image URL */}
                         <div>
-                            <Field label="Hero Background Image URL" hint="Landscape image, 1920×1080 recommended. If empty, a gradient is used automatically.">
+                            <Field label="Hero Background Image URL or Upload" hint="Landscape image, 1920×1080 recommended. If empty, a gradient is used automatically.">
                                 <div style={{ display: 'flex', gap: '8px' }}>
                                     <div style={{ position: 'relative', flex: 1 }}>
                                         <Link2 size={14} style={{ position: 'absolute', left: '12px', top: '12px', color: '#94A3B8' }} />
@@ -264,6 +301,11 @@ export default function BrandingPage() {
                                             placeholder="https://example.com/hospital-hero.jpg"
                                             style={{ ...inputStyle, paddingLeft: '36px' }} />
                                     </div>
+                                    <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '0 16px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#475569', fontSize: '13px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s', whiteSpace: 'nowrap' }} onMouseEnter={e => { e.currentTarget.style.background = '#E2E8F0'; }} onMouseLeave={e => { e.currentTarget.style.background = '#F8FAFC'; }}>
+                                        {heroUploading ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <Upload size={16} />}
+                                        {heroUploading ? 'Uploading...' : 'Upload File'}
+                                        <input type="file" accept="image/*" onChange={(e) => handleUpload(e, 'hero')} style={{ display: 'none' }} disabled={heroUploading} />
+                                    </label>
                                     {form.heroImage && (
                                         <a href={form.heroImage} target="_blank" rel="noreferrer"
                                             style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '42px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', color: '#64748B', flexShrink: 0, textDecoration: 'none' }}>
