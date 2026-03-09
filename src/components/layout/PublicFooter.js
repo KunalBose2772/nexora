@@ -8,19 +8,44 @@ export default function PublicFooter() {
     const COLS = [
         {
             title: 'Product',
-            links: ['Patient EMR', 'OPD Module', 'IPD & Wards', 'Laboratory', 'Pharmacy', 'Billing & Finance'],
+            links: [
+                { name: 'Patient EMR', href: '/product/patient-emr' },
+                { name: 'OPD Module', href: '/product/opd-module' },
+                { name: 'IPD & Wards', href: '/product/ipd-wards' },
+                { name: 'Laboratory', href: '/product/laboratory' },
+                { name: 'Pharmacy', href: '/product/pharmacy' },
+                { name: 'Billing & Finance', href: '/product/billing-finance' }
+            ],
         },
         {
             title: 'Platform',
-            links: ['Super Admin Panel', 'Multi-Branch Support', 'Hospital CMS', 'API Access', 'Integrations'],
+            links: [
+                { name: 'Super Admin Panel', href: '/platform/super-admin' },
+                { name: 'Multi-Branch Support', href: '/platform/multi-branch' },
+                { name: 'Hospital CMS', href: '/platform/hospital-cms' },
+                { name: 'API Access', href: '/platform/api-access' },
+                { name: 'Integrations', href: '/platform/integrations' }
+            ],
         },
         {
             title: 'Company',
-            links: ['About Nexora', 'About Global Webify', 'Blog', 'Careers', 'Press Kit'],
+            links: [
+                { name: 'About Nexora', href: '/company/about-nexora' },
+                { name: 'About Global Webify', href: '/company/about-global-webify' },
+                { name: 'Blog', href: '/company/blog' },
+                { name: 'Careers', href: '/company/careers' },
+                { name: 'Press Kit', href: '/company/press-kit' }
+            ],
         },
         {
             title: 'Legal',
-            links: ['Privacy Policy', 'Terms of Service', 'Data Processing', 'HIPAA Compliance', 'Security'],
+            links: [
+                { name: 'Privacy Policy', href: '/legal/privacy-policy' },
+                { name: 'Terms of Service', href: '/legal/terms-of-service' },
+                { name: 'Data Processing', href: '/legal/data-processing' },
+                { name: 'HIPAA Compliance', href: '/legal/hipaa-compliance' },
+                { name: 'Security', href: '/legal/security' }
+            ],
         },
     ];
 
@@ -118,13 +143,13 @@ export default function PublicFooter() {
                                 </h3>
                                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '11px' }}>
                                     {col.links.map((link) => (
-                                        <li key={link}>
-                                            <a href="#" style={{ fontSize: '13.5px', color: 'rgba(255,255,255,0.38)', textDecoration: 'none', transition: 'color 150ms' }}
+                                        <li key={link.name}>
+                                            <Link href={link.href} style={{ fontSize: '13.5px', color: 'rgba(255,255,255,0.38)', textDecoration: 'none', transition: 'color 150ms' }}
                                                 onMouseEnter={(e) => (e.target.style.color = 'rgba(255,255,255,0.75)')}
                                                 onMouseLeave={(e) => (e.target.style.color = 'rgba(255,255,255,0.38)')}
                                             >
-                                                {link}
-                                            </a>
+                                                {link.name}
+                                            </Link>
                                         </li>
                                     ))}
                                 </ul>
