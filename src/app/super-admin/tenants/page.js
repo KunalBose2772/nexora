@@ -3,8 +3,12 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Plus, Search, Filter, MoreVertical, ShieldCheck, Clock, ExternalLink, X, Copy, CheckCheck, KeyRound, UserPlus, RefreshCw, AlertCircle } from 'lucide-react';
 
-const BASE_URL = 'http://localhost:3000';
-const tenantUrl = (slug) => `${BASE_URL}/${slug}`;
+const tenantUrl = (slug) => {
+    if (typeof window !== 'undefined') {
+        return `${window.location.origin}/${slug}`;
+    }
+    return `http://localhost:3000/${slug}`;
+};
 
 const PLAN_OPTIONS = [
     { value: 'Starter Tier', label: 'Starter Tier (₹4,999/mo)' },
@@ -321,7 +325,7 @@ export default function TenantsPage() {
                                 <div>
                                     <label style={lbl()}>Tenant Slug (URL identifier)</label>
                                     <div style={{ display: 'flex', border: '1px solid #E2E8F0', borderRadius: '8px', overflow: 'hidden' }}>
-                                        <span style={{ padding: '10px 12px', background: '#F8FAFC', color: '#94A3B8', fontSize: '12px', borderRight: '1px solid #E2E8F0', whiteSpace: 'nowrap' }}>localhost:3000/</span>
+                                        <span style={{ padding: '10px 12px', background: '#F8FAFC', color: '#94A3B8', fontSize: '12px', borderRight: '1px solid #E2E8F0', whiteSpace: 'nowrap' }}>{typeof window !== 'undefined' ? window.location.host : 'localhost:3000'}/</span>
                                         <input name="slug" required defaultValue={editTenant?.slug} placeholder="apexgeneral"
                                             style={{ flex: 1, padding: '10px 12px', border: 'none', fontSize: '14px', outline: 'none', minWidth: 0, background: 'transparent' }} />
                                     </div>

@@ -3,8 +3,9 @@ import { useState, useEffect } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
 import Header from '@/components/layout/Header';
 import OnboardingJourney from '@/components/layout/OnboardingJourney';
+import { AlertTriangle, Crown } from 'lucide-react';
 
-export default function DashboardShell({ children }) {
+export default function DashboardShell({ children, trialDaysLeft }) {
     const [collapsed, setCollapsed] = useState(false);
     const [mobileOpen, setMobileOpen] = useState(false);
     const [user, setUser] = useState(null);
@@ -60,6 +61,17 @@ export default function DashboardShell({ children }) {
             >
                 <Header setMobileOpen={setMobileOpen} user={user} />
                 <OnboardingJourney />
+
+                {trialDaysLeft !== null && trialDaysLeft > 0 && (
+                    <div style={{ background: 'linear-gradient(90deg, #F59E0B, #EA580C)', color: '#fff', padding: '10px 24px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '13px', fontWeight: 600 }}>
+                        <AlertTriangle size={15} />
+                        Your free trial expires in {trialDaysLeft} day{trialDaysLeft !== 1 ? 's' : ''}.
+                        <a href="mailto:help@globalwebify.com" style={{ color: '#fff', textDecoration: 'underline', marginLeft: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <Crown size={14} /> Upgrade to Pro
+                        </a>
+                    </div>
+                )}
+
                 <main
                     id="main-content"
                     tabIndex={-1}
