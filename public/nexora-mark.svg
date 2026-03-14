@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96" fill="none" role="img" aria-label="Nexora">
+  <defs>
+    <linearGradient id="nexoraMarkGrad" x1="18" y1="10" x2="78" y2="86" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#00C2FF"/>
+      <stop offset="1" stop-color="#0A2E4D"/>
+    </linearGradient>
+  </defs>
+  <rect x="6" y="6" width="84" height="84" rx="20" fill="url(#nexoraMarkGrad)"/>
+  <path d="M26 66V30h10l20 24V30h10v36H56L36 42v24H26Z" fill="white" opacity="0.96"/>
+</svg>

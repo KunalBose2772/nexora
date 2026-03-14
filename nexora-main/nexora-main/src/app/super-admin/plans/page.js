@@ -1,0 +1,226 @@
+'use client';
+import { useState, useEffect } from 'react';
+import { Layers, Plus, Edit2, CheckCircle2, XCircle, Building, X } from 'lucide-react';
+
+const INITIAL_PLANS = [
+    { id: 'plan_starter', name: 'Starter Tier', price: '₹4,999/mo', maxUsers: 5, maxBranches: 1, features: ['OPD Module', 'Patient EMR', 'Basic Billing'], status: 'active', tenantsCount: 412 },
+    { id: 'plan_pro', name: 'Pro Tier', price: '₹12,999/mo', maxUsers: 30, maxBranches: 3, features: ['All Starter Features', 'IPD & Wards', 'Pharmacy & Labs', 'HR Module'], status: 'active', tenantsCount: 890 },
+    { id: 'plan_enterprise', name: 'Enterprise Tier', price: 'Custom', maxUsers: 'Unlimited', maxBranches: 'Unlimited', features: ['All Pro Features', 'Dedicated AWS RDS', 'White-labeling', 'API Access'], status: 'active', tenantsCount: 145 },
+    { id: 'plan_legacy', name: 'Legacy Basic v1', price: '₹2,999/mo', maxUsers: 2, maxBranches: 1, features: ['OPD Module', 'Basic Billing'], status: 'archived', tenantsCount: 28 },
+];
+
+export default function PlansPage() {
+    const [plans, setPlans] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
+    const [modalAction, setModalAction] = useState('create'); // 'create' or 'edit'
+    const [editingPlanId, setEditingPlanId] = useState(null);
+
+    useEffect(() => {
+        fetch('/api/super-admin/plans')
+            .then(res => res.json())
+            .then(data => {
+                if (data.plans) setPlans(data.plans);
+            })
+            .catch(err => console.error(err))
+            .finally(() => setLoading(false));
+    }, []);
+
+    const openCreateModal = () => {
+        setModalAction('create');
+        setEditingPlanId(null);
+        setIsPlanModalOpen(true);
+    };
+
+    const openEditModal = (plan) => {
+        setModalAction('edit');
+        setEditingPlanId(plan.id);
+        setIsPlanModalOpen(true);
+    };
+
+    const handleSavePlan = async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+
+        const payload = {
+            name: formData.get('planName'),
+            price: formData.get('planPrice').toLowerCase() === 'custom' ? 'Custom' : `₹${formData.get('planPrice')}/mo`,
+            maxUsers: formData.get('maxUsers'),
+            maxBranches: formData.get('maxBranches'),
+            features: formData.get('features').split(',').map(f => f.trim()),
+            status: formData.get('status')
+        };
+
+        try {
+            if (modalAction === 'create') {
+                const res = await fetch('/api/super-admin/plans', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.ok) setPlans([data.plan, ...plans]);
+            } else {
+                const res = await fetch(`/api/super-admin/plans/${editingPlanId}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.ok) {
+                    setPlans(plans.map(p => p.id === editingPlanId ? { ...data.plan, tenantsCount: p.tenantsCount } : p));
+                }
+            }
+            setIsPlanModalOpen(false);
+        } catch (err) {
+            alert('Error saving plan');
+        }
+    };
+
+    return (
+        <div className="fade-in">
+            {/* Page Header */}
+            <div className="saas-page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px', gap: '16px' }}>
+                <div>
+                    <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#0F172A', marginBottom: '8px', letterSpacing: '-0.02em' }}>Subscription Plans</h1>
+                    <p style={{ color: '#64748B', margin: 0, fontSize: '14px' }}>Manage SaaS tiers, pricing, and feature access limits.</p>
+                </div>
+                <div>
+                    <button onClick={openCreateModal} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: '#10B981', color: '#FFFFFF', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', boxShadow: '0 4px 12px rgba(16,185,129,0.2)' }}>
+                        <Plus size={16} /> Create New Plan
+                    </button>
+                </div>
+            </div>
+
+            {/* Plans Grid - uses auto-fit so always fits on any screen */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
+                {plans.map((plan) => (
+                    <div key={plan.id} style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '16px', padding: '24px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)', opacity: plan.status === 'archived' ? 0.65 : 1, display: 'flex', flexDirection: 'column' }}>
+                        {/* Plan Header */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+                            <div>
+                                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '11px', fontWeight: 600, color: plan.status === 'active' ? '#10B981' : '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' }}>
+                                    {plan.status === 'active' ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
+                                    {plan.status}
+                                </div>
+                                <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#0F172A', margin: '0 0 4px 0' }}>{plan.name}</h3>
+                                <div style={{ fontSize: '12px', color: '#94A3B8' }}>{plan.id}</div>
+                            </div>
+                            <div style={{ fontSize: '18px', fontWeight: 800, color: '#0F172A', textAlign: 'right', whiteSpace: 'nowrap' }}>{plan.price}</div>
+                        </div>
+
+                        {/* Limits */}
+                        <div style={{ background: '#F8FAFC', borderRadius: '8px', padding: '12px', marginBottom: '16px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px' }}>
+                                <span style={{ color: '#64748B' }}>Max Users</span>
+                                <span style={{ fontWeight: 600, color: '#0F172A' }}>{plan.maxUsers}</span>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
+                                <span style={{ color: '#64748B' }}>Max Branches</span>
+                                <span style={{ fontWeight: 600, color: '#0F172A' }}>{plan.maxBranches}</span>
+                            </div>
+                        </div>
+
+                        {/* Features */}
+                        <div style={{ marginBottom: '20px', flex: 1 }}>
+                            <div style={{ fontSize: '11px', fontWeight: 600, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '10px' }}>Included Features</div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
+                                {plan.features.map(f => (
+                                    <div key={f} style={{ display: 'flex', alignItems: 'center', gap: '7px', fontSize: '13px', color: '#334155' }}>
+                                        <Layers size={13} style={{ color: '#10B981', flexShrink: 0 }} /> {f}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Footer */}
+                        <div style={{ borderTop: '1px solid #E2E8F0', paddingTop: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#64748B' }}>
+                                <Building size={13} /> {plan.tenantsCount} active tenants
+                            </div>
+                            <button onClick={() => openEditModal(plan)} style={{ padding: '6px 12px', border: '1px solid #E2E8F0', background: 'white', borderRadius: '6px', fontSize: '12px', fontWeight: 600, color: '#0F172A', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                <Edit2 size={12} /> Edit Plan
+                            </button>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {/* Plan Modal */}
+            {isPlanModalOpen && (
+                <div style={{ position: 'fixed', inset: 0, zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
+                    {/* Backdrop */}
+                    <div
+                        style={{ position: 'absolute', inset: 0, background: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(4px)' }}
+                        onClick={() => setIsPlanModalOpen(false)}
+                    />
+
+                    {/* Modal Content */}
+                    <div style={{ position: 'relative', background: '#FFFFFF', borderRadius: '16px', width: '100%', maxWidth: '500px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)', display: 'flex', flexDirection: 'column', maxHeight: '90vh' }}>
+
+                        {/* Header */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 24px', borderBottom: '1px solid #E2E8F0' }}>
+                            <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#0F172A', margin: 0 }}>
+                                {modalAction === 'create' ? 'Create New Plan' : 'Edit Plan Details'}
+                            </h2>
+                            <button onClick={() => setIsPlanModalOpen(false)} style={{ background: 'none', border: 'none', color: '#64748B', cursor: 'pointer', padding: '4px' }}>
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        {/* Body / Form */}
+                        <div style={{ padding: '24px', overflowY: 'auto' }}>
+                            <form id="plan-form" onSubmit={handleSavePlan} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                                    <div>
+                                        <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Plan Name</label>
+                                        <input required name="planName" type="text" placeholder="e.g. Starter Tier" defaultValue={modalAction === 'edit' ? plans.find(p => p.id === editingPlanId)?.name : ''} style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} onFocus={(e) => e.currentTarget.style.borderColor = '#10B981'} onBlur={(e) => e.currentTarget.style.borderColor = '#E2E8F0'} />
+                                    </div>
+                                    <div>
+                                        <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Monthly Price (₹)</label>
+                                        <input required name="planPrice" type="text" placeholder="e.g. 4999" defaultValue={modalAction === 'edit' ? plans.find(p => p.id === editingPlanId)?.price.replace(/[^0-9]/g, '') : ''} style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} onFocus={(e) => e.currentTarget.style.borderColor = '#10B981'} onBlur={(e) => e.currentTarget.style.borderColor = '#E2E8F0'} />
+                                    </div>
+                                </div>
+
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                                    <div>
+                                        <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Max Users</label>
+                                        <input required name="maxUsers" type="text" placeholder="5 or Unlimited" defaultValue={modalAction === 'edit' ? plans.find(p => p.id === editingPlanId)?.maxUsers : ''} style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} onFocus={(e) => e.currentTarget.style.borderColor = '#10B981'} onBlur={(e) => e.currentTarget.style.borderColor = '#E2E8F0'} />
+                                    </div>
+                                    <div>
+                                        <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Max Branches</label>
+                                        <input required name="maxBranches" type="text" placeholder="1 or Unlimited" defaultValue={modalAction === 'edit' ? plans.find(p => p.id === editingPlanId)?.maxBranches : ''} style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} onFocus={(e) => e.currentTarget.style.borderColor = '#10B981'} onBlur={(e) => e.currentTarget.style.borderColor = '#E2E8F0'} />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Included Features (Comma separated)</label>
+                                    <textarea required name="features" rows={3} placeholder="OPD Module, Patient EMR, Basic Billing" defaultValue={modalAction === 'edit' ? plans.find(p => p.id === editingPlanId)?.features.join(', ') : ''} style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }} onFocus={(e) => e.currentTarget.style.borderColor = '#10B981'} onBlur={(e) => e.currentTarget.style.borderColor = '#E2E8F0'}></textarea>
+                                </div>
+
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>Status</label>
+                                    <select required name="status" defaultValue={modalAction === 'edit' ? plans.find(p => p.id === editingPlanId)?.status : 'active'} style={{ width: '100%', padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', background: 'white', boxSizing: 'border-box' }}>
+                                        <option value="active">Active (Available for purchase)</option>
+                                        <option value="archived">Archived (Grandfathered only)</option>
+                                    </select>
+                                </div>
+                            </form>
+                        </div>
+
+                        {/* Footer */}
+                        <div style={{ padding: '16px 24px', borderTop: '1px solid #E2E8F0', background: '#F8FAFC', display: 'flex', justifyContent: 'flex-end', gap: '12px', borderRadius: '0 0 16px 16px' }}>
+                            <button onClick={() => setIsPlanModalOpen(false)} type="button" style={{ padding: '10px 16px', background: 'white', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', fontWeight: 600, color: '#475569', cursor: 'pointer' }}>
+                                Cancel
+                            </button>
+                            <button type="submit" form="plan-form" style={{ padding: '10px 16px', background: '#10B981', color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>
+                                {modalAction === 'create' ? 'Create Plan' : 'Save Changes'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}

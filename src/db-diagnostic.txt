@@ -1,0 +1,48 @@
+--- STAFF INVENTORY ---
+Hospital: Apollo Health Systems (cmm5vgzfq0001tjz8aoyshc3g)
+  - Staff: 20
+    * Apollo Health Systems Admin | Role: hospital_admin
+    * Dr. Arun Sharma | Role: doctor
+    * Dr. Priya Mehta | Role: doctor
+    * Dr. Rajesh Gupta | Role: doctor
+    * Dr. Sunita Patel | Role: doctor
+    * Dr. Vikram Singh | Role: doctor
+    * Dr. Ananya Roy | Role: doctor
+    * Sister Neeraj Kumar | Role: nurse
+    * Sister Kavita Desai | Role: nurse
+    * Sister Meena Lal | Role: nurse
+    * Smita Sharma | Role: pharmacist
+    * Sonia Das | Role: lab_technician
+    * Vikas Jain | Role: receptionist
+    * Ravi Teja | Role: receptionist
+    * Dr. Rajesh Sharma | Role: doctor
+    * Dr. Sneha Patil | Role: doctor
+    * Nurse Mary Joseph | Role: nurse
+    * Rahul Patel | Role: pharmacist
+    * Amit Gupta | Role: lab_tech
+    * Vikram Singh | Role: accountant
+
+Hospital: City General Medical Center (cmm5vgzi70004tjz84l2a72kv)
+  - Staff: 1
+    * City General Medical Center Admin | Role: hospital_admin
+
+Hospital: MediCare Clinics (cmm5vgzkk0007tjz85rncjmo8)
+  - Staff: 1
+    * MediCare Clinics Admin | Role: hospital_admin
+
+Hospital: Prime Heart Institute (cmm5vgzmx000atjz890r2p3ex)
+  - Staff: 1
+    * Prime Heart Institute Admin | Role: hospital_admin
+
+Hospital: Sunrise Diagnostics Hub (cmm5vgzpe000dtjz8dv4ytjhh)
+  - Staff: 1
+    * Sunrise Diagnostics Hub Admin | Role: hospital_admin
+
+Hospital: Medifirst (cmm5wm13y00008l6th1abu2i7)
+  - Staff: 1
+    * Medifirst Admin | Role: hospital_admin
+
+Hospital: Future Care Hospital (cmm60kcuf0001tuiq6x7ufe2j)
+  - Staff: 1
+    * Hospital Admin | Role: hospital_admin
+

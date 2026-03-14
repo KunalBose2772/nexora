@@ -1,0 +1,156 @@
+'use client';
+import { useState, useEffect } from 'react';
+import Sidebar from '@/components/layout/Sidebar';
+import Header from '@/components/layout/Header';
+import OnboardingJourney from '@/components/layout/OnboardingJourney';
+import { AlertTriangle, Crown, LayoutDashboard, Users, CreditCard, MessageSquare, Activity, Plus } from 'lucide-react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+
+export default function DashboardShell({ children, trialDaysLeft }) {
+    const [collapsed, setCollapsed] = useState(false);
+    const [mobileOpen, setMobileOpen] = useState(false);
+    const [user, setUser] = useState(null);
+    const pathname = usePathname();
+
+    useEffect(() => {
+        fetch('/api/auth/me')
+            .then(res => res.json())
+            .then(data => {
+                if (data.user) setUser(data.user);
+            })
+            .catch(() => { });
+    }, []);
+
+    // Close mobile menu on resize to desktop
+    useEffect(() => {
+        const handleResize = () => { if (window.innerWidth > 1024) setMobileOpen(false); };
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    const sidebarWidth = collapsed ? '64px' : '260px';
+
+    const NAV_ITEMS = [
+        { icon: LayoutDashboard, label: 'Home', href: '/dashboard' },
+        { icon: Users, label: 'Patients', href: '/patients' },
+        { icon: Plus, label: 'Quick', href: '/command-center', center: true },
+        { icon: MessageSquare, label: 'Comms', href: '/communications' },
+        { icon: Activity, label: 'Command', href: '/command-center' },
+    ];
+
+    return (
+        <div style={{ display: 'flex', minHeight: '100vh', background: '#EEF2F8' }}>
+            {/* Mobile Overlay */}
+            {mobileOpen && (
+                <div
+                    onClick={() => setMobileOpen(false)}
+                    style={{
+                        position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)',
+                        zIndex: 35, backdropFilter: 'blur(2px)'
+                    }}
+                />
+            )}
+
+            <Sidebar
+                collapsed={collapsed}
+                setCollapsed={setCollapsed}
+                mobileOpen={mobileOpen}
+                setMobileOpen={setMobileOpen}
+            />
+
+            <div
+                className="dashboard-main-content"
+                style={{
+                    flex: 1,
+                    minWidth: 0,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    minHeight: '100vh',
+                    transition: 'margin-left 220ms cubic-bezier(0.4,0,0.2,1)',
+                }}
+            >
+                <Header setMobileOpen={setMobileOpen} user={user} />
+                <OnboardingJourney />
+
+                {trialDaysLeft !== null && trialDaysLeft > 0 && (
+                    <div style={{ background: 'linear-gradient(90deg, #F59E0B, #EA580C)', color: '#fff', padding: '10px 24px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '13px', fontWeight: 600 }}>
+                        <AlertTriangle size={15} />
+                        Your free trial expires in {trialDaysLeft} day{trialDaysLeft !== 1 ? 's' : ''}.
+                        <a href="mailto:help@globalwebify.com" style={{ color: '#fff', textDecoration: 'underline', marginLeft: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <Crown size={14} /> Upgrade to Pro
+                        </a>
+                    </div>
+                )}
+
+                <main
+                    id="main-content"
+                    tabIndex={-1}
+                    className="fade-in dashboard-main-area"
+                    style={{ flex: 1, background: '#EEF2F8' }}
+                >
+                    {children}
+                </main>
+
+                {/* Mobile Sticky Bottom Menu */}
+                <nav className="mobile-bottom-nav">
+                    {NAV_ITEMS.map((item) => {
+                        const Icon = item.icon;
+                        const active = pathname === item.href;
+                        return (
+                            <Link 
+                                key={item.label} 
+                                href={item.href} 
+                                className={`mobile-nav-item ${active ? 'active' : ''} ${item.center ? 'mobile-nav-center' : ''}`}
+                            >
+                                <Icon 
+                                    size={item.center ? 24 : 20} 
+                                    strokeWidth={item.center ? 2.5 : (active ? 2.5 : 2)} 
+                                    color={item.center ? "#FFFFFF" : undefined}
+                                />
+                                {!item.center && <span>{item.label}</span>}
+                            </Link>
+                        );
+                    })}
+                </nav>
+
+                <footer style={{
+                    padding: '10px 24px',
+                    borderTop: '1px solid rgba(0,0,0,0.05)',
+                    background: 'rgba(255,255,255,0.70)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                }}>
+                    <span style={{ fontSize: '10px', color: '#94A3B8', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Nexora Health</span>
+                    <span style={{ color: '#CBD5E1', fontSize: '10px' }}>|</span>
+                    <span style={{ fontSize: '10px', color: '#94A3B8', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Powered by Global Webify</span>
+                </footer>
+            </div>
+
+            {/* CSS for responsive shift */}
+            <style>{`
+                .dashboard-main-content {
+                    margin-left: ${sidebarWidth};
+                }
+                .dashboard-main-area {
+                    padding: 24px;
+                }
+                @media (max-width: 1024px) {
+                    .dashboard-main-content {
+                        margin-left: 0 !important;
+                    }
+                }
+                @media (max-width: 768px) {
+                    .dashboard-main-area {
+                        padding: 16px;
+                    }
+                    footer {
+                        display: none !important; /* Hide footer on mobile to avoid overlap with bottom nav */
+                    }
+                }
+            `}</style>
+        </div>
+    );
+}

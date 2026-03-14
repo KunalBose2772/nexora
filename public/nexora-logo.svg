@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="140" viewBox="0 0 520 140" fill="none" role="img" aria-label="Nexora Health">
+  <defs>
+    <linearGradient id="nexoraGrad" x1="62" y1="18" x2="118" y2="122" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#00C2FF"/>
+      <stop offset="1" stop-color="#0A2E4D"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="520" height="140" rx="22" fill="transparent"/>
+  <!-- Mark -->
+  <g transform="translate(18 18)">
+    <rect x="0" y="0" width="104" height="104" rx="24" fill="url(#nexoraGrad)"/>
+    <path d="M24 78V26h14l28 34V26h14v52h-14L38 44v34H24Z" fill="white" opacity="0.96"/>
+  </g>
+  <!-- Wordmark -->
+  <g transform="translate(142 44)" fill="#0A2E4D">
+    <text x="0" y="38" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif" font-size="44" font-weight="800" letter-spacing="-0.02em">Nexora</text>
+    <text x="190" y="38" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif" font-size="22" font-weight="700" fill="#00A6D6" letter-spacing="-0.01em">Health</text>
+  </g>
+</svg>
