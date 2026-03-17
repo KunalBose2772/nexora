@@ -15,7 +15,8 @@ import {
     CheckCircle2
 } from 'lucide-react';
 import Link from 'next/link';
-import { useState, useEffect, useParams } from 'react';
+import { useState, useEffect } from 'react';
+import { useParams } from 'next/navigation';
 
 export default function TheaterTelemetryPage() {
     const { room } = useParams();
