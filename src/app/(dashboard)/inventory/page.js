@@ -8,6 +8,7 @@ export default function InventoryDashboard() {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
+    const [filterStatus, setFilterStatus] = useState('All');
 
     const fetchData = async () => {
         setLoading(true);
@@ -28,10 +29,23 @@ export default function InventoryDashboard() {
         fetchData();
     }, []);
 
-    const filtered = data?.inventory.filter(i =>
-        i.name.toLowerCase().includes(search.toLowerCase()) ||
-        i.drugCode.toLowerCase().includes(search.toLowerCase())
-    );
+    const filtered = data?.inventory.filter(i => {
+        const matchSearch = i.name.toLowerCase().includes(search.toLowerCase()) ||
+                           i.drugCode.toLowerCase().includes(search.toLowerCase());
+        
+        if (filterStatus === 'All') return matchSearch;
+        if (filterStatus === 'Low Stock') return matchSearch && i.stock <= i.minThreshold;
+        if (filterStatus === 'Healthy') return matchSearch && i.stock > i.minThreshold;
+        // Expiring logic (approximate 90 days)
+        if (filterStatus === 'Expiring') {
+            if (!i.expiryDate) return false;
+            const exp = new Date(i.expiryDate);
+            const now = new Date();
+            const diff = (exp - now) / (1000 * 60 * 60 * 24);
+            return matchSearch && diff <= 90 && diff > 0;
+        }
+        return matchSearch;
+    });
 
     const stats = {
         total: data?.stats?.totalItems || 0,
@@ -97,28 +111,28 @@ export default function InventoryDashboard() {
 
             {/* KPI Strip */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <div className="kpi-card" style={{ borderLeft: '4px solid #0EA5E9' }}>
+                <div className="stat-card shadow-premium" style={{ borderLeft: '4px solid #0EA5E9' }}>
                     <p className="text-[12px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 text-sky-600/70">Stock Volume</p>
                     <div className="flex items-baseline gap-2">
                         {loading ? <Skeleton width="60px" height="32px" /> : <h2 className="text-3xl font-black text-navy-900 leading-none">{stats.total}</h2>}
                         <span className="text-xs font-semibold text-slate-400">SKUs</span>
                     </div>
                 </div>
-                <div className="kpi-card" style={{ borderLeft: '4px solid #EF4444' }}>
+                <div className="stat-card shadow-premium" style={{ borderLeft: '4px solid #EF4444' }}>
                     <p className="text-[12px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 text-red-600/70">Critical Replenish</p>
                     <div className="flex items-baseline gap-2">
                         {loading ? <Skeleton width="60px" height="32px" /> : <h2 className="text-3xl font-black text-red-600 leading-none">{stats.low}</h2>}
                         <span className="text-xs font-semibold text-red-500 animate-pulse">Required</span>
                     </div>
                 </div>
-                <div className="kpi-card" style={{ borderLeft: '4px solid #F59E0B' }}>
+                <div className="stat-card shadow-premium" style={{ borderLeft: '4px solid #F59E0B' }}>
                     <p className="text-[12px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 text-amber-600/70">Active Procurement</p>
                     <div className="flex items-baseline gap-2">
                         {loading ? <Skeleton width="60px" height="32px" /> : <h2 className="text-3xl font-black text-amber-600 leading-none">{stats.pos}</h2>}
                         <span className="text-xs font-semibold text-slate-400">Open POs</span>
                     </div>
                 </div>
-                <div className="kpi-card" style={{ borderLeft: '4px solid #10B981' }}>
+                <div className="stat-card shadow-premium" style={{ borderLeft: '4px solid #10B981' }}>
                     <p className="text-[12px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 text-emerald-600/70">Supply Network</p>
                     <div className="flex items-baseline gap-2">
                         {loading ? <Skeleton width="60px" height="32px" /> : <h2 className="text-3xl font-black text-emerald-600 leading-none">{stats.suppliers}</h2>}
@@ -130,25 +144,33 @@ export default function InventoryDashboard() {
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
                 <div className="xl:col-span-2 flex flex-col gap-6">
                     <div className="card">
-                        <div className="p-6 border-b border-slate-100 flex flex-wrap gap-4 items-center">
+                        <div className="p-6 border-b border-slate-100 flex flex-wrap gap-4 items-center justify-between">
                             <div className="relative flex-1 min-w-[300px]">
                                 <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                                 <input placeholder="Scan by Item Name, Drug Code, or Manufacturer SKU..." value={search} onChange={e => setSearch(e.target.value)} className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold focus:border-cyan-500 outline-none transition-all shadow-sm" />
                             </div>
-                            <button className="btn btn-secondary btn-sm h-11 px-5 border-slate-200 bg-white">
-                                <Filter size={16} /> Filter Modules
-                            </button>
+                            <div className="flex gap-2">
+                                {['All', 'Healthy', 'Low Stock', 'Expiring'].map(f => (
+                                    <button 
+                                        key={f} 
+                                        onClick={() => setFilterStatus(f)}
+                                        className={`h-11 px-5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${filterStatus === f ? 'bg-navy-900 text-white shadow-lg shadow-slate-200' : 'bg-white border border-slate-200 text-slate-400 hover:bg-slate-50'}`}
+                                    >
+                                        {f}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                         <div className="data-table-wrapper border-none">
                             <table className="data-table">
                                 <thead>
-                                    <tr>
-                                        <th>Asset Registry</th>
-                                        <th>Logistics Category</th>
-                                        <th>Inventory Velocity</th>
-                                        <th>Valuation</th>
-                                        <th style={{ textAlign: 'right' }}>Actions</th>
-                                    </tr>
+                                     <tr style={{ background: '#F8FAFC', borderBottom: '1px solid var(--color-border-light)' }}>
+                                         <th style={{ padding: '16px', fontWeight: 600, color: 'var(--color-text-secondary)', fontSize: '12px', textTransform: 'uppercase' }}>Asset Registry</th>
+                                         <th style={{ padding: '16px', fontWeight: 600, color: 'var(--color-text-secondary)', fontSize: '12px', textTransform: 'uppercase' }}>Logistics Category</th>
+                                         <th style={{ padding: '16px', fontWeight: 600, color: 'var(--color-text-secondary)', fontSize: '12px', textTransform: 'uppercase' }}>Inventory Velocity</th>
+                                         <th style={{ padding: '16px', fontWeight: 600, color: 'var(--color-text-secondary)', fontSize: '12px', textTransform: 'uppercase' }}>Valuation</th>
+                                         <th style={{ textAlign: 'right', paddingRight: '24px', fontWeight: 600, color: 'var(--color-text-secondary)', fontSize: '12px', textTransform: 'uppercase' }}>Actions</th>
+                                     </tr>
                                 </thead>
                                 <tbody>
                                     {loading ? [1, 2, 3, 4, 5].map(i => <tr key={i}><td colSpan="5"><Skeleton height="20px" /></td></tr>) : filtered?.length === 0 ? (

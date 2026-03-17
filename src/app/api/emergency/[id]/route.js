@@ -12,9 +12,12 @@ export async function GET(request, { params }) {
 
         const appointment = await prisma.appointment.findFirst({
             where: {
-                id: id,
                 tenantId: session.tenantId,
-                type: 'EMERGENCY'
+                type: 'EMERGENCY',
+                OR: [
+                    { id: id },
+                    { apptCode: id }
+                ]
             },
             include: {
                 patient: true
@@ -27,7 +30,7 @@ export async function GET(request, { params }) {
 
         return NextResponse.json({ appointment }, { status: 200 });
     } catch (err) {
-        console.error('[GET /api/emergency/[id]]', err);
-        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+        console.error('[GET /api/emergency/[id]] Error:', err);
+        return NextResponse.json({ error: 'Internal server error', details: err.message }, { status: 500 });
     }
 }

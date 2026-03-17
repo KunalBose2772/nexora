@@ -122,7 +122,7 @@ export async function POST(req) {
                         categoryTag: 'Billing',
                         title: `Pharmacy Bill - ${billCode}`,
                         date: new Date().toISOString().slice(0, 10),
-                        fileUrl: '#'
+                        fileUrl: `/billing?search=${billCode}`
                     }
                 });
             }

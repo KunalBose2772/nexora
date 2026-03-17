@@ -46,14 +46,20 @@ export async function POST(request) {
                 tenantName: user.tenant?.name || null,
             };
         } else {
-            // Check if it's a patient
+            // Check if it's a patient (by email, patientCode, or phone)
             const patient = await prisma.patient.findFirst({
-                where: { email: email.toLowerCase().trim() },
+                where: {
+                    OR: [
+                        { email: email.toLowerCase().trim() },
+                        { patientCode: email.trim() },
+                        { phone: email.trim() }
+                    ]
+                },
                 include: { tenant: { select: { id: true, slug: true, name: true, status: true } } },
             });
 
             if (!patient) {
-                return NextResponse.json({ error: 'Invalid email or password.' }, { status: 401 });
+                return NextResponse.json({ error: 'Invalid identifier or password.' }, { status: 401 });
             }
 
             if (!patient.passwordHash) {

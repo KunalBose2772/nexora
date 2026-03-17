@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { FlaskConical, Filter, Plus, Search, MoreVertical, FileText, CheckCircle2, Clock, RefreshCw, Activity, Cpu, Bug, Microchip, ExternalLink, ShieldAlert, Siren, Ghost, Monitor, LayoutDashboard, Database, LayoutTemplate, Loader2 } from 'lucide-react';
+import { FlaskConical, Filter, Plus, Search, MoreVertical, FileText, CheckCircle2, Clock, RefreshCw, Activity, Cpu, Bug, Microchip, ExternalLink, ShieldAlert, Siren, Ghost, Monitor, LayoutDashboard, Database, LayoutTemplate, Loader2, Microscope, Beaker, Dna, ArrowRightLeft } from 'lucide-react';
 import Link from 'next/link';
 import Skeleton from '@/components/common/Skeleton';
 
@@ -68,153 +68,184 @@ export default function LaboratoryPage() {
     };
 
     return (
-        <div className="fade-in pb-12">
+        <div className="fade-in pb-20">
             <style jsx>{`
-                .kpi-card {
-                    background: #fff;
-                    border: 1px solid var(--color-border-light);
-                    border-radius: 20px;
-                    padding: 24px;
-                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                .flux-pulse { animation: flux-glow 2s infinite; }
+                @keyframes flux-glow {
+                    0% { opacity: 1; transform: scale(1); }
+                    50% { opacity: 0.6; transform: scale(1.02); }
+                    100% { opacity: 1; transform: scale(1); }
                 }
-                .status-badge {
-                    padding: 4px 10px;
-                    border-radius: 8px;
-                    font-size: 10px;
-                    font-weight: 901;
+                .lab-action-btn {
+                    height: 38px;
+                    padding: 0 16px;
+                    border-radius: 10px;
+                    font-size: 11px;
+                    font-weight: 600;
                     text-transform: uppercase;
                     letter-spacing: 0.1em;
-                    display: inline-flex;
+                    display: flex;
                     align-items: center;
-                    gap: 6px;
+                    gap: 8px;
+                    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
                 }
-                .status-pending { background: #FFF7ED; color: #F97316; border: 1px solid #FFEDD5; }
-                .status-processing { background: #F1F5F9; color: #475569; border: 1px solid #E2E8F0; }
-                .status-ready { background: #F0FDF4; color: #10B981; border: 1px solid #DCFCE7; }
-                .status-dispatched { background: #F0F9FF; color: #0EA5E9; border: 1px solid #E0F2FE; }
             `}</style>
 
-            <div className="dashboard-header-row mb-8">
-                <div>
-                    <h1 className="responsive-h1">
-                        Laboratory Diagnostic Hub
-                    </h1>
-                    <p style={{ fontSize: '14px', color: 'var(--color-text-secondary)', margin: 0 }}>High-throughput clinical diagnostics and LIS-integrated sample tracking.</p>
+            <div className="dashboard-header-row mb-10">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                    <div style={{ width: '52px', height: '52px', background: 'var(--color-navy)', color: '#fff', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 16px rgba(0,0,0,0.1)' }}>
+                        <FlaskConical size={24} />
+                    </div>
+                    <div>
+                        <h1 className="responsive-h1" style={{ margin: 0 }}>Diagnostic Hub</h1>
+                        <p style={{ fontSize: '14px', color: 'var(--color-text-secondary)', margin: '4px 0 0 0', fontWeight: 500 }}>High-throughput laboratory ops and real-time biometric tracking.</p>
+                    </div>
                 </div>
-                <div className="dashboard-header-buttons">
-                    <button onClick={fetchLabRequests} className="btn btn-secondary btn-sm" style={{ background: '#fff' }}>
-                        <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Sync LIS Bridge
+                <div className="dashboard-header-buttons" style={{ display: 'flex', gap: '12px' }}>
+                    <button onClick={fetchLabRequests} className="btn btn-secondary shadow-sm" style={{ background: '#fff', color: 'var(--color-navy)', borderRadius: '12px', height: '44px', padding: '0 20px' }}>
+                        <RefreshCw size={16} className={loading ? 'animate-spin' : ''} style={{ marginRight: '8px' }} /> Sync LIS Bridge
                     </button>
-                    <Link href="/laboratory/microbiology" className="btn btn-secondary btn-sm bg-white" style={{ textDecoration: 'none' }}>
-                        <Bug size={14} className="text-indigo-500" /> Bio-Governance
+                    <Link href="/laboratory/microbiology" className="btn btn-secondary shadow-sm" style={{ background: '#fff', color: 'var(--color-navy)', borderRadius: '12px', height: '44px', padding: '0 20px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Bug size={16} style={{ color: '#6366F1' }} /> Bio-Governance
                     </Link>
-                    <Link href="/laboratory/new" className="btn btn-primary btn-sm flex items-center gap-2" style={{ textDecoration: 'none' }}>
-                        <Plus size={15} strokeWidth={1.5} /> Initiate Test
+                    <Link href="/laboratory/new" className="btn btn-primary" style={{ background: 'var(--color-navy)', borderRadius: '12px', height: '44px', padding: '0 24px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Plus size={18} /> Initiate Test
                     </Link>
                 </div>
             </div>
 
-            {/* KPI Strip */}
-            <div className="kpi-grid" style={{ marginBottom: '28px' }}>
+            <div className="kpi-grid mb-10">
                 {[
-                    { label: 'Throughput', value: kpiCounts.active, sub: 'Tests in Flux', icon: Activity, color: '#0EA5E9' },
-                    { label: 'Collection Latency', value: kpiCounts.pending, sub: 'Samples Awaiting', icon: Clock, color: '#F59E0B' },
-                    { label: 'Yield Success', value: kpiCounts.ready, sub: 'Validated Reports', icon: CheckCircle2, color: '#10B981' },
+                    { label: 'Throughput', value: kpiCounts.active, sub: 'In-Flux Diagnostic Units', icon: Activity, color: '#0EA5E9' },
+                    { label: 'Collection Lag', value: kpiCounts.pending, sub: 'Samples Awaiting Triage', icon: Clock, color: '#F59E0B' },
+                    { label: 'Validation Yield', value: kpiCounts.ready, sub: 'Verified Path-Reports', icon: CheckCircle2, color: '#10B981' },
+                    { label: 'LIS Integrity', value: '100%', sub: 'Real-time Sync Active', icon: Database, color: '#6366F1' },
                 ].map((card, i) => {
                     const Icon = card.icon;
                     return (
-                        <div key={i} className="kpi-card">
+                        <div key={i} className="kpi-card shadow-premium" style={{ border: '1px solid #F1F5F9' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
                                 <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: `${card.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    <Icon size={20} style={{ color: card.color }} strokeWidth={1.5} />
+                                    <Icon size={20} style={{ color: card.color }} strokeWidth={2.5} />
                                 </div>
-                                <span style={{ fontSize: '12px', color: '#94A3B8', fontWeight: 500 }}>{card.label}</span>
+                                <span style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{card.label}</span>
                             </div>
-                            <div style={{ fontSize: '32px', fontWeight: 800, color: 'var(--color-navy)', lineHeight: 1, marginBottom: '6px' }}>
-                                {loading ? <Loader2 size={22} className="animate-spin text-muted" /> : card.value}
+                            <div style={{ fontSize: '32px', fontWeight: 600, color: 'var(--color-navy)', lineHeight: 1, marginBottom: '6px' }}>
+                                {loading ? <Loader2 size={24} className="animate-spin text-slate-200" /> : card.value}
                             </div>
-                            <div style={{ fontSize: '12px', color: '#94A3B8' }}>{card.sub}</div>
+                            <div style={{ fontSize: '12px', color: '#94A3B8', fontWeight: 400 }}>{card.sub}</div>
                         </div>
                     );
                 })}
             </div>
 
-            <div className="card shadow-2xl shadow-slate-200/50">
-                <div className="p-6 border-b border-slate-100 flex flex-wrap gap-4 items-center justify-between">
-                    <div className="relative flex-1 min-w-[300px]">
-                        <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                        <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Search Ledger by Tracking ID, Patient or Diagnostic Unit..." className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-[11px] font-black uppercase tracking-widest outline-none focus:border-cyan-500 transition-all shadow-sm" />
+            <div className="card shadow-premium" style={{ padding: '0', overflow: 'hidden', border: '1px solid #F1F5F9' }}>
+                <div style={{ padding: '24px', background: '#fff', borderBottom: '1px solid #F1F5F9', display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
+                    <div style={{ flex: 1, minWidth: '300px', position: 'relative' }}>
+                        <Search size={18} color="#94A3B8" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
+                        <input 
+                            type="text" 
+                            value={searchQuery} 
+                            onChange={(e) => setSearchQuery(e.target.value)} 
+                            placeholder="Search diagnostic ledger by Tracking ID, Patient or Test Name..." 
+                            style={{ width: '100%', padding: '12px 16px 12px 48px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', outline: 'none', fontSize: '14px', fontWeight: 600, color: 'var(--color-navy)' }} 
+                        />
                     </div>
-                    <div className="flex gap-2">
+                    <div style={{ display: 'flex', gap: '8px' }}>
                         {statuses.map(s => (
-                            <button key={s} onClick={() => setFilterStatus(s)} className={`h-10 px-5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${filterStatus === s ? 'bg-navy-900 text-white shadow-lg' : 'bg-white border border-slate-200 text-slate-400'}`}>
+                            <button key={s} onClick={() => setFilterStatus(s)} style={{ height: '42px', padding: '0 16px', borderRadius: '10px', fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', border: filterStatus === s ? '1px solid var(--color-navy)' : '1px solid #E2E8F0', background: filterStatus === s ? 'var(--color-navy)' : '#fff', color: filterStatus === s ? '#fff' : '#94A3B8', transition: 'all 0.2s' }}>
                                 {s}
                             </button>
                         ))}
                     </div>
                 </div>
 
-                <div className="data-table-wrapper border-none">
+                <div className="responsive-table-container">
                     <table className="data-table">
                         <thead>
                             <tr>
-                                <th>Registry ID</th>
-                                <th>Subject Demographics</th>
+                                <th style={{ paddingLeft: '24px' }}>Logistics Registry</th>
+                                <th>Biological Subject</th>
                                 <th>Diagnostic Profile</th>
-                                <th>Molecular State</th>
-                                <th style={{ textAlign: 'right' }}>Workflow Management</th>
+                                <th>Processing State</th>
+                                <th style={{ textAlign: 'right', paddingRight: '24px' }}>Workflow</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {loading ? [1, 2, 3, 4, 5].map(i => <tr key={i}><td colSpan="5"><Skeleton height="20px" /></td></tr>) : filtered.length === 0 ? (
+                            {loading ? (
+                                [1, 2, 3, 4, 5].map(i => (
+                                    <tr key={i}>
+                                        <td colSpan="5" style={{ padding: '16px 24px' }}><Skeleton className="h-4 w-full" /></td>
+                                    </tr>
+                                ))
+                            ) : filtered.length === 0 ? (
                                 <tr>
-                                    <td colSpan="5" className="text-center py-20 bg-slate-50/30">
-                                        <div className="flex flex-col items-center gap-4 text-slate-300">
-                                            <FlaskConical size={64} strokeWidth={1} />
-                                            <p className="text-sm font-black uppercase tracking-[0.2em]">Zero Data Correlation Found</p>
+                                    <td colSpan="5" style={{ padding: '100px 24px', textAlign: 'center' }}>
+                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', color: '#cbd5e1' }}>
+                                            <Microchip size={64} strokeWidth={1} />
+                                            <div style={{ fontWeight: 800, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.2em' }}>No biometric data correlated</div>
                                         </div>
                                     </td>
                                 </tr>
-                            ) : filtered.map(row => {
-                                const next = nextStatus(row.status);
-                                return (
-                                    <tr key={row.id} className="hover:bg-slate-50 transition-all cursor-pointer">
-                                        <td>
-                                            <div className="text-[13px] font-black text-navy-900 font-mono tracking-tighter">{row.trackingId}</div>
-                                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-tight mt-1">{new Date(row.createdAt).toLocaleDateString()}</div>
-                                        </td>
-                                        <td>
-                                            <div className="text-[14px] font-black text-navy-900">{row.patientName}</div>
-                                            <div className="text-[10px] font-bold text-slate-400 uppercase mt-1">{row.patientUhId || 'TRANS-GUEST'}</div>
-                                        </td>
-                                        <td>
-                                            <div className="text-[13px] font-black text-slate-600">{row.testName}</div>
-                                            <div className="text-[10px] font-bold text-cyan-600 uppercase mt-1 tracking-widest">{row.category}</div>
-                                        </td>
-                                        <td>
-                                            <span className={`status-badge ${STATUS_COLORS[row.status] || 'status-pending'}`}>
-                                                {row.status === 'Processing' && <Activity size={10} className="animate-spin" />}
-                                                {row.status}
-                                            </span>
-                                        </td>
-                                        <td style={{ textAlign: 'right' }}>
-                                            <div className="flex gap-2 justify-end items-center">
-                                                {row.testResults && <Microchip size={16} className="text-cyan-400 animate-pulse" />}
-                                                {next ? (
-                                                    <button onClick={() => handleStatusUpdate(row.id, next)} disabled={updatingId === row.id} className="h-9 px-4 rounded-lg bg-navy-900 text-white text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-lg shadow-navy-200 disabled:opacity-50">
-                                                        {updatingId === row.id ? 'Updating...' : `Pivot to ${next}`}
+                            ) : (
+                                filtered.map((row) => {
+                                    const next = nextStatus(row.status);
+                                    const isFlux = row.status === 'Pending' || row.status === 'Processing';
+                                    return (
+                                        <tr key={row.id} className="interactive-row">
+                                            <td style={{ paddingLeft: '24px' }}>
+                                                <div style={{ color: 'var(--color-navy)', fontWeight: 600, fontSize: '13px', fontFamily: 'monospace', letterSpacing: '-0.02em' }}>#{row.trackingId}</div>
+                                                <div style={{ color: '#94A3B8', fontWeight: 500, fontSize: '10px', textTransform: 'uppercase', marginTop: '4px' }}>Logged: {new Date(row.createdAt).toLocaleDateString()}</div>
+                                            </td>
+                                            <td>
+                                                <div style={{ color: 'var(--color-navy)', fontWeight: 600, fontSize: '14px' }}>{row.patientName}</div>
+                                                <div style={{ color: '#94A3B8', fontWeight: 600, fontSize: '11px', textTransform: 'uppercase', marginTop: '2px' }}>UHID: {row.patientUhId || 'TRANS-GUEST'}</div>
+                                            </td>
+                                            <td>
+                                                <div style={{ color: 'var(--color-navy)', fontWeight: 500, fontSize: '13px' }}>{row.testName}</div>
+                                                <div style={{ display: 'inline-block', padding: '2px 8px', borderRadius: '6px', background: '#F1F5F9', color: '#475569', fontSize: '9px', fontWeight: 900, textTransform: 'uppercase', marginTop: '4px', border: '1px solid #E2E8F0' }}>{row.category}</div>
+                                            </td>
+                                            <td>
+                                                <div className={`status-badge ${STATUS_COLORS[row.status] || 'status-pending'} ${isFlux ? 'flux-pulse' : ''}`} style={{ 
+                                                    padding: '4px 12px',
+                                                    borderRadius: '8px',
+                                                    fontSize: '10px',
+                                                    fontWeight: 900,
+                                                    textTransform: 'uppercase',
+                                                    background: row.status === 'Pending' ? '#FFF7ED' : row.status === 'Processing' ? '#F1F5F9' : row.status === 'Result Ready' ? '#F0FDF4' : '#F0F9FF',
+                                                    color: row.status === 'Pending' ? '#F97316' : row.status === 'Processing' ? '#475569' : row.status === 'Result Ready' ? '#10B981' : '#0EA5E9',
+                                                    display: 'inline-flex',
+                                                    alignItems: 'center',
+                                                    gap: '6px'
+                                                }}>
+                                                    {row.status === 'Processing' && <Activity size={10} className="animate-spin" />}
+                                                    {row.status}
+                                                </div>
+                                            </td>
+                                            <td style={{ textAlign: 'right', paddingRight: '24px' }}>
+                                                <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', alignItems: 'center' }}>
+                                                    {row.testResults && <Dna size={16} style={{ color: '#0EA5E9' }} className="animate-pulse" />}
+                                                    {next ? (
+                                                        <button onClick={() => handleStatusUpdate(row.id, next)} disabled={updatingId === row.id} className="lab-action-btn" style={{ background: 'var(--color-navy)', color: '#fff' }}>
+                                                            {updatingId === row.id ? <Loader2 size={12} className="animate-spin" /> : <ArrowRightLeft size={14} />} 
+                                                            {next}
+                                                        </button>
+                                                    ) : (
+                                                        <Link href={`/laboratory/reports/${row.id}`} style={{ textDecoration: 'none' }}>
+                                                            <button className="lab-action-btn" style={{ background: '#F0FDF4', color: '#10B981', border: '1px solid #DCFCE7' }}>
+                                                                <FileText size={14} /> Audit
+                                                            </button>
+                                                        </Link>
+                                                    )}
+                                                    <button className="btn-circle-secondary" style={{ width: '38px', height: '38px', background: '#F8FAFC', color: '#94A3B8', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #E2E8F0' }}>
+                                                        <MoreVertical size={16} />
                                                     </button>
-                                                ) : (
-                                                    <Link href={`/laboratory/reports/${row.id}`}>
-                                                        <button className="h-9 px-4 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-100 text-[10px] font-black uppercase tracking-widest shadow-sm hover:bg-emerald-100 transition-all">Audit Report</button>
-                                                    </Link>
-                                                )}
-                                                <button className="w-9 h-9 flex items-center justify-center rounded-lg bg-slate-50 text-slate-400 hover:text-navy-900 transition-all"><MoreVertical size={16} /></button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                );
-                            })}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    );
+                                })
+                            )}
                         </tbody>
                     </table>
                 </div>

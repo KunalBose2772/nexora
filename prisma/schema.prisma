@@ -152,6 +152,7 @@ model Patient {
   bloodGroup   String?
   allergies    String?
   passwordHash String?
+  photo        String?
   status       String  @default("Active")
 
   tenantId String

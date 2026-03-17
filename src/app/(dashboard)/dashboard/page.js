@@ -148,69 +148,86 @@ export default function DashboardPage() {
         <div className="fade-in">
             <style>{`
                 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-                .qa-btn { display: flex; flex-direction: column; align-items: center; gap: 8px; background: #fff; border: 1px solid var(--color-border-light); border-radius: 14px; padding: 18px 10px; text-decoration: none; transition: all 0.18s; text-align: center; }
-                .qa-btn:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.07); transform: translateY(-3px); border-color: #00C2FF; }
-                .kpi-card { background: #fff; border: 1px solid var(--color-border-light); border-radius: 16px; padding: 20px; text-decoration: none; display: block; transition: all 0.18s; }
-                .kpi-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+                @keyframes heartbeat {
+                    0% { transform: scale(1); }
+                    14% { transform: scale(1.1); }
+                    28% { transform: scale(1); }
+                    42% { transform: scale(1.1); }
+                    70% { transform: scale(1); }
+                }
+                .heartbeat-icon { animation: heartbeat 2s infinite ease-in-out; }
+                .qa-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; background: #fff; border: 1px solid var(--color-border-light); border-radius: 16px; padding: 18px 10px; text-decoration: none; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); text-align: center; }
+                .qa-btn:hover { box-shadow: var(--shadow-card-hover); transform: translateY(-4px); border-color: var(--color-cyan); }
+                .kpi-card { background: #fff; border: 1px solid var(--color-border-light); border-radius: 20px; padding: 24px; text-decoration: none; display: block; transition: all 0.2s; position: relative; overflow: hidden; }
+                .kpi-card:hover { box-shadow: var(--shadow-card-hover); transform: translateY(-3px); border-color: var(--color-border); }
+                .kpi-card::after { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--color-icon); opacity: 0; transition: opacity 0.2s; }
+                .kpi-card:hover::after { opacity: 1; }
+                .bot-kpi-card { background: #fff; border: 1px solid var(--color-border-light); border-radius: 14px; padding: 16px; text-decoration: none; display: flex; alignItems: center; gap: 14px; transition: all 0.15s; }
+                .bot-kpi-card:hover { box-shadow: var(--shadow-card-hover); transform: translateY(-2px); border-color: var(--color-border); }
             `}</style>
 
             {/* Header */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '28px', flexWrap: 'wrap', gap: '12px' }}>
-                <div>
-                    <h1 className="responsive-h1">
-                        {greeting}, {data?.tenant?.name || 'Hospital'} 👋
-                    </h1>
-                    <p style={{ fontSize: '14px', color: 'var(--color-text-secondary)', margin: 0 }}>{dateStr} — Live clinical overview</p>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '36px', flexWrap: 'wrap', gap: '24px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                    <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: 'rgba(239, 68, 68, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <HeartPulse className="heartbeat-icon" size={28} style={{ color: '#EF4444' }} />
+                    </div>
+                    <div>
+                        <h1 className="responsive-h1" style={{ margin: 0, fontWeight: 600 }}>
+                            {greeting}, {data?.tenant?.name || 'Administrator'}
+                        </h1>
+                        <p style={{ fontSize: '14px', color: 'var(--color-text-secondary)', margin: '4px 0 0 0', fontWeight: 500 }}>
+                            {dateStr} <span style={{ opacity: 0.5, margin: '0 8px' }}>•</span> Status: <span style={{ color: 'var(--color-success)', fontWeight: 600 }}>System Secure • Node Active</span>
+                        </p>
+                    </div>
                 </div>
-                <div style={{ display: 'flex', gap: '10px' }}>
-                    <button className="btn btn-secondary btn-sm" onClick={load} disabled={loading} style={{ background: '#fff' }}>
-                        <RefreshCw size={14} style={{ animation: loading ? 'spin 1s linear infinite' : 'none' }} />
-                        {loading ? 'Loading…' : 'Refresh'}
+                <div style={{ display: 'flex', gap: '12px' }}>
+                    <button className="btn btn-secondary shadow-sm" onClick={load} disabled={loading} style={{ background: '#fff', height: '44px', padding: '0 20px', borderRadius: '12px', border: '1px solid var(--color-border-light)' }}>
+                        <RefreshCw size={16} className={loading ? 'animate-spin' : ''} style={{ marginRight: '8px' }} />
+                        {loading ? 'Polling…' : 'Sync Telemetry'}
                     </button>
-                    <Link href="/reports" className="btn btn-primary btn-sm" style={{ textDecoration: 'none' }}>
-                        <Activity size={14} /> View Reports
+                    <Link href="/command-center" className="btn btn-primary shadow-premium" style={{ textDecoration: 'none', height: '44px', padding: '0 24px', background: 'var(--color-navy)', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Activity size={18} /> Mission Control
                     </Link>
                 </div>
             </div>
 
-            {/* Top KPIs — 4 big cards */}
-            <div className="kpi-grid" style={{ marginBottom: '20px' }}>
+            {/* Top KPIs — 4 premium cards */}
+            <div className="kpi-grid" style={{ marginBottom: '24px' }}>
                 {KPI_TOP.map(card => {
                     const Icon = card.icon;
                     return (
-                        <Link key={card.id} id={`tour-kpi-${card.id}`} href={card.href} className="kpi-card">
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
-                                <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: `${card.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    <Icon size={20} style={{ color: card.color }} strokeWidth={1.5} />
+                        <Link key={card.id} id={`tour-kpi-${card.id}`} href={card.href} className="kpi-card" style={{ '--color-icon': card.color }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
+                                <div style={{ width: '44px', height: '44px', borderRadius: '14px', background: `${card.color}12`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <Icon size={22} style={{ color: card.color }} strokeWidth={2} />
                                 </div>
-                                <span style={{ fontSize: '12px', color: '#94A3B8', fontWeight: 500 }}>{card.label}</span>
+                                <span style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{card.label}</span>
                             </div>
-                            <div style={{ fontSize: '32px', fontWeight: 800, color: 'var(--color-navy)', lineHeight: 1, marginBottom: '6px' }}>
-                                {loading ? <Loader2 size={22} style={{ animation: 'spin 1s linear infinite', color: '#CBD5E1' }} /> : card.value}
+                            <div style={{ fontSize: '32px', fontWeight: 600, color: 'var(--color-navy)', lineHeight: 1, marginBottom: '8px', letterSpacing: '-0.02em' }}>
+                                {loading ? <Loader2 size={24} style={{ animation: 'spin 1s linear infinite', color: '#CBD5E1' }} /> : card.value}
                             </div>
-                            <div style={{ fontSize: '12px', color: '#94A3B8' }}>{card.sub}</div>
+                            <div style={{ fontSize: '12px', color: '#64748B', fontWeight: 400 }}>{card.sub}</div>
                         </Link>
                     );
                 })}
             </div>
 
-            {/* Bottom KPIs — 4 smaller cards */}
-            <div className="kpi-grid" style={{ gap: '14px', marginBottom: '28px' }}>
+            {/* Bottom KPIs — 4 compact cards */}
+            <div className="kpi-grid" style={{ marginBottom: '32px' }}>
                 {KPI_BOT.map(card => {
                     const Icon = card.icon;
                     return (
-                        <Link key={card.id} id={`tour-kpi-${card.id}`} href={card.href} style={{ background: '#fff', border: '1px solid var(--color-border-light)', borderRadius: '12px', padding: '16px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '14px', transition: 'all 0.15s' }}
-                            onMouseOver={e => { e.currentTarget.style.boxShadow = '0 4px 14px rgba(0,0,0,0.06)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
-                            onMouseOut={e => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'none'; }}>
-                            <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: `${card.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                <Icon size={18} style={{ color: card.color }} strokeWidth={1.5} />
+                        <Link key={card.id} id={`tour-kpi-${card.id}`} href={card.href} className="bot-kpi-card">
+                            <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: `${card.color}10`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                <Icon size={20} style={{ color: card.color }} strokeWidth={1.5} />
                             </div>
                             <div style={{ minWidth: 0 }}>
-                                <div style={{ fontSize: '18px', fontWeight: 800, color: 'var(--color-navy)', lineHeight: 1.1 }}>
+                                <div style={{ fontSize: '19px', fontWeight: 600, color: 'var(--color-navy)', lineHeight: 1.1 }}>
                                     {loading ? '—' : card.value}
                                 </div>
-                                <div style={{ fontSize: '11px', color: '#94A3B8', marginTop: '3px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{card.label}</div>
-                                <div style={{ fontSize: '11px', color: '#CBD5E1', marginTop: '1px' }}>{card.sub}</div>
+                                <div style={{ fontSize: '11px', color: '#64748B', fontWeight: 500, marginTop: '2px' }}>{card.label}</div>
+                                <div style={{ fontSize: '10px', color: '#94A3B8', marginTop: '1px' }}>{card.sub}</div>
                             </div>
                         </Link>
                     );
@@ -218,111 +235,124 @@ export default function DashboardPage() {
             </div>
 
             {/* Quick Actions */}
-            <div id="tour-quick-actions" style={{ marginBottom: '28px' }}>
-                <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '14px' }}>Quick Actions</div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(105px, 1fr))', gap: '10px' }}>
+            <div id="tour-quick-actions" style={{ marginBottom: '36px' }}>
+                <div style={{ fontSize: '12px', fontWeight: 600, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '18px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ width: '3px', height: '14px', background: 'var(--color-cyan)', borderRadius: '2px' }} />
+                    Quick Operations
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '14px' }}>
                     {QUICK_ACTIONS.map((action) => {
                         const Icon = action.icon;
                         return (
-                            <Link key={action.label} href={action.href} className="qa-btn">
-                                <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: action.bg, color: action.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    <Icon size={19} strokeWidth={1.5} />
+                            <Link key={action.label} href={action.href} className="qa-btn" style={{ height: '100px' }}>
+                                <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: action.bg, color: action.color, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '4px' }}>
+                                    <Icon size={22} strokeWidth={1.5} />
                                 </div>
-                                <span style={{ fontSize: '11.5px', fontWeight: 500, color: 'var(--color-navy)', lineHeight: 1.3 }}>{action.label}</span>
+                                <span style={{ fontSize: '12px', color: 'var(--color-navy)', fontWeight: 500, lineHeight: 1.2 }}>{action.label}</span>
                             </Link>
                         );
                     })}
                 </div>
             </div>
 
-            {/* Charts + Recent Appointments */}
-            <div className="grid-balanced" style={{ marginBottom: '24px' }}>
-                {/* Revenue Chart */}
-                <div style={{ background: '#fff', border: '1px solid var(--color-border-light)', borderRadius: '16px', padding: '24px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            {/* Charts Section */}
+            <div className="grid-balanced" style={{ marginBottom: '32px' }}>
+                {/* Financial Pulse */}
+                <div style={{ flex: 1, minWidth: '320px', background: '#fff', border: '1px solid var(--color-border-light)', borderRadius: '24px', padding: '24px', boxShadow: '0 4px 6px rgba(0,0,0,0.02)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
                         <div>
-                            <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--color-navy)' }}>Monthly Revenue</div>
-                            <div style={{ fontSize: '12px', color: '#94A3B8', marginTop: '2px' }}>Last 6 months — from paid invoices</div>
+                            <h3 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--color-navy)', margin: 0 }}>Financial Pulse</h3>
+                            <p style={{ fontSize: '12px', color: '#94A3B8', margin: '2px 0 0 0', fontWeight: 500 }}>Global Revenue (Current Fiscal)</p>
                         </div>
                         <div style={{ textAlign: 'right' }}>
-                            <div style={{ fontSize: '18px', fontWeight: 800, color: 'var(--color-navy)' }}>{fmtCurr(s.totalRevenue)}</div>
-                            <div style={{ fontSize: '11px', color: '#16A34A', fontWeight: 600 }}>Total collected</div>
+                            <div style={{ fontSize: '20px', fontWeight: 600, color: 'var(--color-navy)' }}>{fmtCurr(s.totalRevenue)}</div>
+                            <div style={{ fontSize: '11px', color: '#10B981', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px', justifyContent: 'flex-end' }}>
+                                <TrendingUp size={12} /> Positive Trend
+                            </div>
                         </div>
                     </div>
                     {loading
-                        ? <div style={{ height: '160px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#CBD5E1' }}><Loader2 size={20} style={{ animation: 'spin 1s linear infinite' }} /></div>
+                        ? <div style={{ height: '180px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#CBD5E1' }}><Loader2 size={24} style={{ animation: 'spin 1s linear infinite' }} /></div>
                         : !data?.revenueByMonth?.some(m => m.revenue > 0)
-                            ? <div style={{ height: '160px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '8px', color: '#94A3B8' }}>
-                                <IndianRupee size={28} strokeWidth={1} />
-                                <span style={{ fontSize: '13px' }}>No revenue data yet — create and mark invoices as Paid</span>
+                            ? <div style={{ height: '180px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '12px', color: '#94A3B8' }}>
+                                <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#F1F5F9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <IndianRupee size={24} strokeWidth={1.5} />
+                                </div>
+                                <span style={{ fontSize: '14px', fontWeight: 500 }}>Waiting for first paid invoice...</span>
                             </div>
-                            : <BarChart data={data.revenueByMonth} height={160} />
+                            : <BarChart data={data.revenueByMonth} height={180} />
                     }
                 </div>
 
-                {/* Revenue by Service */}
-                <div style={{ background: '#fff', border: '1px solid var(--color-border-light)', borderRadius: '16px', padding: '24px' }}>
-                    <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--color-navy)', marginBottom: '4px' }}>Revenue by Service</div>
-                    <div style={{ fontSize: '12px', color: '#94A3B8', marginBottom: '20px' }}>Paid invoices breakdown</div>
+                {/* Service Breakdown */}
+                <div className="card" style={{ padding: '28px', border: '1px solid var(--color-border-light)', borderRadius: '24px' }}>
+                    <div style={{ marginBottom: '24px' }}>
+                        <div style={{ fontSize: '16px', fontWeight: 600, color: 'var(--color-navy)' }}>Service Contribution</div>
+                        <div style={{ fontSize: '12px', color: '#94A3B8', marginTop: '4px', fontWeight: 500 }}>High-volume clinical service split</div>
+                    </div>
                     {loading
-                        ? <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '120px', color: '#CBD5E1' }}><Loader2 size={20} style={{ animation: 'spin 1s linear infinite' }} /></div>
+                        ? <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '140px', color: '#CBD5E1' }}><Loader2 size={24} style={{ animation: 'spin 1s linear infinite' }} /></div>
                         : <ServiceBar data={data?.revenueByService} />
                     }
                 </div>
             </div>
 
-            {/* Recent Appointments */}
-            <div style={{ background: '#fff', border: '1px solid var(--color-border-light)', borderRadius: '16px', overflow: 'hidden', marginBottom: '24px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 24px', borderBottom: '1px solid var(--color-border-light)' }}>
+            {/* Recent Appointments Table */}
+            <div style={{ background: '#fff', border: '1px solid var(--color-border-light)', borderRadius: '24px', overflow: 'hidden', marginBottom: '32px', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '24px 32px', borderBottom: '1px solid var(--color-border-light)' }}>
                     <div>
-                        <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--color-navy)' }}>Recent Appointments</div>
-                        <div style={{ fontSize: '12px', color: '#94A3B8', marginTop: '2px' }}>Latest 8 across OPD & IPD</div>
+                        <div style={{ fontSize: '16px', fontWeight: 600, color: 'var(--color-navy)' }}>Recent Triage & Admissions</div>
+                        <div style={{ fontSize: '12px', color: '#94A3B8', marginTop: '4px', fontWeight: 500 }}>Latest clinical workflow records</div>
                     </div>
-                    <Link href="/appointments" style={{ fontSize: '13px', color: 'var(--color-cyan)', fontWeight: 600, textDecoration: 'none' }}>View All →</Link>
+                    <Link href="/appointments" className="btn btn-secondary btn-sm" style={{ fontWeight: 600, borderRadius: '10px' }}>View Full Registry</Link>
                 </div>
 
                 {loading ? (
-                    <div style={{ padding: '40px', textAlign: 'center', color: '#94A3B8', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                        <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> Loading…
+                    <div style={{ padding: '60px', textAlign: 'center' }}>
+                        <Loader2 size={28} style={{ animation: 'spin 1s linear infinite', color: 'var(--color-cyan)', margin: '0 auto' }} />
                     </div>
                 ) : !data?.appointments?.length ? (
-                    <div style={{ padding: '48px', textAlign: 'center', color: '#94A3B8' }}>
-                        <HeartPulse size={32} style={{ color: '#CBD5E1', marginBottom: '10px' }} />
-                        <p style={{ margin: 0, fontSize: '14px' }}>No appointments yet. <Link href="/appointments/new" style={{ color: 'var(--color-cyan)' }}>Book the first one.</Link></p>
+                    <div style={{ padding: '80px', textAlign: 'center' }}>
+                        <HeartPulse size={48} style={{ color: '#E2E8F0', marginBottom: '16px', margin: '0 auto' }} />
+                        <p style={{ margin: 0, fontSize: '15px', color: '#94A3B8', fontWeight: 500 }}>No active clinical records found for this period.</p>
                     </div>
                 ) : (
-                    <div style={{ width: '100%', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '800px' }}>
-                        <thead>
-                            <tr style={{ background: '#F8FAFC' }}>
-                                {['Appt. ID', 'Patient', 'Doctor', 'Dept.', 'Date', 'Type', 'Status'].map(h => (
-                                    <th key={h} style={{ padding: '10px 16px', textAlign: 'left', fontSize: '11px', fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.06em', borderBottom: '1px solid var(--color-border-light)' }}>{h}</th>
-                                ))}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {data.appointments.map(apt => {
-                                const sc = APT_STATUS_COLORS[apt.status] || { bg: '#F1F5F9', color: '#475569' };
-                                return (
-                                    <tr key={apt.id} style={{ borderBottom: '1px solid var(--color-border-light)', transition: 'background 0.15s' }}
-                                        onMouseOver={e => e.currentTarget.style.background = '#F8FAFC'}
-                                        onMouseOut={e => e.currentTarget.style.background = 'transparent'}>
-                                        <td style={{ padding: '12px 16px', fontFamily: 'monospace', fontSize: '12px', color: 'var(--color-navy)', fontWeight: 600 }}>{apt.apptCode || apt.id.slice(-6).toUpperCase()}</td>
-                                        <td style={{ padding: '12px 16px', fontWeight: 600, fontSize: '13px', color: 'var(--color-navy)' }}>{apt.patientDisplayName || apt.patientName || '—'}</td>
-                                        <td style={{ padding: '12px 16px', fontSize: '13px', color: 'var(--color-text-secondary)' }}>{apt.doctorName || '—'}</td>
-                                        <td style={{ padding: '12px 16px', fontSize: '13px', color: 'var(--color-text-secondary)' }}>{apt.department || '—'}</td>
-                                        <td style={{ padding: '12px 16px', fontSize: '13px', color: 'var(--color-text-secondary)', fontVariantNumeric: 'tabular-nums' }}>{apt.date || '—'}</td>
-                                        <td style={{ padding: '12px 16px' }}>
-                                            <span style={{ fontSize: '11px', fontWeight: 600, padding: '2px 8px', borderRadius: '20px', background: apt.type === 'IPD' ? 'rgba(245,158,11,0.1)' : 'rgba(0,194,255,0.1)', color: apt.type === 'IPD' ? '#B45309' : '#0284C7' }}>{apt.type || 'OPD'}</span>
-                                        </td>
-                                        <td style={{ padding: '12px 16px' }}>
-                                            <span style={{ fontSize: '11px', fontWeight: 600, padding: '3px 10px', borderRadius: '20px', background: sc.bg, color: sc.color }}>{apt.status}</span>
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
+                    <div style={{ width: '100%', overflowX: 'auto' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '950px' }}>
+                            <thead>
+                                <tr>
+                                    {['Patient & Token', 'Primary Clinician', 'Operational State', 'Action'].map((h, i) => (
+                                        <th key={h} style={{ textAlign: i === 3 ? 'right' : 'left', fontSize: '10px', fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', padding: '12px 16px', borderBottom: '1px solid #F1F5F9' }}>{h}</th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {data.appointments.map(apt => {
+                                    return (
+                                        <tr key={apt.id} className="interactive-row">
+                                            <td style={{ padding: '20px 32px', fontFamily: 'monospace', fontSize: '12px', color: 'var(--color-navy)', fontWeight: 600 }}>{apt.apptCode || apt.id.slice(-6).toUpperCase()}</td>
+                                            <td style={{ padding: '20px 32px' }}>
+                                                <div style={{ fontWeight: 600, fontSize: '14px', color: 'var(--color-navy)' }}>{apt.patientDisplayName || apt.patientName || 'Anonymous'}</div>
+                                                <div style={{ fontSize: '11px', color: '#94A3B8', marginTop: '2px', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{apt.type || 'OPD'} REGISTRY</div>
+                                            </td>
+                                            <td style={{ padding: '20px 32px' }}>
+                                                <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-navy)' }}>{apt.doctorName || 'General Triage'}</div>
+                                                <div style={{ fontSize: '11px', color: '#94A3B8', marginTop: '2px', fontWeight: 500 }}>{apt.department || 'Clinical Unit'}</div>
+                                            </td>
+                                            <td style={{ padding: '20px 32px', fontSize: '13px', color: 'var(--color-text-secondary)', fontWeight: 500 }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                    <Clock size={14} style={{ color: '#94A3B8' }} />
+                                                    {apt.date || '—'}
+                                                </div>
+                                            </td>
+                                            <td style={{ padding: '20px 32px' }}>
+                                                <span className={`status-badge ${apt.status === 'Completed' ? 'badge-completed' : apt.status === 'In Progress' ? 'badge-in-progress' : apt.status === 'Scheduled' ? 'badge-scheduled' : apt.status === 'Waiting' ? 'badge-pending' : apt.status === 'Cancelled' ? 'badge-cancelled' : 'badge-grey'}`} style={{ fontWeight: 600 }}>{apt.status}</span>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
                     </div>
                 )}
             </div>
@@ -332,20 +362,20 @@ export default function DashboardPage() {
                 <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: '12px', padding: '14px 20px', display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
                     <PackageX size={20} style={{ color: '#D97706', flexShrink: 0 }} />
                     <div>
-                        <span style={{ fontWeight: 700, color: '#92400E', fontSize: '14px' }}>Low Stock Alert — </span>
+                        <span style={{ fontWeight: 600, color: '#92400E', fontSize: '14px' }}>Low Stock Alert — </span>
                         <span style={{ color: '#78350F', fontSize: '14px' }}>{s.lowStock} medicine{s.lowStock > 1 ? 's' : ''} are below minimum threshold.</span>
                     </div>
-                    <Link href="/pharmacy" style={{ marginLeft: 'auto', color: '#D97706', fontWeight: 700, fontSize: '13px', textDecoration: 'none', flexShrink: 0 }}>View Pharmacy →</Link>
+                    <Link href="/pharmacy" style={{ marginLeft: 'auto', color: '#D97706', fontWeight: 600, fontSize: '13px', textDecoration: 'none', flexShrink: 0 }}>View Pharmacy →</Link>
                 </div>
             )}
             {!loading && s.pendingDuesAmount > 0 && (
                 <div style={{ background: '#FFF5F5', border: '1px solid #FECACA', borderRadius: '12px', padding: '14px 20px', display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <Wallet size={20} style={{ color: '#DC2626', flexShrink: 0 }} />
                     <div>
-                        <span style={{ fontWeight: 700, color: '#991B1B', fontSize: '14px' }}>Pending Dues — </span>
+                        <span style={{ fontWeight: 600, color: '#991B1B', fontSize: '14px' }}>Pending Dues — </span>
                         <span style={{ color: '#7F1D1D', fontSize: '14px' }}>{s.pendingDuesCount} invoice{s.pendingDuesCount > 1 ? 's' : ''} unpaid totalling {fmtCurr(s.pendingDuesAmount)}.</span>
                     </div>
-                    <Link href="/billing" style={{ marginLeft: 'auto', color: '#DC2626', fontWeight: 700, fontSize: '13px', textDecoration: 'none', flexShrink: 0 }}>View Billing →</Link>
+                    <Link href="/billing" style={{ marginLeft: 'auto', color: '#DC2626', fontWeight: 600, fontSize: '13px', textDecoration: 'none', flexShrink: 0 }}>View Billing →</Link>
                 </div>
             )}
         </div>

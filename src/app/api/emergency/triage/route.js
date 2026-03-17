@@ -10,12 +10,22 @@ export async function GET(request) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
+        const { searchParams } = new URL(request.url);
+        const view = searchParams.get('view');
+
+        const where = {
+            tenantId: session.tenantId,
+            type: 'EMERGENCY'
+        };
+
+        if (view === 'history') {
+            where.status = { in: ['Discharged', 'Cancelled'] };
+        } else {
+            where.status = { notIn: ['Discharged', 'Cancelled'] };
+        }
+
         const emergencyCases = await prisma.appointment.findMany({
-            where: {
-                tenantId: session.tenantId,
-                type: 'EMERGENCY',
-                status: { notIn: ['Discharged', 'Cancelled'] }
-            },
+            where: where,
             include: { patient: true },
             orderBy: [
                 { triageLevel: 'asc' }, // Higher priority (1) first
@@ -25,8 +35,8 @@ export async function GET(request) {
 
         return NextResponse.json({ appointments: emergencyCases });
     } catch (err) {
-        console.error('[GET /api/emergency/triage]', err);
-        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+        console.error('[GET /api/emergency/triage] Error:', err);
+        return NextResponse.json({ error: 'Internal server error', details: err.message }, { status: 500 });
     }
 }
 
@@ -37,7 +47,9 @@ export async function PATCH(request) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const { id, triageLevel, triageColor, triageNotes, triageVitals, status } = await request.json();
+        const body = await request.json();
+        console.log('[PATCH /api/emergency/triage] body:', body);
+        const { id, triageLevel, triageColor, triageNotes, triageVitals, status } = body;
 
         if (!id) {
             return NextResponse.json({ error: 'Missing appointment ID' }, { status: 400 });
@@ -54,25 +66,26 @@ export async function PATCH(request) {
         updateData.triageAt = new Date();
 
         const updatedAppointment = await prisma.appointment.update({
-            where: { id, tenantId: session.tenantId },
+            where: { id: id },
             data: updateData
         });
 
-        await logAudit({
-            tenantId: session.tenantId,
-            userId: session.userId,
-            userName: session.name,
-            userRole: session.role,
-            action: 'UPDATE_TRIAGE',
-            resourceType: 'Appointment',
-            resourceId: updatedAppointment.id,
-            details: `Updated triage for emergency case ${updatedAppointment.apptCode}. New Level: ${updatedAppointment.triageLevel}`,
-            newValue: updatedAppointment
-        });
+        try {
+            await logAudit({
+                session: session,
+                action: 'UPDATE_TRIAGE',
+                resource: 'Appointment',
+                resourceId: updatedAppointment.id,
+                description: `Updated triage/status for emergency case ${updatedAppointment.apptCode}. New Status: ${updatedAppointment.status}`,
+                newValue: updatedAppointment
+            });
+        } catch (auditErr) {
+            console.error('[PATCH /api/emergency/triage] Audit Log Failed:', auditErr);
+        }
 
         return NextResponse.json({ ok: true, appointment: updatedAppointment });
     } catch (err) {
-        console.error('[PATCH /api/emergency/triage]', err);
-        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+        console.error('[PATCH /api/emergency/triage] Error:', err);
+        return NextResponse.json({ error: 'Internal server error', details: err.message }, { status: 500 });
     }
 }

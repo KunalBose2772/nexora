@@ -32,30 +32,36 @@ export default function OTDashboard() {
     const loadData = useCallback(async () => {
         setLoading(true);
         try {
-            // Simulation
-            setTimeout(() => {
+            const res = await fetch('/api/ot');
+            const result = await res.json();
+            if (res.ok) {
                 setData({
-                    surgeries: [
-                        { id: 'SUR-501', pt: 'Kunal Bose', procedure: 'TKR (Total Knee Replacement)', surgeon: 'Dr. Amitabh', time: '09:00 AM', status: 'Ongoing', theater: 'OT-1' },
-                        { id: 'SUR-505', pt: 'Riya Sharma', procedure: 'Laparoscopic Appendectomy', surgeon: 'Dr. Riya', time: '11:45 AM', status: 'Scheduled', theater: 'OT-2' },
-                        { id: 'SUR-508', pt: 'Amit Kumar', procedure: 'Cardiac Bypass (CABG)', surgeon: 'Dr. Shah', time: '02:00 PM', status: 'Pre-Op', theater: 'OT-1' },
-                        { id: 'SUR-510', pt: 'Suresh Raina', procedure: 'Arthroscopic Repair', surgeon: 'Dr. Pathak', time: '04:30 PM', status: 'Scheduled', theater: 'OT-3' },
-                    ],
+                    surgeries: result.surgeries,
                     kpis: {
-                        todayTotal: 12,
-                        ongoing: 2,
-                        pendingPrep: 4,
-                        theaterOccupancy: '85%'
+                        todayTotal: result.surgeries.length,
+                        ongoing: result.surgeries.filter(s => s.status === 'Ongoing' || s.status === 'In Progress').length,
+                        pendingPrep: result.surgeries.filter(s => s.status === 'Scheduled').length,
+                        theaterOccupancy: result.surgeries.length > 0 ? 'Active' : 'Idle'
                     }
                 });
-                setLoading(false);
-            }, 800);
+            }
         } catch (e) {
+            console.error(e);
+        } finally {
             setLoading(false);
         }
     }, []);
 
+    const [search, setSearch] = useState('');
+
     useEffect(() => { loadData(); }, [loadData]);
+    
+    const filteredSurgeries = (data?.surgeries || []).filter(s => {
+        const query = search.toLowerCase();
+        return s.procedureName?.toLowerCase().includes(query) || 
+               s.surgeonName?.toLowerCase().includes(query) || 
+               `${s.patient?.firstName} ${s.patient?.lastName}`.toLowerCase().includes(query);
+    });
 
     const KPI_CARDS = [
         { id: 'roster', label: "Today's Roster", value: data?.kpis.todayTotal, sub: 'Total surgical procedures', icon: Calendar, color: '#3B82F6' },
@@ -114,21 +120,32 @@ export default function OTDashboard() {
                     <h3 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--color-navy)', margin: 0 }}>Surgical Ledger — Active Roster</h3>
                     <div style={{ position: 'relative', width: '240px' }}>
                         <Search size={14} style={{ position: 'absolute', left: '12px', top: '10px', color: '#94A3B8' }} />
-                        <input type="text" placeholder="Filter by patient or surgeon..." style={{ width: '100%', padding: '8px 12px 8px 36px', border: '1px solid var(--color-border-light)', borderRadius: '8px', fontSize: '13px', outline: 'none' }} />
+                        <input 
+                            type="text" 
+                            placeholder="Filter by patient or surgeon..." 
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            style={{ width: '100%', padding: '8px 12px 8px 36px', border: '1px solid var(--color-border-light)', borderRadius: '8px', fontSize: '13px', outline: 'none' }} 
+                        />
                     </div>
                 </div>
                 
-                {loading ? <div className="kpi-grid" style={{ gap: '20px' }}><Skeleton height="240px" /><Skeleton height="240px" /></div> : (
+                {loading ? <div className="kpi-grid" style={{ gap: '20px' }}><Skeleton height="240px" /><Skeleton height="240px" /></div> : filteredSurgeries.length === 0 ? (
+                    <div className="card shadow-premium" style={{ padding: '40px', textAlign: 'center' }}>
+                        <Scissors size={40} style={{ color: '#E2E8F0', marginBottom: '16px' }} />
+                        <div style={{ fontSize: '14px', color: '#94A3B8', fontWeight: 600 }}>No procedures found in the current roster.</div>
+                    </div>
+                ) : (
                     <div className="kpi-grid" style={{ gap: '24px' }}>
-                        {data?.surgeries.map(s => (
-                            <div key={s.id} className="card" style={{ padding: '0', overflow: 'hidden' }}>
+                        {filteredSurgeries.map(s => (
+                            <div key={s.id} className="card shadow-premium" style={{ padding: '0', overflow: 'hidden' }}>
                                 <div style={{ padding: '20px', borderBottom: '1px solid var(--color-border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                     <div>
-                                        <div style={{ fontSize: '10px', fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase', marginBottom: '4px' }}>{s.theater} — {s.time}</div>
-                                        <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-navy)', margin: 0 }}>{s.pt}</h3>
-                                        <div style={{ fontSize: '12px', color: '#64748B', marginTop: '2px', fontWeight: 500 }}>{s.procedure}</div>
+                                        <div style={{ fontSize: '10px', fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase', marginBottom: '4px' }}>{s.otRoom} — {s.startTime ? new Date(s.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'ASAP'}</div>
+                                        <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-navy)', margin: 0 }}>{s.patient ? `${s.patient.firstName} ${s.patient.lastName}` : 'Unregistered Patient'}</h3>
+                                        <div style={{ fontSize: '12px', color: '#64748B', marginTop: '2px', fontWeight: 500 }}>{s.procedureName}</div>
                                     </div>
-                                    <span style={{ fontSize: '10px', fontWeight: 700, padding: '4px 10px', borderRadius: '12px', background: s.status === 'Ongoing' ? '#FFFBEB' : s.status === 'Scheduled' ? '#F1F5F9' : '#DCFCE7', color: s.status === 'Ongoing' ? '#B45309' : s.status === 'Scheduled' ? '#475569' : '#15803D' }}>{s.status}</span>
+                                    <span style={{ fontSize: '10px', fontWeight: 700, padding: '4px 10px', borderRadius: '12px', background: s.status === 'Ongoing' || s.status === 'In Progress' ? '#FFFBEB' : s.status === 'Scheduled' ? '#F1F5F9' : '#DCFCE7', color: s.status === 'Ongoing' || s.status === 'In Progress' ? '#B45309' : s.status === 'Scheduled' ? '#475569' : '#15803D' }}>{s.status}</span>
                                 </div>
                                 <div style={{ padding: '20px', display: 'flex', alignItems: 'center', gap: '12px' }}>
                                     <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#F8FAFC', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #F1F5F9' }}>
@@ -136,16 +153,16 @@ export default function OTDashboard() {
                                     </div>
                                     <div>
                                         <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500 }}>Primary Surgeon</div>
-                                        <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--color-navy)' }}>{s.surgeon}</div>
+                                        <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--color-navy)' }}>{s.surgeonName}</div>
                                     </div>
                                     <div style={{ marginLeft: 'auto', textAlign: 'right' }}>
                                         <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500 }}>Case ID</div>
-                                        <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-navy)', fontFamily: 'monospace' }}>{s.id}</div>
+                                        <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-navy)', fontFamily: 'monospace' }}>{s.surgeryCode}</div>
                                     </div>
                                 </div>
                                 <div style={{ padding: '12px 20px', borderTop: '1px solid var(--color-border-light)', background: '#FAFCFF', display: 'flex', gap: '10px' }}>
-                                    <Link href={`/ot/case/${s.id}/notes`} className="btn btn-secondary btn-sm" style={{ flex: 1, background: '#fff' }}>Surgical Note</Link>
-                                    <Link href={`/ot/theater/${s.theater}/telemetry`} className="btn btn-primary btn-sm" style={{ flex: 1 }}>Theater Telemetry</Link>
+                                    <Link href={`/ot/${s.id}`} className="btn btn-secondary btn-sm" style={{ flex: 1, background: '#fff', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Surgical Note</Link>
+                                    <Link href={`/ot/theater/${s.otRoom}/telemetry`} className="btn btn-primary btn-sm" style={{ flex: 1, textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Theater Telemetry</Link>
                                 </div>
                             </div>
                         ))}

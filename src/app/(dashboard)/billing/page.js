@@ -1,7 +1,8 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { IndianRupee, Plus, Search, TrendingUp, Clock, CreditCard, Receipt, RefreshCw, X, CheckCircle, ShieldCheck, Filter, ArrowUpRight, MoreVertical, Wallet, Landmark, HandCoins, FileText, Siren, Ghost, Monitor, LayoutDashboard, Database, Activity, Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import Skeleton from '@/components/common/Skeleton';
 import PrintWrapper from '@/components/print/PrintWrapper';
 import PrintHeader from '@/components/print/PrintHeader';
@@ -20,6 +21,19 @@ const PAYMENT_METHODS = ['Cash', 'UPI', 'Credit Card', 'Debit Card', 'TPA / Insu
 const SERVICE_TYPES = ['OPD Consult', 'IPD Final Bill', 'Pharmacy Sale', 'Lab Request', 'Radiology', 'Procedure', 'OPD Registration', 'Emergency'];
 
 export default function BillingPage() {
+    return (
+        <Suspense fallback={<div className="p-10 text-center"><Loader2 className="animate-spin mx-auto" /></div>}>
+            <BillingContent />
+        </Suspense>
+    );
+}
+
+function BillingContent() {
+    const searchParams = useSearchParams();
+    const targetPatientId = searchParams.get('patientId');
+    const targetPatientUhId = searchParams.get('patientUhId');
+    const targetSearch = searchParams.get('search');
+
     const [invoices, setInvoices] = useState([]);
     const [patients, setPatients] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -58,7 +72,19 @@ export default function BillingPage() {
                 fetch('/api/settings')
             ]);
             if (invRes.ok) setInvoices((await invRes.json()).invoices || []);
-            if (ptRes.ok) setPatients((await ptRes.json()).patients || []);
+            if (ptRes.ok) {
+                const pts = (await ptRes.json()).patients || [];
+                setPatients(pts);
+                if (targetPatientId || targetPatientUhId) {
+                    const match = pts.find(p => p.id === targetPatientId || p.patientCode === targetPatientUhId);
+                    if (match) {
+                        setSelectedPatient(match);
+                        setSearchQuery(targetSearch || match.patientCode); // Prioritize specific search
+                    }
+                } else if (targetSearch) {
+                    setSearchQuery(targetSearch);
+                }
+            }
             if (advRes.ok) setAdvances((await advRes.json()).advances || []);
             if (setRes.ok) setTan((await setRes.json()).tenant);
         } catch (e) { console.error(e); }
@@ -138,7 +164,11 @@ export default function BillingPage() {
         const q = searchQuery.toLowerCase();
         const matchSearch = !q || inv.invoiceCode.toLowerCase().includes(q) || inv.patientName.toLowerCase().includes(q) || (inv.patientUhId || '').toLowerCase().includes(q);
         const matchStatus = filterStatus === 'All' || inv.status === filterStatus;
-        return matchSearch && matchStatus;
+        const matchPatient = !targetPatientId && !targetPatientUhId || 
+                             inv.patientId === targetPatientId || 
+                             inv.patientUhId === targetPatientUhId ||
+                             (targetPatientUhId && (inv.patientUhId || '').includes(targetPatientUhId));
+        return matchSearch && matchStatus && matchPatient;
     });
 
     const filteredAdvances = advances.filter(adv => {
@@ -192,28 +222,30 @@ export default function BillingPage() {
                 }
             `}</style>
 
-            <div className="dashboard-header-row mb-8">
-                <div>
-                    <h1 className="responsive-h1">
-                        Revenue & Financial Orchestration
-                    </h1>
-                    <p style={{ fontSize: '14px', color: 'var(--color-text-secondary)', margin: 0 }}>Global financial ledger, patient accounts receivable, and transaction governance.</p>
+            <div className="dashboard-header-row mb-10">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                    <div style={{ width: '52px', height: '52px', background: 'var(--color-navy)', color: '#fff', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 16px rgba(0,0,0,0.1)' }}>
+                        <IndianRupee size={24} />
+                    </div>
+                    <div>
+                        <h1 className="responsive-h1" style={{ margin: 0 }}>Revenue & Financial Orchestration</h1>
+                        <p style={{ fontSize: '14px', color: 'var(--color-text-secondary)', margin: '4px 0 0 0', fontWeight: 500 }}>Global financial ledger, patient accounts receivable, and transaction governance.</p>
+                    </div>
                 </div>
-                <div className="dashboard-header-buttons">
-                    <button onClick={fetchData} className="btn btn-secondary btn-sm" style={{ background: '#fff' }}>
-                        <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Sync Ledger
+                <div className="dashboard-header-buttons" style={{ display: 'flex', gap: '12px' }}>
+                    <button onClick={fetchData} className="btn btn-secondary shadow-sm" style={{ background: '#fff', color: 'var(--color-navy)', borderRadius: '12px', height: '44px', padding: '0 20px' }}>
+                        <RefreshCw size={16} className={loading ? 'animate-spin' : ''} style={{ marginRight: '8px' }} /> Sync Ledger
                     </button>
-                    <button onClick={() => setShowAdvanceModal(true)} className="btn btn-secondary btn-sm h-11 px-6 border-emerald-100 text-emerald-600 bg-white" style={{ textDecoration: 'none' }}>
+                    <button onClick={() => setShowAdvanceModal(true)} className="btn btn-secondary shadow-sm" style={{ background: '#fff', color: '#10B981', border: '1px solid #DCFCE7', borderRadius: '12px', height: '44px', padding: '0 20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <HandCoins size={16} /> Collect Advance
                     </button>
-                    <button onClick={() => setShowModal(true)} className="btn btn-primary btn-sm flex items-center gap-2" style={{ textDecoration: 'none' }}>
-                        <Plus size={15} strokeWidth={1.5} /> Generate Invoice
+                    <button onClick={() => setShowModal(true)} className="btn btn-primary" style={{ background: 'var(--color-navy)', borderRadius: '12px', height: '44px', padding: '0 24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Plus size={18} /> Generate Invoice
                     </button>
                 </div>
             </div>
 
-            {/* KPI Strip */}
-            <div className="kpi-grid" style={{ marginBottom: '28px' }}>
+            <div className="kpi-grid mb-10">
                 {[
                     { label: 'Daily Flux', value: `₹${kpi.todayPaid.toLocaleString()}`, sub: 'Collected Today', icon: Activity, color: '#10B981' },
                     { label: 'Receivables', value: `₹${kpi.pending.toLocaleString()}`, sub: 'Aging Ledger', icon: Clock, color: '#F59E0B' },
@@ -222,17 +254,17 @@ export default function BillingPage() {
                 ].map((card, i) => {
                     const Icon = card.icon;
                     return (
-                        <div key={i} className="kpi-card">
+                        <div key={i} className="kpi-card shadow-premium" style={{ border: '1px solid #F1F5F9' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
                                 <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: `${card.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    <Icon size={20} style={{ color: card.color }} strokeWidth={1.5} />
+                                    <Icon size={20} style={{ color: card.color }} strokeWidth={2.5} />
                                 </div>
-                                <span style={{ fontSize: '12px', color: '#94A3B8', fontWeight: 500 }}>{card.label}</span>
+                                <span style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{card.label}</span>
                             </div>
-                            <div style={{ fontSize: '32px', fontWeight: 800, color: 'var(--color-navy)', lineHeight: 1, marginBottom: '6px' }}>
-                                {loading ? <Loader2 size={22} className="animate-spin text-muted" /> : card.value}
+                            <div style={{ fontSize: '32px', fontWeight: 600, color: 'var(--color-navy)', lineHeight: 1, marginBottom: '6px' }}>
+                                {loading ? <Loader2 size={24} className="animate-spin text-slate-200" /> : card.value}
                             </div>
-                            <div style={{ fontSize: '12px', color: '#94A3B8' }}>{card.sub}</div>
+                            <div style={{ fontSize: '12px', color: '#94A3B8', fontWeight: 400 }}>{card.sub}</div>
                         </div>
                     );
                 })}
@@ -264,31 +296,43 @@ export default function BillingPage() {
                     {activeView === 'invoices' ? (
                         <table className="data-table">
                             <thead>
-                                <tr>
-                                    <th>Identifier</th>
-                                    <th>Payer Demographics</th>
-                                    <th>Unit</th>
-                                    <th>Net Proceeds</th>
-                                    <th>Settlement</th>
-                                    <th style={{ textAlign: 'right' }}>Management</th>
+                                <tr style={{ background: '#F8FAFC', borderBottom: '1px solid var(--color-border-light)' }}>
+                                    <th style={{ padding: '16px', fontWeight: 600, color: 'var(--color-text-secondary)', fontSize: '12px', textTransform: 'uppercase' }}>Identifier</th>
+                                    <th style={{ padding: '16px', fontWeight: 600, color: 'var(--color-text-secondary)', fontSize: '12px', textTransform: 'uppercase' }}>Payer Demographics</th>
+                                    <th style={{ padding: '16px', fontWeight: 600, color: 'var(--color-text-secondary)', fontSize: '12px', textTransform: 'uppercase' }}>Dept Unit</th>
+                                    <th style={{ padding: '16px', fontWeight: 600, color: 'var(--color-text-secondary)', fontSize: '12px', textTransform: 'uppercase' }}>Net Proceeds</th>
+                                    <th style={{ padding: '16px', fontWeight: 600, color: 'var(--color-text-secondary)', fontSize: '12px', textTransform: 'uppercase' }}>Settlement</th>
+                                    <th style={{ padding: '16px', fontWeight: 600, color: 'var(--color-text-secondary)', fontSize: '12px', textTransform: 'uppercase', textAlign: 'right' }}>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {loading ? [1, 2, 3, 4, 5].map(i => <tr key={i}><td colSpan="6"><Skeleton height="20px" /></td></tr>) : filteredInvoices.map(inv => (
-                                    <tr key={inv.id} className="hover:bg-slate-50 transition-all cursor-pointer">
-                                        <td><div className="text-[13px] font-black text-navy-900 font-mono tracking-tighter">{inv.invoiceCode}</div></td>
-                                        <td>
-                                            <div className="text-[14px] font-black text-navy-900">{inv.patientName}</div>
-                                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-tight mt-1">{inv.patientUhId || 'WALK-IN VISIT'}</div>
+                                    <tr key={inv.id} className="registry-row">
+                                        <td style={{ padding: '16px' }}>
+                                            <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-navy)', fontFamily: 'monospace' }}>{inv.invoiceCode}</span>
                                         </td>
-                                        <td><div className="text-[10px] font-black uppercase py-1 px-2 rounded-lg bg-slate-100 text-slate-600 inline-block">{inv.serviceType}</div></td>
-                                        <td><div className="text-[14px] font-black text-navy-900">₹{inv.netAmount.toLocaleString()}</div></td>
-                                        <td><span className={`status-badge ${STATUS_COLORS[inv.status]}`}>{inv.status}</span></td>
-                                        <td style={{ textAlign: 'right' }}>
-                                            <div className="flex gap-2 justify-end">
-                                                <button onClick={() => setPrintInvoice(inv)} className="h-9 px-4 rounded-lg bg-slate-50 text-slate-600 text-[10px] font-black uppercase tracking-widest hover:bg-white border border-transparent hover:border-slate-200 transition-all shadow-sm">Audit Bill</button>
-                                                <button onClick={() => setPrintThermal(inv)} className="w-9 h-9 flex items-center justify-center rounded-lg bg-slate-50 text-cyan-600 shadow-sm border border-transparent hover:border-cyan-100"><Receipt size={16} /></button>
-                                                {inv.status === 'Paid' && <button onClick={() => setVoidInvoiceId(inv.id)} className="w-9 h-9 flex items-center justify-center rounded-lg bg-red-50 text-red-600 border border-transparent hover:border-red-100"><X size={16} /></button>}
+                                        <td style={{ padding: '16px' }}>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                <span style={{ fontWeight: 600, color: 'var(--color-navy)', fontSize: '14px' }}>{inv.patientName}</span>
+                                                <span style={{ fontSize: '11px', color: '#94A3B8' }}>{inv.patientUhId || 'Walk-in'}</span>
+                                            </div>
+                                        </td>
+                                        <td style={{ padding: '16px' }}>
+                                            <span className="badge badge-navy" style={{ fontSize: '10px', padding: '2px 8px' }}>{inv.serviceType}</span>
+                                        </td>
+                                        <td style={{ padding: '16px' }}>
+                                            <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-text-primary)' }}>₹{inv.netAmount.toLocaleString()}</span>
+                                        </td>
+                                        <td style={{ padding: '16px' }}>
+                                            <span className={`badge ${inv.status === 'Paid' ? 'badge-success' : inv.status === 'Pending' ? 'badge-warning' : 'badge-error'}`} style={{ padding: '4px 10px', fontSize: '11px' }}>
+                                                {inv.status}
+                                            </span>
+                                        </td>
+                                        <td style={{ padding: '16px', textAlign: 'right' }}>
+                                            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', alignItems: 'center' }}>
+                                                <button onClick={() => setPrintInvoice(inv)} className="btn btn-secondary btn-sm" style={{ height: '32px', fontSize: '12px', background: '#F8FAFC', border: '1px solid #E2E8F0', color: 'var(--color-navy)' }}>Audit</button>
+                                                <button onClick={() => setPrintThermal(inv)} className="btn btn-secondary btn-sm" style={{ width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Receipt size={14} /></button>
+                                                {inv.status === 'Paid' && <button onClick={() => setVoidInvoiceId(inv.id)} className="btn btn-secondary btn-sm" style={{ width: '32px', height: '32px', padding: 0, color: '#EF4444' }}><X size={14} /></button>}
                                             </div>
                                         </td>
                                     </tr>
@@ -309,17 +353,27 @@ export default function BillingPage() {
                             </thead>
                             <tbody>
                                 {loading ? [1, 2, 3, 4, 5].map(i => <tr key={i}><td colSpan="6"><Skeleton height="20px" /></td></tr>) : filteredAdvances.map(adv => (
-                                    <tr key={adv.id} className="hover:bg-slate-50 transition-all">
-                                        <td><div className="text-[13px] font-black text-navy-900 font-mono">{adv.receiptCode}</div></td>
-                                        <td>
-                                            <div className="text-[14px] font-black text-navy-900">{adv.patient?.firstName} {adv.patient?.lastName}</div>
-                                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-tight mt-1">{adv.patient?.patientCode}</div>
+                                    <tr key={adv.id} className="registry-row">
+                                        <td style={{ padding: '16px' }}>
+                                            <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-navy)', fontFamily: 'monospace' }}>{adv.receiptCode}</span>
                                         </td>
-                                        <td><div className="text-[14px] font-black text-emerald-600">₹{adv.amount.toLocaleString()}</div></td>
-                                        <td><div className="text-[12px] font-bold text-navy-900">{new Date(adv.createdAt).toLocaleDateString()}</div></td>
-                                        <td><div className="text-[10px] font-bold text-slate-400 uppercase">{adv.paymentMethod}</div></td>
-                                        <td style={{ textAlign: 'right' }}>
-                                            <button onClick={() => setPrintAdvance(adv)} className="h-9 px-4 rounded-lg bg-slate-50 text-slate-600 text-[10px] font-black uppercase tracking-widest shadow-sm">Print Token</button>
+                                        <td style={{ padding: '16px' }}>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                <span style={{ fontWeight: 600, color: 'var(--color-navy)', fontSize: '14px' }}>{adv.patient?.firstName} {adv.patient?.lastName}</span>
+                                                <span style={{ fontSize: '11px', color: '#94A3B8' }}>{adv.patient?.patientCode}</span>
+                                            </div>
+                                        </td>
+                                        <td style={{ padding: '16px' }}>
+                                            <span style={{ fontSize: '14px', fontWeight: 600, color: '#10B981' }}>₹{adv.amount.toLocaleString()}</span>
+                                        </td>
+                                        <td style={{ padding: '16px' }}>
+                                            <span style={{ fontSize: '13px', color: 'var(--color-text-primary)' }}>{new Date(adv.createdAt).toLocaleDateString()}</span>
+                                        </td>
+                                        <td style={{ padding: '16px' }}>
+                                            <span style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 600, textTransform: 'uppercase' }}>{adv.paymentMethod}</span>
+                                        </td>
+                                        <td style={{ padding: '16px', textAlign: 'right' }}>
+                                            <button onClick={() => setPrintAdvance(adv)} className="btn btn-secondary btn-sm" style={{ height: '32px', fontSize: '12px', background: '#F8FAFC', border: '1px solid #E2E8F0', padding: '0 12px' }}>Print</button>
                                         </td>
                                     </tr>
                                 ))}
@@ -331,97 +385,115 @@ export default function BillingPage() {
 
             {/* Modals & Popups (Refactored for style) */}
             {showAdvanceModal && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-sm">
-                    <div className="bg-white rounded-[24px] w-full max-w-[500px] p-8 shadow-2xl animate-scale-up">
-                        <div className="flex justify-between items-center mb-8">
-                            <h2 className="text-xl font-black text-navy-900">Capital Induction</h2>
-                            <button onClick={() => setShowAdvanceModal(false)} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-slate-50 text-slate-400 transition-all"><X size={20} /></button>
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-md">
+                    <div className="bg-white rounded-[32px] w-full max-w-[500px] p-10 shadow-2xl animate-scale-up border border-white/20">
+                        <div className="flex justify-between items-center mb-10">
+                            <div>
+                                <h2 className="text-2xl font-black text-navy-900 letter-spacing-tight">Capital Induction</h2>
+                                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Patient Deposit Protocls</p>
+                            </div>
+                            <button onClick={() => setShowAdvanceModal(false)} className="w-12 h-12 flex items-center justify-center rounded-full hover:bg-slate-50 text-slate-400 transition-all border border-slate-100"><X size={24} /></button>
                         </div>
-                        <form onSubmit={handleCreateAdvance} className="space-y-6">
+                        <form onSubmit={handleCreateAdvance} className="space-y-8">
                             <div className="relative">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 block">Account Search</label>
-                                <input value={patientSearch} onChange={e => { setPatientSearch(e.target.value); setSelectedPatient(null); }} placeholder="Find by UHID or Name..." className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-xl font-bold text-sm outline-none focus:border-cyan-500 transition-all" />
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3 block">Account Search</label>
+                                <div className="relative">
+                                    <Search size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400" />
+                                    <input value={patientSearch} onChange={e => { setPatientSearch(e.target.value); setSelectedPatient(null); }} placeholder="Find by UHID or Name..." className="w-full pl-14 pr-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl font-bold text-sm outline-none focus:border-cyan-500 focus:bg-white transition-all shadow-sm" />
+                                </div>
                                 {filteredPatients.length > 0 && !selectedPatient && (
-                                    <div className="absolute top-full left-0 right-0 z-10 mt-2 bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden">
+                                    <div className="absolute top-full left-0 right-0 z-10 mt-2 bg-white border border-slate-100 rounded-[24px] shadow-2xl overflow-hidden py-2 border-b-4 border-cyan-500">
                                         {filteredPatients.map(p => (
-                                            <div key={p.id} onClick={() => { setSelectedPatient(p); setPatientSearch(`${p.firstName} ${p.lastName} (${p.patientCode})`); }} className="p-4 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-0 transition-all">
-                                                <div className="font-black text-navy-900 text-sm">{p.firstName} {p.lastName}</div>
-                                                <div className="text-[10px] font-bold text-slate-400 uppercase">{p.patientCode}</div>
+                                            <div key={p.id} onClick={() => { setSelectedPatient(p); setPatientSearch(`${p.firstName} ${p.lastName} (${p.patientCode})`); }} className="p-5 hover:bg-slate-50 cursor-pointer border-b border-slate-50 last:border-0 transition-all group">
+                                                <div className="font-black text-navy-900 group-hover:text-cyan-600 transition-colors">{p.firstName} {p.lastName}</div>
+                                                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter mt-1">{p.patientCode} • {p.phone || 'NO CONTACT'}</div>
                                             </div>
                                         ))}
                                     </div>
                                 )}
                             </div>
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-2 gap-6">
                                 <div>
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 block">Principal Sum (₹)</label>
-                                    <input required type="number" value={advForm.amount} onChange={e => setAdvForm({ ...advForm, amount: e.target.value })} className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-xl font-black text-lg text-emerald-600 outline-none focus:border-emerald-500 transition-all" />
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3 block">Principal Sum (₹)</label>
+                                    <input required type="number" value={advForm.amount} onChange={e => setAdvForm({ ...advForm, amount: e.target.value })} className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl font-black text-2xl text-emerald-600 outline-none focus:border-emerald-500 focus:bg-white transition-all text-center shadow-sm" placeholder="0.00" />
                                 </div>
                                 <div>
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 block">Transaction Hub</label>
-                                    <select value={advForm.paymentMethod} onChange={e => setAdvForm({ ...advForm, paymentMethod: e.target.value })} className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-xl font-bold text-sm outline-none focus:border-cyan-500 transition-all appearance-none cursor-pointer">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3 block">Transaction Hub</label>
+                                    <select value={advForm.paymentMethod} onChange={e => setAdvForm({ ...advForm, paymentMethod: e.target.value })} className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl font-bold text-sm outline-none focus:border-cyan-500 focus:bg-white transition-all appearance-none cursor-pointer shadow-sm">
                                         {PAYMENT_METHODS.map(m => <option key={m}>{m}</option>)}
                                     </select>
                                 </div>
                             </div>
-                            <button disabled={advanceSaving || !selectedPatient} className="w-full py-4 rounded-xl bg-navy-900 text-white font-black uppercase tracking-[0.2em] text-xs shadow-xl shadow-slate-200 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50">Confirm Financial Ledger Posting</button>
+                            <button disabled={advanceSaving || !selectedPatient} className="w-full py-5 rounded-2xl bg-navy-900 text-white font-black uppercase tracking-[0.25em] text-[11px] shadow-xl shadow-slate-200 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-30 disabled:grayscale">
+                                {advanceSaving ? <Loader2 size={18} className="animate-spin mx-auto" /> : 'Confirm Financial Ledger Posting'}
+                            </button>
                         </form>
                     </div>
                 </div>
             )}
 
-            {/* Direct Invoice Modal */}
             {showModal && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-sm">
-                    <div className="bg-white rounded-[24px] w-full max-w-[560px] p-8 shadow-2xl animate-scale-up">
-                        <div className="flex justify-between items-center mb-8">
-                            <h2 className="text-xl font-black text-navy-900">Revenue Generation</h2>
-                            <button onClick={() => setShowModal(false)} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-slate-50 text-slate-400 transition-all"><X size={20} /></button>
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-md">
+                    <div className="bg-white rounded-[32px] w-full max-w-[560px] p-10 shadow-2xl animate-scale-up border border-white/20">
+                        <div className="flex justify-between items-center mb-10">
+                            <div>
+                                <h2 className="text-2xl font-black text-navy-900">Revenue Generation</h2>
+                                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Invoice Emission Protocols</p>
+                            </div>
+                            <button onClick={() => setShowModal(false)} className="w-12 h-12 flex items-center justify-center rounded-full hover:bg-slate-50 text-slate-400 transition-all border border-slate-100"><X size={24} /></button>
                         </div>
-                        <form onSubmit={handleCreate} className="space-y-6">
+                        <form onSubmit={handleCreate} className="space-y-8">
                             <div className="relative">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 block">Debtor Account</label>
+                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-3 block">Debtor Account</label>
                                 {selectedPatient ? (
-                                    <div className="flex justify-between p-4 bg-slate-50 border border-slate-200 rounded-xl items-center">
-                                        <div>
-                                            <div className="font-black text-navy-900 text-sm">{selectedPatient.firstName} {selectedPatient.lastName}</div>
-                                            <div className="text-[10px] font-bold text-slate-400 uppercase">{selectedPatient.patientCode}</div>
+                                    <div className="flex justify-between p-5 bg-slate-50 border-2 border-cyan-100 rounded-2xl items-center shadow-inner">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-10 h-10 rounded-full bg-cyan-600 text-white flex items-center justify-center font-bold">{selectedPatient.firstName[0]}</div>
+                                            <div>
+                                                <div className="font-bold text-navy-900 text-base">{selectedPatient.firstName} {selectedPatient.lastName}</div>
+                                                <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest leading-none mt-1">{selectedPatient.patientCode}</div>
+                                            </div>
                                         </div>
-                                        <button type="button" onClick={() => setSelectedPatient(null)} className="text-red-500 hover:bg-red-50 p-2 rounded-lg transition-all"><X size={16} /></button>
+                                        <button type="button" onClick={() => setSelectedPatient(null)} className="text-red-500 hover:bg-red-50 p-2.5 rounded-xl transition-all"><X size={20} /></button>
                                     </div>
                                 ) : (
-                                    <input value={patientSearch} onChange={e => setPatientSearch(e.target.value)} placeholder="Search Ledger Index..." className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-xl font-bold text-sm outline-none focus:border-cyan-500 transition-all" />
+                                    <div className="relative">
+                                        <Search size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400" />
+                                        <input value={patientSearch} onChange={e => setPatientSearch(e.target.value)} placeholder="Search Ledger Index..." className="w-full pl-14 pr-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl font-semibold text-sm outline-none focus:border-cyan-500 focus:bg-white transition-all shadow-sm" />
+                                    </div>
                                 )}
                                 {filteredPatients.length > 0 && !selectedPatient && (
-                                    <div className="absolute top-full left-0 right-0 z-10 mt-2 bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden">
+                                    <div className="absolute top-full left-0 right-0 z-10 mt-2 bg-white border border-slate-100 rounded-[24px] shadow-2xl overflow-hidden py-2 border-b-4 border-cyan-500">
                                         {filteredPatients.map(p => (
-                                            <div key={p.id} onClick={() => { setSelectedPatient(p); setPatientSearch(`${p.firstName} ${p.lastName} (${p.patientCode})`); }} className="p-4 hover:bg-slate-50 cursor-pointer border-b border-slate-100 transition-all">
-                                                <div className="font-black text-navy-900 text-sm">{p.firstName} {p.lastName}</div>
-                                                <div className="text-[10px] font-bold text-slate-400 uppercase">{p.patientCode}</div>
+                                            <div key={p.id} onClick={() => { setSelectedPatient(p); setPatientSearch(`${p.firstName} ${p.lastName} (${p.patientCode})`); }} className="p-5 hover:bg-slate-50 cursor-pointer border-b border-slate-50 transition-all group">
+                                                <div className="font-bold text-navy-900 group-hover:text-cyan-600 transition-colors">{p.firstName} {p.lastName}</div>
+                                                <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-tighter mt-1">{p.patientCode}</div>
                                             </div>
                                         ))}
                                     </div>
                                 )}
                             </div>
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-2 gap-6">
                                 <div>
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 block">Revenue Unit</label>
-                                    <select value={form.serviceType} onChange={e => setForm({ ...form, serviceType: e.target.value })} className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-xl font-bold text-sm outline-none focus:border-cyan-500 transition-all appearance-none cursor-pointer">
+                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-3 block">Revenue Unit</label>
+                                    <select value={form.serviceType} onChange={e => setForm({ ...form, serviceType: e.target.value })} className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl font-semibold text-sm outline-none focus:border-cyan-500 focus:bg-white transition-all appearance-none cursor-pointer shadow-sm">
                                         {SERVICE_TYPES.map(s => <option key={s}>{s}</option>)}
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 block">Settlement Sum (₹)</label>
-                                    <input required type="number" value={form.amount} onChange={e => setForm({ ...form, amount: e.target.value })} className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-xl font-black text-lg text-navy-900 outline-none focus:border-cyan-500 transition-all" />
+                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-3 block">Settlement Sum (₹)</label>
+                                    <input required type="number" value={form.amount} onChange={e => setForm({ ...form, amount: e.target.value })} className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl font-bold text-2xl text-navy-900 outline-none focus:border-cyan-500 focus:bg-white transition-all text-center" placeholder="0.00" />
                                 </div>
                             </div>
                             {requirePin && (
-                                <div className="p-4 bg-red-50 border border-red-100 rounded-2xl animate-pulse">
-                                    <label className="text-[10px] font-black text-red-600 uppercase tracking-[0.2em] mb-2 block text-center">Managerial Override Required</label>
-                                    <input type="password" value={managerPin} onChange={e => setManagerPin(e.target.value)} placeholder="Enter Secure PIN" className="w-full px-5 py-2.5 bg-white border border-red-200 rounded-lg text-center font-black outline-none focus:border-red-500" />
+                                <div className="p-6 bg-red-50 border border-red-100 rounded-[24px] animate-pulse">
+                                    <label className="text-[10px] font-bold text-red-600 uppercase tracking-[0.2em] mb-3 block text-center">Managerial Override Required</label>
+                                    <input type="password" value={managerPin} onChange={e => setManagerPin(e.target.value)} placeholder="••••" className="w-full px-6 py-3 bg-white border border-red-200 rounded-xl text-center font-bold text-2xl tracking-[0.5em] outline-none focus:border-red-500 shadow-sm" />
                                 </div>
                             )}
-                            <button disabled={saving} className="w-full py-4 rounded-xl bg-cyan-600 text-white font-black uppercase tracking-[0.2em] text-xs shadow-xl shadow-cyan-100 hover:bg-cyan-700 transition-all">Authorize & Emit Invoice</button>
+                            <button disabled={saving} className="w-full py-5 rounded-2xl bg-cyan-600 text-white font-bold uppercase tracking-[0.25em] text-[11px] shadow-xl shadow-cyan-100 hover:bg-cyan-700 hover:scale-[1.01] active:scale-[0.99] transition-all">
+                                {saving ? <Loader2 size={18} className="animate-spin mx-auto" /> : 'Authorize & Emit Invoice'}
+                            </button>
                         </form>
                     </div>
                 </div>

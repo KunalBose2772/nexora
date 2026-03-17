@@ -1,16 +1,18 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { Settings, Shield, Bell, Database, Hospital, Mail, Building2, Save, CheckCircle, Loader2, Globe, IndianRupee, Palette, Printer, ArrowRight, ShieldCheck, HardDrive, Share2, Languages, Key, UserCheck, Smartphone, ChevronRight, X, LayoutDashboard, Siren, Ghost, Monitor, Activity } from 'lucide-react';
-import Skeleton from '@/components/common/Skeleton';
+import { Settings, Shield, Bell, Database, Hospital, Mail, Building2, Save, CheckCircle, Loader2, Globe, IndianRupee } from 'lucide-react';
 
 const TABS = [
-    { label: 'Hospital Profile', icon: Hospital, key: 'profile', desc: 'Global identity & contact records' },
-    { label: 'Branding & Prints', icon: Palette, key: 'branding', desc: 'Visual identity & document layout' },
-    { label: 'Billing & Currency', icon: IndianRupee, key: 'billing', desc: 'Tax rules, rates & localization' },
-    { label: 'Security & Governance', icon: ShieldCheck, key: 'security', desc: 'Audit trails & clinical workflows' },
-    { label: 'Notification Engine', icon: Mail, key: 'smtp', desc: 'SMTP, SMS & Push configurations' },
-    { label: 'Warehouse & Data', icon: Database, key: 'backup', desc: 'Cloud backups & data portability' },
+    { label: 'Hospital Profile', icon: Hospital, key: 'profile' },
+    { label: 'Billing & Currency', icon: IndianRupee, key: 'billing' },
+    { label: 'Security & Access', icon: Shield, key: 'security' },
+    { label: 'SMTP / Email', icon: Mail, key: 'smtp' },
+    { label: 'Backup & Data', icon: Database, key: 'backup' },
 ];
+
+const inputStyle = { width: '100%', padding: '11px 14px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px', outline: 'none', background: '#fff', fontFamily: 'inherit', boxSizing: 'border-box' };
+const labelStyle = { display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '7px' };
+const hintStyle = { fontSize: '12px', color: '#94A3B8', margin: '0 0 8px' };
 
 export default function SettingsPage() {
     const [activeTab, setActiveTab] = useState('profile');
@@ -24,11 +26,9 @@ export default function SettingsPage() {
         name: '', phone: '', address: '', tagline: '', description: '',
         primaryColor: '#10B981', logoInitials: '', logoUrl: '', heroImage: '', mapUrl: '',
         metaTitle: '', metaDescription: '', faviconUrl: '', servicesContent: '',
-        gstNumber: '', hfrNumber: '', printTerms: '', footerSignature: '',
-        requireRxApproval: false, enablePanicAlarms: true
     });
 
-    const updateField = (key, value) => setForm(prev => ({ ...prev, [key]: value }));
+    const f = (k) => (v) => setForm(prev => ({ ...prev, [k]: v.target ? v.target.value : v }));
 
     useEffect(() => {
         const load = async () => {
@@ -40,10 +40,20 @@ export default function SettingsPage() {
                     const t = data.tenant;
                     setTenant(t);
                     setForm({
-                        ...form,
-                        ...t,
-                        requireRxApproval: t.requireRxApproval || false,
-                        enablePanicAlarms: t.enablePanicAlarms || false,
+                        name: t.name || '',
+                        phone: t.phone || '',
+                        address: t.address || '',
+                        tagline: t.tagline || '',
+                        description: t.description || '',
+                        primaryColor: t.primaryColor || '#10B981',
+                        logoInitials: t.logoInitials || '',
+                        logoUrl: t.logoUrl || '',
+                        heroImage: t.heroImage || '',
+                        mapUrl: t.mapUrl || '',
+                        metaTitle: t.metaTitle || '',
+                        metaDescription: t.metaDescription || '',
+                        faviconUrl: t.faviconUrl || '',
+                        servicesContent: t.servicesContent || '',
                     });
                 }
             } catch (e) { setError('Failed to load settings.'); }
@@ -67,244 +77,321 @@ export default function SettingsPage() {
         finally { setSaving(false); }
     };
 
-    const inputClasses = "w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold focus:border-cyan-500 outline-none transition-all shadow-sm";
-    const labelClasses = "block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2";
+    const SectionCard = ({ title, subtitle, children }) => (
+        <div className="card" style={{ padding: 0, marginBottom: '24px' }}>
+            <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--color-border-light)' }}>
+                <h2 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-navy)', margin: 0 }}>{title}</h2>
+                {subtitle && <p style={{ fontSize: '13px', color: 'var(--color-text-secondary)', margin: '4px 0 0 0' }}>{subtitle}</p>}
+            </div>
+            <div style={{ padding: '24px' }}>{children}</div>
+        </div>
+    );
+
+    const Row = ({ children }) => (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', marginBottom: '20px' }}>
+            {children}
+        </div>
+    );
 
     return (
-        <div className="fade-in pb-12">
-            <style jsx>{`
-                .sidebar-btn {
-                    width: 100%;
-                    text-align: left;
-                    padding: 16px;
-                    border-radius: 20px;
-                    border: 1px solid transparent;
-                    background: transparent;
-                    display: flex;
-                    align-items: center;
-                    gap: 16px;
-                    cursor: pointer;
-                    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-                }
-                .sidebar-btn:hover {
-                    background: rgba(255,255,255,0.6);
-                    border-color: rgba(0,0,0,0.05);
-                }
-                .sidebar-btn.active {
-                    background: #fff;
-                    border-color: #E2E8F0;
-                    box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
-                    color: #0F172A;
-                }
-                .sidebar-btn.active .icon-container {
-                    background: #0F172A;
-                    color: #fff;
-                }
-                .icon-container {
-                    width: 40px;
-                    height: 40px;
-                    border-radius: 12px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    background: #F1F5F9;
-                    color: #64748B;
-                    transition: all 0.2s;
-                }
-                .settings-card {
-                    background: #fff;
-                    border: 1px solid var(--color-border-light);
-                    border-radius: 32px;
-                    overflow: hidden;
-                    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
-                }
-            `}</style>
-
-            <div className="dashboard-header-row mb-10">
+        <div className="fade-in">
+            <div className="dashboard-header-row">
                 <div>
-                    <h1 className="page-header__title" style={{ marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <Settings size={32} className="text-slate-400" />
-                        System Architecture
-                    </h1>
-                    <p className="page-header__subtitle">Precision orchestration of hospital workflows, automated clinical policies, and security governance.</p>
+                    <h1 className="page-header__title" style={{ marginBottom: '4px' }}>System Configuration</h1>
+                    <p className="page-header__subtitle">Manage global hospital settings, preferences, billing rules, and integrations.</p>
                 </div>
                 <div className="dashboard-header-buttons">
-                    <button className="btn btn-secondary btn-sm h-11 px-6 bg-white" onClick={() => window.location.reload()}>Sync State</button>
-                    <button className="btn btn-primary btn-sm h-11 px-8 flex items-center gap-2" onClick={handleSave} disabled={saving || loading}>
-                        {saving ? <Loader2 size={16} className="animate-spin" /> : saved ? <CheckCircle size={16} /> : <Save size={16} />}
-                        {saving ? 'Synchronizing…' : saved ? 'State Preserved' : 'Apply Changes'}
+                    <button className="btn btn-secondary btn-sm" style={{ background: '#fff' }} onClick={() => window.location.reload()}>Discard Changes</button>
+                    <button className="btn btn-primary btn-sm" onClick={handleSave} disabled={saving || loading}>
+                        {saving ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : saved ? <CheckCircle size={14} /> : <Save size={14} />}
+                        {saving ? 'Saving…' : saved ? 'Saved!' : 'Save Configuration'}
                     </button>
                 </div>
             </div>
+            <style>{`@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}`}</style>
 
-            <div className="flex flex-col lg:flex-row gap-10 items-start">
-                <div className="w-full lg:w-[320px] flex flex-col gap-3 shrink-0">
+            {error && <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: '10px', padding: '12px 16px', marginBottom: '20px', color: '#DC2626', fontSize: '14px' }}>{error}</div>}
+            {saved && <div style={{ background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: '10px', padding: '12px 16px', marginBottom: '20px', color: '#065F46', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle size={16} /> Settings saved successfully!</div>}
+
+            <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: '24px', alignItems: 'start' }}>
+                {/* Sidebar */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', position: 'sticky', top: '24px' }}>
                     {TABS.map(tab => (
-                        <button key={tab.key} onClick={() => setActiveTab(tab.key)} className={`sidebar-btn ${activeTab === tab.key ? 'active' : ''}`}>
-                            <div className="icon-container shadow-sm">
-                                <tab.icon size={18} />
-                            </div>
-                            <div className="flex-1">
-                                <div className="text-[13px] font-black tracking-tight">{tab.label}</div>
-                                <div className="text-[10px] text-slate-400 font-bold uppercase tracking-tight mt-0.5">{tab.desc}</div>
-                            </div>
-                            <ChevronRight size={14} className={`text-slate-200 transition-all ${activeTab === tab.key ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-2'}`} />
+                        <button key={tab.key} onClick={() => setActiveTab(tab.key)} style={{
+                            display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px',
+                            borderRadius: '8px', border: 'none', cursor: 'pointer', textAlign: 'left',
+                            fontWeight: activeTab === tab.key ? 600 : 500, fontSize: '14px', transition: 'all 0.15s',
+                            color: activeTab === tab.key ? 'var(--color-cyan)' : 'var(--color-text-secondary)',
+                            background: activeTab === tab.key ? 'rgba(0,194,255,0.1)' : 'transparent',
+                        }}>
+                            <tab.icon size={17} />
+                            {tab.label}
                         </button>
                     ))}
                 </div>
 
-                <div className="flex-1 w-full min-w-0">
+                {/* Content */}
+                <div>
                     {loading ? (
-                        <div className="settings-card p-32 flex flex-col items-center justify-center text-slate-400 gap-6">
-                            <Loader2 size={40} className="animate-spin text-cyan-500" />
-                            <p className="font-black text-xs uppercase tracking-[0.3em] animate-pulse">Accessing Core Registry...</p>
+                        <div style={{ padding: '60px', textAlign: 'center', color: '#94A3B8', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+                            <Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} /> Loading settings…
                         </div>
                     ) : (
-                        <div className="settings-card shadow-2xl shadow-slate-200/50">
-                            <div className="px-10 py-8 border-b border-slate-100 bg-slate-50/20 flex items-center justify-between">
-                                <div>
-                                    <h2 className="text-xl font-black text-navy-900 leading-none mb-2">{TABS.find(t => t.key === activeTab).label}</h2>
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{TABS.find(t => t.key === activeTab).desc}</p>
-                                </div>
-                                <div className="w-12 h-12 rounded-2xl bg-white border border-slate-100 flex items-center justify-center shadow-lg shadow-slate-100 text-cyan-500">
-                                    <ShieldCheck size={24} />
-                                </div>
-                            </div>
-
-                            <div className="p-10">
-                                {activeTab === 'profile' && (
-                                    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                            <div className="space-y-2">
-                                                <label className={labelClasses}>Hospital Entity Name</label>
-                                                <input className={inputClasses} type="text" value={form.name} onChange={e => updateField('name', e.target.value)} placeholder="e.g. Nexora Multispeciality" />
+                        <>
+                            {activeTab === 'profile' && (
+                                <>
+                                    <SectionCard title="Hospital Identity" subtitle="This information appears on invoices, reports, prescriptions, and your public website.">
+                                        <Row>
+                                            <div>
+                                                <label style={labelStyle}>Hospital / Clinic Name</label>
+                                                <input style={inputStyle} type="text" value={form.name} onChange={f('name')} placeholder="Apollo Health Systems" />
                                             </div>
-                                            <div className="space-y-2">
-                                                <label className={labelClasses}>Critical Hotline</label>
-                                                <input className={inputClasses} type="tel" value={form.phone} onChange={e => updateField('phone', e.target.value)} placeholder="+91 1800-000-0000" />
+                                            <div>
+                                                <label style={labelStyle}>Primary Helpline Number</label>
+                                                <input style={inputStyle} type="tel" value={form.phone} onChange={f('phone')} placeholder="+91 1800-000-0000" />
                                             </div>
-                                            <div className="md:col-span-2 space-y-2">
-                                                <label className={labelClasses}>Geographic HQ Address</label>
-                                                <textarea rows={3} className={`${inputClasses} resize-none`} value={form.address} onChange={e => updateField('address', e.target.value)} placeholder="Full physical location details..." />
+                                        </Row>
+                                        <Row>
+                                            <div>
+                                                <label style={labelStyle}>Tagline</label>
+                                                <p style={hintStyle}>Shown as the hero headline on your public website</p>
+                                                <input style={inputStyle} type="text" value={form.tagline} onChange={f('tagline')} placeholder="Your Health, Our Priority" />
                                             </div>
-                                            <div className="space-y-2">
-                                                <label className={labelClasses}>Organizational Tagline</label>
-                                                <input className={inputClasses} type="text" value={form.tagline} onChange={e => updateField('tagline', e.target.value)} placeholder="Precision. Care. Legacy." />
+                                            <div>
+                                                <label style={labelStyle}>Admin Email</label>
+                                                <p style={hintStyle}>Read-only — contact support to change</p>
+                                                <input style={{ ...inputStyle, background: '#F8FAFC', color: '#94A3B8' }} type="email" value={tenant?.adminEmail || ''} disabled />
                                             </div>
-                                            <div className="space-y-2">
-                                                <label className={labelClasses}>Global Search Title</label>
-                                                <input className={inputClasses} type="text" value={form.metaTitle} onChange={e => updateField('metaTitle', e.target.value)} placeholder="Hospital Title for Web Search" />
-                                            </div>
+                                        </Row>
+                                        <div style={{ marginBottom: '20px' }}>
+                                            <label style={labelStyle}>Registered Address</label>
+                                            <textarea rows={2} style={{ ...inputStyle, resize: 'vertical' }} value={form.address} onChange={f('address')} placeholder="123 Health Avenue, Medical District, Mumbai - 400001" />
                                         </div>
-                                    </div>
-                                )}
+                                        <div>
+                                            <label style={labelStyle}>About Your Hospital</label>
+                                            <p style={hintStyle}>2–3 sentences shown in the hero section and footer of your public website</p>
+                                            <textarea rows={3} style={{ ...inputStyle, resize: 'vertical' }} value={form.description} onChange={f('description')} placeholder="Describe your hospital — specialities, experience, accreditations…" />
+                                        </div>
+                                    </SectionCard>
 
-                                {activeTab === 'branding' && (
-                                    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                            <div className="space-y-2">
-                                                <label className={labelClasses}>GSTIN Identifier</label>
-                                                <input className={inputClasses} type="text" value={form.gstNumber} onChange={e => updateField('gstNumber', e.target.value)} placeholder="GST Number" />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <label className={labelClasses}>HFR Registry No.</label>
-                                                <input className={inputClasses} type="text" value={form.hfrNumber} onChange={e => updateField('hfrNumber', e.target.value)} placeholder="Hospital Registry No." />
-                                            </div>
-                                            <div className="md:col-span-2 space-y-2">
-                                                <label className={labelClasses}>Official Print Terms</label>
-                                                <textarea rows={3} className={`${inputClasses} resize-none`} value={form.printTerms} onChange={e => updateField('printTerms', e.target.value)} placeholder="Disclaimers shown on bills and prescriptions..." />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <label className={labelClasses}>Interface Primary Color</label>
-                                                <div className="flex gap-3">
-                                                    <input type="color" value={form.primaryColor} onChange={e => updateField('primaryColor', e.target.value)} className="w-14 h-14 border-0 rounded-2xl cursor-pointer bg-transparent shadow-lg shadow-slate-200" />
-                                                    <input className={inputClasses} type="text" value={form.primaryColor} onChange={e => updateField('primaryColor', e.target.value)} />
+                                    <SectionCard title="Branding & Appearance" subtitle="Configure your brand color, logo initials, and image URLs for the public website.">
+                                        <Row>
+                                            <div>
+                                                <label style={labelStyle}>Brand / Primary Color</label>
+                                                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                                    <input type="color" value={form.primaryColor} onChange={f('primaryColor')} style={{ width: '48px', height: '44px', border: '1px solid #E2E8F0', borderRadius: '8px', cursor: 'pointer', padding: '3px' }} />
+                                                    <input type="text" value={form.primaryColor} onChange={f('primaryColor')} style={{ ...inputStyle, fontFamily: 'monospace', letterSpacing: '0.04em' }} />
                                                 </div>
                                             </div>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {activeTab === 'security' && (
-                                    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                        <div className="grid grid-cols-1 gap-4">
-                                            <div className="p-6 rounded-[24px] bg-slate-50 border border-slate-100 flex items-center justify-between hover:bg-white hover:shadow-xl hover:shadow-slate-200/50 hover:border-cyan-100 transition-all cursor-pointer">
-                                                <div className="flex gap-5 items-center">
-                                                    <div className="w-12 h-12 rounded-2xl bg-white shadow-sm text-cyan-500 flex items-center justify-center"><UserCheck size={24} /></div>
-                                                    <div>
-                                                        <div className="text-sm font-black text-navy-900 mb-0.5">Clinical Rx Proxy Gatekeeper</div>
-                                                        <div className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">Require senior sign-off for restricted narcotics and psychotropics.</div>
-                                                    </div>
-                                                </div>
-                                                <label className="relative inline-flex items-center cursor-pointer scale-110">
-                                                    <input type="checkbox" className="sr-only peer" checked={form.requireRxApproval} onChange={e => updateField('requireRxApproval', e.target.checked)} />
-                                                    <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyan-500"></div>
-                                                </label>
+                                            <div>
+                                                <label style={labelStyle}>Logo Initials (fallback)</label>
+                                                <p style={hintStyle}>Used when no logo URL is set</p>
+                                                <input type="text" maxLength={3} value={form.logoInitials} onChange={e => setForm(p => ({ ...p, logoInitials: e.target.value.toUpperCase() }))}
+                                                    style={{ ...inputStyle, letterSpacing: '0.12em', fontWeight: 800, textTransform: 'uppercase', textAlign: 'center', fontSize: '16px' }} placeholder="NH" />
                                             </div>
-
-                                            <div className="p-6 rounded-[24px] bg-slate-50 border border-slate-100 flex items-center justify-between hover:bg-white hover:shadow-xl hover:shadow-slate-200/50 hover:border-red-100 transition-all cursor-pointer">
-                                                <div className="flex gap-5 items-center">
-                                                    <div className="w-12 h-12 rounded-2xl bg-white shadow-sm text-red-500 flex items-center justify-center"><Siren size={24} /></div>
-                                                    <div>
-                                                        <div className="text-sm font-black text-navy-900 mb-0.5">Critical Lab Panic Protocols</div>
-                                                        <div className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">Automatic HOD broadcast for physiological panic parameters.</div>
-                                                    </div>
-                                                </div>
-                                                <label className="relative inline-flex items-center cursor-pointer scale-110">
-                                                    <input type="checkbox" className="sr-only peer" checked={form.enablePanicAlarms} onChange={e => updateField('enablePanicAlarms', e.target.checked)} />
-                                                    <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-500"></div>
-                                                </label>
+                                        </Row>
+                                        <Row>
+                                            <div>
+                                                <label style={labelStyle}>Logo Image URL</label>
+                                                <p style={hintStyle}>Direct URL to PNG, SVG, or WebP</p>
+                                                <input type="url" style={inputStyle} value={form.logoUrl} onChange={f('logoUrl')} placeholder="https://example.com/logo.png" />
                                             </div>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {activeTab === 'backup' && (
-                                    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            {[
-                                                { label: 'Cloud Mirror (EHR)', icon: <Share2 size={24} />, meta: 'Last synced 4h ago', color: 'text-cyan-500' },
-                                                { label: 'DB Cold Archive', icon: <Database size={24} />, meta: 'Weekly SQL Snapshot', color: 'text-purple-500' },
-                                                { label: 'MPI Master Port', icon: <UserCheck size={24} />, meta: 'Interoperability JSON', color: 'text-emerald-500' },
-                                                { label: 'Fiscal Ledger Box', icon: <Key size={24} />, meta: 'Encrypted Audit Log', color: 'text-amber-500' },
-                                            ].map(item => (
-                                                <div key={item.label} className="p-6 rounded-[24px] border border-slate-100 hover:border-slate-200 bg-slate-50/50 flex items-center gap-6 cursor-pointer transition-all hover:scale-[1.02] group">
-                                                    <div className={`w-14 h-14 rounded-2xl bg-white shadow-sm flex items-center justify-center shrink-0 ${item.color}`}>{item.icon}</div>
-                                                    <div className="flex-1">
-                                                        <div className="text-[14px] font-black text-navy-900 mb-0.5">{item.label}</div>
-                                                        <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{item.meta}</div>
-                                                    </div>
-                                                    <ChevronRight size={16} className="text-slate-200 group-hover:text-slate-400 group-hover:translate-x-1 transition-all" />
-                                                </div>
-                                            ))}
-                                        </div>
-
-                                        <div className="p-10 rounded-[32px] bg-slate-900 text-white flex flex-col items-center text-center gap-6 relative overflow-hidden">
-                                            <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/10 blur-[100px] rounded-full translate-x-1/2 -translate-y-1/2"></div>
-                                            <div className="w-20 h-20 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center text-cyan-400 shadow-2xl relative z-1"><HardDrive size={36} /></div>
-                                            <div className="relative z-1">
-                                                <h3 className="text-xl font-black mb-2">Immutable Cold Storage</h3>
-                                                <p className="text-sm text-slate-400 max-w-sm font-bold">Initiating a full environment dump will freeze non-emergency writes for approximately 180 seconds.</p>
+                                            <div>
+                                                <label style={labelStyle}>Hero Background Image URL</label>
+                                                <p style={hintStyle}>1920×1080 recommended. Uses gradient if empty.</p>
+                                                <input type="url" style={inputStyle} value={form.heroImage} onChange={f('heroImage')} placeholder="https://example.com/hero.jpg" />
                                             </div>
-                                            <button className="px-10 py-4 bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-black uppercase tracking-[0.2em] text-xs rounded-2xl transition-all shadow-2xl shadow-cyan-500/30 active:scale-95 relative z-1">Force Migration Drip</button>
+                                        </Row>
+                                        <Row>
+                                            <div>
+                                                <label style={labelStyle}>Map iframe src URL</label>
+                                                <p style={hintStyle}>Google Maps Embed src URL (e.g. https://www.google.com/maps/embed?...)</p>
+                                                <input type="url" style={inputStyle} value={form.mapUrl} onChange={f('mapUrl')} placeholder="https://www.google.com/maps/embed?..." />
+                                            </div>
+                                        </Row>
+
+                                        {/* Live preview strip */}
+                                        <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+                                            <div style={{ width: '44px', height: '44px', borderRadius: '10px', background: `linear-gradient(135deg, ${form.primaryColor}, ${form.primaryColor}cc)`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                                {form.logoUrl
+                                                    ? <img src={form.logoUrl} alt="logo" style={{ height: '34px', maxWidth: '44px', objectFit: 'contain', borderRadius: '6px' }} onError={e => e.currentTarget.style.display = 'none'} />
+                                                    : <span style={{ color: '#fff', fontWeight: 900, fontSize: '13px' }}>{form.logoInitials || form.name?.substring(0, 2).toUpperCase() || 'NH'}</span>}
+                                            </div>
+                                            <div>
+                                                <div style={{ fontWeight: 700, color: 'var(--color-navy)', fontSize: '15px' }}>{form.name || 'Hospital Name'}</div>
+                                                <div style={{ fontSize: '12px', color: '#94A3B8' }}>{form.tagline || 'Your Health, Our Priority'}</div>
+                                            </div>
+                                            <div style={{ marginLeft: 'auto', fontSize: '12px', color: '#94A3B8' }}>Live Preview</div>
                                         </div>
+                                    </SectionCard>
+
+                                    <SectionCard title="SEO, Meta & Services" subtitle="Configure page titles, descriptions, favicon and services displayed on the public landing page.">
+                                        <Row>
+                                            <div>
+                                                <label style={labelStyle}>Meta Title</label>
+                                                <p style={hintStyle}>Browser tab title (SEO)</p>
+                                                <input type="text" style={inputStyle} value={form.metaTitle} onChange={f('metaTitle')} placeholder="Apollo Hospital - Your Health Priority" />
+                                            </div>
+                                            <div>
+                                                <label style={labelStyle}>Favicon URL</label>
+                                                <p style={hintStyle}>Direct URL to .ico or .png file</p>
+                                                <input type="url" style={inputStyle} value={form.faviconUrl} onChange={f('faviconUrl')} placeholder="https://example.com/favicon.png" />
+                                            </div>
+                                        </Row>
+                                        <div style={{ marginBottom: '20px' }}>
+                                            <label style={labelStyle}>Meta Description</label>
+                                            <p style={hintStyle}>Short description for search engines</p>
+                                            <textarea rows={2} style={{ ...inputStyle, resize: 'vertical' }} value={form.metaDescription} onChange={f('metaDescription')} placeholder="Best hospital providing 24x7 emergency and top doctors..." />
+                                        </div>
+                                        <div style={{ marginBottom: '20px' }}>
+                                            <label style={labelStyle}>Services / Departments List</label>
+                                            <p style={hintStyle}>Comma-separated list of services provided. e.g. Cardiology, Neurology, Pediatrics</p>
+                                            <textarea rows={3} style={{ ...inputStyle, resize: 'vertical' }} value={form.servicesContent} onChange={f('servicesContent')} placeholder="Cardiology, Neurology, Pediatrics, Orthopedics..." />
+                                        </div>
+                                    </SectionCard>
+
+                                    {/* Read-only plan info */}
+                                    <SectionCard title="Subscription & Plan" subtitle="Managed by Nexora Health. Contact support to upgrade.">
+                                        <Row>
+                                            <div>
+                                                <label style={labelStyle}>Current Plan</label>
+                                                <input style={{ ...inputStyle, background: '#F8FAFC', color: '#94A3B8', fontWeight: 600 }} value={tenant?.plan || '—'} disabled />
+                                            </div>
+                                            <div>
+                                                <label style={labelStyle}>Tenant Code</label>
+                                                <input style={{ ...inputStyle, background: '#F8FAFC', color: '#94A3B8', fontFamily: 'monospace' }} value={tenant?.tenantCode || '—'} disabled />
+                                            </div>
+                                            <div>
+                                                <label style={labelStyle}>Hospital Slug (URL)</label>
+                                                <input style={{ ...inputStyle, background: '#F8FAFC', color: '#94A3B8', fontFamily: 'monospace' }} value={tenant?.slug ? `/${tenant.slug}` : '—'} disabled />
+                                            </div>
+                                            <div>
+                                                <label style={labelStyle}>Account Status</label>
+                                                <input style={{ ...inputStyle, background: '#F8FAFC', color: tenant?.status === 'Active' ? '#16A34A' : '#DC2626', fontWeight: 600 }} value={tenant?.status || '—'} disabled />
+                                            </div>
+                                        </Row>
+                                    </SectionCard>
+                                </>
+                            )}
+
+                            {activeTab === 'billing' && (
+                                <SectionCard title="Billing & Currency" subtitle="Configure billing defaults, tax settings, and currency preferences.">
+                                    <Row>
+                                        <div>
+                                            <label style={labelStyle}>Default Currency</label>
+                                            <select style={{ ...inputStyle, cursor: 'pointer' }}>
+                                                <option>INR (₹) Indian Rupee</option>
+                                                <option>USD ($) US Dollar</option>
+                                                <option>GBP (£) British Pound</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label style={labelStyle}>GST / Tax Rate (%)</label>
+                                            <input style={inputStyle} type="number" defaultValue="5" min="0" max="100" />
+                                        </div>
+                                        <div>
+                                            <label style={labelStyle}>Default Payment Method</label>
+                                            <select style={{ ...inputStyle, cursor: 'pointer' }}>
+                                                <option>Cash</option>
+                                                <option>UPI</option>
+                                                <option>Credit Card</option>
+                                                <option>TPA / Insurance</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label style={labelStyle}>Invoice Prefix</label>
+                                            <input style={inputStyle} type="text" defaultValue="INV" placeholder="INV" />
+                                        </div>
+                                    </Row>
+                                    <div style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: '10px', padding: '14px 18px', fontSize: '13px', color: '#1E40AF' }}>
+                                        ℹ️ Tax rate changes apply to new invoices only. Existing invoices are not retroactively updated.
                                     </div>
-                                )}
-                            </div>
-                        </div>
+                                </SectionCard>
+                            )}
+
+                            {activeTab === 'security' && (
+                                <SectionCard title="Security & Access Control" subtitle="Configure password policies, session timeout, and access restrictions.">
+                                    <Row>
+                                        <div>
+                                            <label style={labelStyle}>Session Timeout (minutes)</label>
+                                            <input style={inputStyle} type="number" defaultValue="60" min="5" />
+                                        </div>
+                                        <div>
+                                            <label style={labelStyle}>Minimum Password Length</label>
+                                            <input style={inputStyle} type="number" defaultValue="8" min="6" />
+                                        </div>
+                                    </Row>
+                                    <Row>
+                                        {[
+                                            { label: 'Require uppercase in passwords', defaultChecked: true },
+                                            { label: 'Require special character in passwords', defaultChecked: true },
+                                            { label: 'Enable two-factor authentication (2FA)', defaultChecked: false },
+                                            { label: 'Lock account after 5 failed login attempts', defaultChecked: true },
+                                        ].map(item => (
+                                            <label key={item.label} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '14px', color: 'var(--color-text-primary)' }}>
+                                                <input type="checkbox" defaultChecked={item.defaultChecked} style={{ width: '16px', height: '16px', accentColor: 'var(--color-cyan)' }} />
+                                                {item.label}
+                                            </label>
+                                        ))}
+                                    </Row>
+                                </SectionCard>
+                            )}
+
+                            {activeTab === 'smtp' && (
+                                <SectionCard title="SMTP / Email Configuration" subtitle="Configure outbound email for reports, notifications, and receipts.">
+                                    <Row>
+                                        <div>
+                                            <label style={labelStyle}>SMTP Host</label>
+                                            <input style={inputStyle} type="text" placeholder="smtp.gmail.com" />
+                                        </div>
+                                        <div>
+                                            <label style={labelStyle}>SMTP Port</label>
+                                            <input style={inputStyle} type="number" placeholder="587" />
+                                        </div>
+                                        <div>
+                                            <label style={labelStyle}>SMTP Username / Email</label>
+                                            <input style={inputStyle} type="email" placeholder="notifications@yourhospital.com" />
+                                        </div>
+                                        <div>
+                                            <label style={labelStyle}>SMTP Password</label>
+                                            <input style={inputStyle} type="password" placeholder="App password or SMTP key" />
+                                        </div>
+                                    </Row>
+                                    <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: '10px', padding: '14px 18px', fontSize: '13px', color: '#92400E' }}>
+                                        ⚠️ Use app-specific passwords with Gmail. Never use your main Google account password here.
+                                    </div>
+                                </SectionCard>
+                            )}
+
+                            {activeTab === 'backup' && (
+                                <SectionCard title="Backup & Data Management" subtitle="Export your hospital data or restore from a previous backup.">
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
+                                        {[
+                                            { label: 'Export Patient Records', desc: 'All patient data as CSV', icon: '📋' },
+                                            { label: 'Export Appointment History', desc: 'All appointments as CSV', icon: '📅' },
+                                            { label: 'Export Pharmacy Inventory', desc: 'Medicine stock as CSV', icon: '💊' },
+                                            { label: 'Export Billing Records', desc: 'All invoices as CSV', icon: '🧾' },
+                                        ].map(item => (
+                                            <div key={item.label} style={{ border: '1px solid #E2E8F0', borderRadius: '12px', padding: '18px', display: 'flex', alignItems: 'center', gap: '14px', cursor: 'pointer', transition: 'all 0.15s' }}
+                                                onMouseOver={e => { e.currentTarget.style.borderColor = 'var(--color-cyan)'; e.currentTarget.style.background = '#F0FDFF'; }}
+                                                onMouseOut={e => { e.currentTarget.style.borderColor = '#E2E8F0'; e.currentTarget.style.background = '#fff'; }}>
+                                                <div style={{ fontSize: '24px' }}>{item.icon}</div>
+                                                <div>
+                                                    <div style={{ fontWeight: 600, fontSize: '14px', color: 'var(--color-navy)' }}>{item.label}</div>
+                                                    <div style={{ fontSize: '12px', color: '#94A3B8' }}>{item.desc}</div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: '10px', padding: '14px 18px', fontSize: '13px', color: '#991B1B' }}>
+                                        🔴 Data deletion is irreversible. Contact Nexora Health support before performing any destructive operations.
+                                    </div>
+                                </SectionCard>
+                            )}
+                        </>
                     )}
                 </div>
             </div>
-
-            {saved && (
-                <div className="fixed bottom-12 right-12 bg-emerald-600 text-white px-8 py-5 rounded-[24px] shadow-2xl flex items-center gap-5 animate-in fade-in slide-in-from-bottom-12 z-[200]">
-                    <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center shadow-inner"><CheckCircle size={24} /></div>
-                    <div>
-                        <div className="text-sm font-black leading-tight">Sync Established</div>
-                        <div className="text-[10px] font-black opacity-70 uppercase tracking-[0.2em] mt-0.5">Master state distributed to all nodes</div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }

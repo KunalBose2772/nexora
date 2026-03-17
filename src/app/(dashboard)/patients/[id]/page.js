@@ -47,6 +47,13 @@ export default function PatientProfilePage() {
                     <Link href="/patients" className="btn btn-secondary btn-sm" style={{ padding: '8px', border: 'none', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
                         <ArrowLeft size={18} />
                     </Link>
+                    <div style={{ width: '64px', height: '64px', borderRadius: '16px', overflow: 'hidden', background: '#F1F5F9', border: '2px solid #fff', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        {patient.photo ? (
+                            <img src={patient.photo} alt={patient.firstName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        ) : (
+                            <User size={32} color="#CBD5E1" />
+                        )}
+                    </div>
                     <div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '4px' }}>
                             <h1 className="page-header__title" style={{ margin: 0 }}>
@@ -184,6 +191,9 @@ export default function PatientProfilePage() {
                                 </div>
                                 <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--color-navy)' }}>Uploaded Records</h3>
                             </div>
+                            <Link href={`/patients/records/${patient.patientCode}`} style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-cyan)', textDecoration: 'none' }}>
+                                View Full History
+                            </Link>
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                             {patient.records && patient.records.length > 0 ? (

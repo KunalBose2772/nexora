@@ -226,6 +226,8 @@ export default function LoginPage() {
                                 // Redirect based on role
                                 if (data.user.role === 'superadmin') {
                                     router.push('/super-admin');
+                                } else if (data.user.role === 'patient') {
+                                    router.push('/patient-portal');
                                 } else {
                                     router.push('/dashboard');
                                 }

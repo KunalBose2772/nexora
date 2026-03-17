@@ -41,12 +41,32 @@ export async function POST(request) {
         const apptCode = `APT-${randNum}`;
 
         // Create the appointment
+        let patientId = data.patientId || null;
+        let patientName = data.patientName.trim();
+
+        // EMERGENCY: Auto-create patient if not exists
+        if (data.type === 'EMERGENCY' && !patientId) {
+            const randUhId = Math.floor(100000 + Math.random() * 900000);
+            const newPatient = await prisma.patient.create({
+                data: {
+                    tenantId: session.tenantId,
+                    patientCode: `UHID-${randUhId}`,
+                    firstName: patientName.split(' ')[0],
+                    lastName: patientName.split(' ').slice(1).join(' ') || 'Trauma-Inducted',
+                    phone: data.bystanderPhone || '0000000000',
+                    gender: data.gender || 'Male',
+                    category: 'General'
+                }
+            });
+            patientId = newPatient.id;
+        }
+
         const newAppointment = await prisma.appointment.create({
             data: {
                 tenantId: session.tenantId,
                 apptCode,
-                patientName: data.patientName.trim(),
-                patientId: data.patientId || null,
+                patientName: patientName,
+                patientId: patientId,
                 doctorName: data.doctorName.trim(),
                 department: data.department ? data.department.trim() : null,
                 date: data.date,

@@ -1,8 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { Download, TrendingUp, IndianRupee, PieChart, BarChart3, Users, FlaskConical, Pill, RefreshCw, Activity, FileText, CheckCircle2, Search, ArrowRight, MousePointer2, ChevronRight, LayoutDashboard, Database, ShieldCheck, Siren, Ghost, Monitor, LayoutTemplate, Zap, FileSpreadsheet } from 'lucide-react';
-import Skeleton from '@/components/common/Skeleton';
-import Link from 'next/link';
+import { Download, TrendingUp, IndianRupee, PieChart, BarChart3, Users, FlaskConical, Pill, RefreshCw, Activity, FileText, CheckCircle2 } from 'lucide-react';
 
 const REPORTS = [
     { name: 'Monthly Revenue Summary', category: 'Finance & Billing', formats: 'CSV', description: 'Complete billing revenue breakdown by service type', downloadType: 'revenue' },
@@ -14,24 +12,30 @@ const REPORTS = [
     { name: 'Outstanding Dues & Collections', category: 'Finance & Billing', formats: 'CSV', description: 'Pending invoice aging and recovery tracking', downloadType: 'dues' },
 ];
 
+function StatCard({ icon, label, value, color, sub }) {
+    return (
+        <div className="stat-card" style={{ padding: '20px' }}>
+            <div style={{ background: `${color}18`, color, padding: '10px', borderRadius: '10px', width: 'fit-content', marginBottom: '12px' }}>{icon}</div>
+            <p style={{ fontSize: '13px', color: 'var(--color-text-secondary)', margin: '0 0 4px 0', fontWeight: 500 }}>{label}</p>
+            <h4 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--color-navy)', margin: 0 }}>{value}</h4>
+            {sub && <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', margin: '4px 0 0 0' }}>{sub}</p>}
+        </div>
+    );
+}
+
 export default function ReportsPage() {
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
     const [filterCat, setFilterCat] = useState('All');
     const [running, setRunning] = useState(null);
-    const [userRole, setUserRole] = useState('nurse');
 
     const fetchStats = async () => {
         setLoading(true);
         try {
             const res = await fetch('/api/reports/stats');
-            if (res.ok) {
-                const data = await res.json();
-                setStats(data);
-                if (data.userRole) setUserRole(data.userRole.toLowerCase());
-            }
-        } catch (e) { }
+            if (res.ok) setStats(await res.json());
+        } catch (e) { console.error(e); }
         finally { setLoading(false); }
     };
 
@@ -41,188 +45,135 @@ export default function ReportsPage() {
         setRunning(report.name);
         try {
             const res = await fetch(`/api/reports/download?type=${report.downloadType}`);
-            if (!res.ok) return;
+            if (!res.ok) {
+                const err = await res.json();
+                alert('Error generating report: ' + (err.error || 'Unknown error'));
+                return;
+            }
+            // Extract filename from Content-Disposition header
+            const disposition = res.headers.get('Content-Disposition') || '';
+            const filenameMatch = disposition.match(/filename="(.+?)"/);
+            const filename = filenameMatch ? filenameMatch[1] : `${report.downloadType}-report.csv`;
+
             const blob = await res.blob();
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `${report.downloadType}-report.csv`;
+            a.download = filename;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
-        } finally { setRunning(null); }
+            URL.revokeObjectURL(url);
+        } catch (e) {
+            alert('Download failed: ' + e.message);
+        } finally {
+            setRunning(null);
+        }
     };
 
     const categories = ['All', 'Finance & Billing', 'Clinical Operations', 'Inventory', 'Diagnostics', 'HR & Staffing'];
 
     const filteredReports = REPORTS.filter(r => {
-        const isFinancial = r.category === 'Finance & Billing';
-        const isAdmin = ['admin', 'hospital_admin', 'accountant'].includes(userRole);
-        if (isFinancial && !isAdmin) return false;
         const q = search.toLowerCase();
         const matchSearch = !q || r.name.toLowerCase().includes(q) || r.category.toLowerCase().includes(q);
         const matchCat = filterCat === 'All' || r.category === filterCat;
         return matchSearch && matchCat;
     });
 
-    const fmt = (n) => n === undefined || n === null ? '—' : Number(n).toLocaleString('en-IN');
+    const fmt = (n) => n === undefined || n === null ? '—' : Number(n).toLocaleString('en-IN', { maximumFractionDigits: 0 });
     const fmtCurr = (n) => n === undefined || n === null ? '—' : `₹${Number(n).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`;
 
     return (
-        <div className="fade-in pb-12">
-            <style jsx>{`
-                .kpi-card {
-                    background: #fff;
-                    border: 1px solid var(--color-border-light);
-                    border-radius: 20px;
-                    padding: 24px;
-                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                }
-                .revenue-item {
-                    background: #fff;
-                    border: 1px solid var(--color-border-light);
-                    border-radius: 16px;
-                    padding: 20px;
-                    min-width: 200px;
-                    flex: 1;
-                    transition: all 0.3s ease;
-                }
-                .revenue-item:hover {
-                    border-color: #0EA5E9;
-                    box-shadow: 0 10px 30px -10px rgba(14, 165, 233, 0.15);
-                }
-            `}</style>
-
-            <div className="dashboard-header-row mb-8">
+        <div className="fade-in">
+            <div className="dashboard-header-row">
                 <div>
-                    <h1 className="page-header__title" style={{ marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <BarChart3 size={32} className="text-indigo-500" />
-                        Intelligence & Analytics Unit
-                    </h1>
-                    <p className="page-header__subtitle">High-fidelity clinical telemetry, institutional revenue analysis and governance reporting.</p>
+                    <h1 className="page-header__title" style={{ marginBottom: '4px' }}>Analytics & Reports Central</h1>
+                    <p className="page-header__subtitle">Comprehensive insights into clinical, operational, and financial performance metrics.</p>
                 </div>
                 <div className="dashboard-header-buttons">
-                    <button onClick={fetchStats} className="btn btn-secondary btn-sm h-11 px-6 bg-white border-slate-200 text-slate-600">
-                        <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Sync Intelligence
-                    </button>
-                    <button className="btn btn-secondary btn-sm h-11 px-6 bg-white text-navy-900 border-slate-200">
-                        <Database size={14} /> Warehouse
-                    </button>
-                    <button className="btn btn-primary btn-sm h-11 px-8 flex items-center gap-2">
-                        <Download size={15} /> Mass Export
-                    </button>
+                    <button className="btn btn-secondary btn-sm" style={{ background: '#fff' }} onClick={fetchStats}><RefreshCw size={14} /> Refresh</button>
+                    <button className="btn btn-primary btn-sm"><Download size={15} strokeWidth={1.5} /> Export All</button>
                 </div>
             </div>
 
-            {/* KPI Strip */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <div className="kpi-card" style={{ borderLeft: '4px solid #0EA5E9' }}>
-                    <p className="text-[12px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 text-sky-600/70">Aggregate Registry</p>
-                    <div className="flex items-baseline gap-2">
-                        {loading ? <Skeleton width="80px" height="32px" /> : <h2 className="text-2xl font-black text-navy-900 leading-none">{fmt(stats?.totalPatients)}</h2>}
-                        <span className="text-xs font-semibold text-slate-400">Total Subjects</span>
-                    </div>
-                </div>
-
-                <div className="kpi-card" style={{ borderLeft: '4px solid #10B981' }}>
-                    <p className="text-[12px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 text-emerald-600/70">Capillary Yield</p>
-                    <div className="flex items-baseline gap-2">
-                        {loading ? <Skeleton width="80px" height="32px" /> : <h2 className="text-2xl font-black text-emerald-600 leading-none">{fmtCurr(stats?.totalRevenue)}</h2>}
-                    </div>
-                </div>
-
-                <div className="kpi-card" style={{ borderLeft: '4px solid #8B5CF6' }}>
-                    <p className="text-[12px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 text-indigo-600/70">Diagnostic Flux</p>
-                    <div className="flex items-baseline gap-2">
-                        {loading ? <Skeleton width="80px" height="32px" /> : <h2 className="text-2xl font-black text-indigo-600 leading-none">{fmt(stats?.labRequests)}</h2>}
-                        <span className="text-xs font-semibold text-slate-400">Labs</span>
-                    </div>
-                </div>
-
-                <div className="kpi-card" style={{ borderLeft: '4px solid #F59E0B' }}>
-                    <p className="text-[12px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 text-amber-600/70">Asset Valuation</p>
-                    <div className="flex items-baseline gap-2">
-                        {loading ? <Skeleton width="80px" height="32px" /> : <h2 className="text-2xl font-black text-amber-600 leading-none">{fmt(stats?.medicines)}</h2>}
-                        <span className="text-xs font-semibold text-slate-400">SKUs</span>
-                    </div>
-                </div>
+            {/* Live KPI Strip */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '20px', marginBottom: '24px' }}>
+                <StatCard icon={<Users size={20} />} label="Total Patients" value={loading ? '…' : fmt(stats?.totalPatients)} color="#0EA5E9" sub={`${fmt(stats?.opdCount)} OPD · ${fmt(stats?.ipdCount)} IPD`} />
+                <StatCard icon={<IndianRupee size={20} />} label="Total Revenue" value={loading ? '…' : fmtCurr(stats?.totalRevenue)} color="#16A34A" sub={`${fmtCurr(stats?.pendingRevenue)} pending`} />
+                <StatCard icon={<FlaskConical size={20} />} label="Lab Requests" value={loading ? '…' : fmt(stats?.labRequests)} color="#8B5CF6" sub={`${fmt(stats?.labPending)} pending · ${fmt(stats?.labReady)} ready`} />
+                <StatCard icon={<Pill size={20} />} label="Pharmacy SKUs" value={loading ? '…' : fmt(stats?.medicines)} color="#F59E0B" sub={`${fmt(stats?.dispensationCount)} dispensations`} />
+                <StatCard icon={<Activity size={20} />} label="Active Staff" value={loading ? '…' : fmt(stats?.staff)} color="#EC4899" />
+                <StatCard icon={<BarChart3 size={20} />} label="Invoices Issued" value={loading ? '…' : fmt(stats?.invoiceCount)} color="#3B82F6" sub={`Billing revenue: ${fmtCurr(stats?.billingRevenue)}`} />
             </div>
 
-            {/* Revenue Distribution */}
+            {/* Revenue by service type */}
             {stats?.byService && Object.keys(stats.byService).length > 0 && (
-                <div className="card p-8 mb-8 shadow-2xl shadow-slate-200/50">
-                    <div className="flex justify-between items-center mb-6">
-                        <h3 className="text-sm font-black text-navy-900 uppercase tracking-widest flex items-center gap-3">
-                            <PieChart size={18} className="text-blue-500" /> Unit Revenue Allocation
-                        </h3>
-                        <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Live Integration</span>
-                        </div>
-                    </div>
-                    <div className="flex flex-wrap gap-4">
+                <div className="card" style={{ padding: '24px', marginBottom: '24px' }}>
+                    <h3 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--color-navy)', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <PieChart size={18} color="#3B82F6" /> Revenue by Service Type
+                    </h3>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
                         {Object.entries(stats.byService).map(([type, amount]) => (
-                            <div key={type} className="revenue-item border-l-4 border-l-sky-500 bg-slate-50/30">
-                                <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">{type}</div>
-                                <div className="text-xl font-black text-navy-900">₹{Number(amount).toLocaleString('en-IN')}</div>
+                            <div key={type} style={{ padding: '12px 20px', background: '#F8FAFC', borderRadius: '10px', border: '1px solid #e2e8f0', minWidth: '160px' }}>
+                                <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', marginBottom: '4px' }}>{type}</div>
+                                <div style={{ fontSize: '18px', fontWeight: 700, color: '#16A34A' }}>₹{Number(amount).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</div>
                             </div>
                         ))}
                     </div>
                 </div>
             )}
 
-            <div className="card shadow-2xl shadow-slate-200/50">
-                <div className="p-6 border-b border-slate-100 flex flex-wrap gap-4 items-center justify-between">
-                    <div className="relative flex-1 min-w-[320px]">
-                        <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search Ledger by Report Name, Unit or Logic..." className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:border-cyan-500 transition-all shadow-sm" />
+            {/* Report Templates */}
+            <div className="card" style={{ padding: '24px' }}>
+                <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', flexWrap: 'wrap', alignItems: 'center' }}>
+                    <div style={{ flex: 1, minWidth: '260px', position: 'relative' }}>
+                        <input type="text" placeholder="Search reports by name or category..." value={search} onChange={e => setSearch(e.target.value)}
+                            style={{ width: '100%', padding: '11px 16px', border: '1px solid var(--color-border-light)', borderRadius: '8px', outline: 'none', fontSize: '14px' }} />
                     </div>
-                    <div className="flex gap-2">
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                         {categories.map(c => (
-                            <button key={c} onClick={() => setFilterCat(c)} className={`h-11 px-5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${filterCat === c ? 'bg-navy-900 text-white shadow-xl' : 'bg-white border border-slate-200 text-slate-400'}`}>
-                                {c}
-                            </button>
+                            <button key={c} onClick={() => setFilterCat(c)} style={{
+                                padding: '7px 12px', borderRadius: '8px', border: '1px solid', fontSize: '12px', cursor: 'pointer', fontWeight: 500,
+                                borderColor: filterCat === c ? 'var(--color-navy)' : 'var(--color-border-light)',
+                                background: filterCat === c ? 'var(--color-navy)' : '#fff',
+                                color: filterCat === c ? '#fff' : 'var(--color-text-secondary)',
+                            }}>{c}</button>
                         ))}
                     </div>
                 </div>
 
-                <div className="data-table-wrapper border-none">
-                    <table className="data-table">
-                        <thead>
+                <div className="data-table-wrapper" style={{ borderRadius: '12px', border: '1px solid var(--color-border-light)' }}>
+                    <table className="data-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
+                        <thead style={{ background: '#F8FAFC', borderBottom: '1px solid var(--color-border-light)' }}>
                             <tr>
-                                <th>Intelligence Unit</th>
-                                <th>Classification</th>
-                                <th>Format</th>
-                                <th style={{ textAlign: 'right' }}>Telemetry Execution</th>
+                                <th style={{ padding: '14px 16px', fontWeight: 600, color: 'var(--color-text-secondary)', fontSize: '12px', textTransform: 'uppercase' }}>Report Name</th>
+                                <th style={{ padding: '14px 16px', fontWeight: 600, color: 'var(--color-text-secondary)', fontSize: '12px', textTransform: 'uppercase' }}>Category</th>
+                                <th style={{ padding: '14px 16px', fontWeight: 600, color: 'var(--color-text-secondary)', fontSize: '12px', textTransform: 'uppercase' }}>Formats</th>
+                                <th style={{ padding: '14px 16px', fontWeight: 600, color: 'var(--color-text-secondary)', fontSize: '12px', textTransform: 'uppercase', textAlign: 'right' }}>Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             {filteredReports.map(r => (
-                                <tr key={r.name} className="hover:bg-slate-50 transition-all cursor-pointer">
-                                    <td>
-                                        <div className="flex gap-4 items-center">
-                                            <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-500 flex items-center justify-center shrink-0 border border-indigo-100">
-                                                <FileSpreadsheet size={18} />
-                                            </div>
+                                <tr key={r.name} style={{ borderBottom: '1px solid var(--color-border-light)', transition: 'background 0.15s' }}
+                                    onMouseOver={e => e.currentTarget.style.background = '#F8FAFC'}
+                                    onMouseOut={e => e.currentTarget.style.background = 'transparent'}>
+                                    <td style={{ padding: '14px 16px' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                            <div style={{ background: 'rgba(59,130,246,0.1)', color: '#3B82F6', padding: '7px', borderRadius: '8px' }}><FileText size={16} /></div>
                                             <div>
-                                                <div className="text-[14px] font-black text-navy-900">{r.name}</div>
-                                                <div className="text-[11px] font-bold text-slate-400 uppercase tracking-tight mt-1">{r.description}</div>
+                                                <div style={{ fontWeight: 600, color: 'var(--color-navy)' }}>{r.name}</div>
+                                                <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)' }}>{r.description}</div>
                                             </div>
                                         </div>
                                     </td>
-                                    <td>
-                                        <span className="h-7 px-3 rounded-lg bg-slate-100 text-slate-600 text-[10px] font-black uppercase tracking-widest flex items-center w-fit border border-slate-200">{r.category}</span>
-                                    </td>
-                                    <td>
-                                        <div className="text-[11px] font-black text-navy-900 font-mono italic">{r.formats}</div>
-                                    </td>
-                                    <td style={{ textAlign: 'right' }}>
-                                        <button onClick={() => handleRun(r)} disabled={running === r.name} className="h-10 px-6 rounded-xl bg-navy-900 text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-navy-100 disabled:opacity-50 hover:scale-105 transition-all flex items-center justify-center gap-2 ml-auto">
-                                            {running === r.name ? (
-                                                <><RefreshCw size={12} className="animate-spin" /> Computing...</>
-                                            ) : (
-                                                <><Download size={14} /> Fetch Telemetry</>
-                                            )}
+                                    <td style={{ padding: '14px 16px' }}><span className="badge badge-navy" style={{ fontSize: '11px', padding: '3px 8px' }}>{r.category}</span></td>
+                                    <td style={{ padding: '14px 16px', fontFamily: 'monospace', fontSize: '12px', color: 'var(--color-text-secondary)' }}>{r.formats}</td>
+                                    <td style={{ padding: '14px 16px', textAlign: 'right' }}>
+                                        <button className="btn btn-primary btn-sm" style={{ fontSize: '12px', padding: '6px 14px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                                            disabled={running === r.name} onClick={() => handleRun(r)}>
+                                            {running === r.name
+                                                ? <><span style={{ display: 'inline-block', width: '12px', height: '12px', border: '2px solid rgba(255,255,255,0.4)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} /> Generating...</>
+                                                : <><Download size={13} /> Download CSV</>}
                                         </button>
                                     </td>
                                 </tr>
@@ -230,14 +181,6 @@ export default function ReportsPage() {
                         </tbody>
                     </table>
                 </div>
-            </div>
-
-            <div className="mt-8 p-6 bg-emerald-50/50 border border-emerald-100 rounded-[20px] flex items-center gap-4">
-                <div className="w-10 h-10 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-lg shadow-emerald-200"><ShieldCheck size={20} /></div>
-                <p className="text-xs font-bold text-emerald-800 uppercase tracking-tight leading-relaxed">
-                    Governance Audit: All intelligence exports are tracked with a bio-metric timestamp. Financial data nodes are restricted to Administrative Command only.
-                    <Link href="/audit-logs" className="ml-3 text-emerald-600 underline font-black">Audit Trails</Link>
-                </p>
             </div>
         </div>
     );

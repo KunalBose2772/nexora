@@ -1,65 +1,81 @@
 'use client';
-import { Bell, ArrowLeft, Search, Filter, CheckCircle2, AlertTriangle, Siren, Clock } from 'lucide-react';
+import { Bell, ArrowLeft, Search, Filter, CheckCircle2, AlertTriangle, Siren, Clock, X, Info, User, Zap } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 
 export default function AlertsLedgerPage() {
-    const alerts = [
-        { id: 'ALT-981', type: 'Emergency', msg: 'Triage Overload (Zone A)', time: '2 mins ago', severity: 'critical', status: 'Active' },
-        { id: 'ALT-975', type: 'Pharmacy', msg: 'Adrenaline Stock Critical', time: '15 mins ago', severity: 'warning', status: 'Pending' },
-        { id: 'ALT-970', type: 'IPD', msg: 'Bed Shortage (Ward 4)', time: '40 mins ago', severity: 'info', status: 'Resolved' },
-        { id: 'ALT-965', type: 'Laboratory', msg: 'LIS Synchronization Error', time: '1 hour ago', severity: 'warning', status: 'Resolved' },
-        { id: 'ALT-960', type: 'OT', msg: 'Theater-1 HEPA Fault', time: '2 hours ago', severity: 'critical', status: 'Active' },
-    ];
+    const [selectedAlert, setSelectedAlert] = useState(null);
+    const [alerts, setAlerts] = useState([
+        { id: 'ALT-981', type: 'Emergency', msg: 'Triage Overload (Zone A)', time: '2 mins ago', severity: 'critical', status: 'Active', details: 'Patient arrival rate exceeding capacity by 40% in the last 15 minutes.' },
+        { id: 'ALT-975', type: 'Pharmacy', msg: 'Adrenaline Stock Critical', time: '15 mins ago', severity: 'warning', status: 'Pending', details: 'Current stock is below 10 units. Immediate replenishment required.' },
+        { id: 'ALT-970', type: 'IPD', msg: 'Bed Shortage (Ward 4)', time: '40 mins ago', severity: 'info', status: 'Resolved', details: 'All 20 beds occupied. Scheduled discharges pending for 2:00 PM.' },
+        { id: 'ALT-965', type: 'Laboratory', msg: 'LIS Synchronization Error', time: '1 hour ago', severity: 'warning', status: 'Resolved', details: 'Minor lag in result transmission to EMR. System rebooted.' },
+        { id: 'ALT-960', type: 'OT', msg: 'Theater-1 HEPA Fault', time: '2 hours ago', severity: 'critical', status: 'Active', details: 'Air quality sensors reporting high particulate matter.' },
+    ]);
+
+    const handleInvestigate = (alert) => {
+        setSelectedAlert(alert);
+    };
 
     return (
         <div className="fade-in">
+            <style>{`
+                .modal-overlay {
+                    position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px);
+                    display: flex; align-items: center; justify-content: center; z-index: 1000;
+                }
+                .modal-card {
+                    background: #fff; width: 100%; max-width: 500px; border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+                    overflow: hidden; animation: slideUp 0.3s ease-out;
+                }
+                @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+                .action-btn {
+                    padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.2s;
+                }
+            `}</style>
+
             <div className="dashboard-header-row" style={{ marginBottom: '28px' }}>
                 <div>
                     <h1 className="page-header__title" style={{ fontWeight: 800, color: 'var(--color-navy)', margin: '0 0 4px', letterSpacing: '-0.02em' }}>Alert Resolution Ledger</h1>
                     <p style={{ fontSize: '14px', color: 'var(--color-text-secondary)', margin: 0 }}>Comprehensive audit log for all clinical and operational priority signals.</p>
                 </div>
                 <Link href="/command-center" className="btn btn-secondary btn-sm" style={{ background: '#fff' }}>
-                    <ArrowLeft size={14} /> Back to Command Center
+                    <ArrowLeft size={14} /> Back to Command
                 </Link>
             </div>
 
-            <div className="card" style={{ padding: '24px' }}>
+            <div className="card" style={{ padding: '24px', borderRadius: '20px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                     <div style={{ display: 'flex', gap: '12px' }}>
                         <div style={{ position: 'relative', width: '260px' }}>
                             <Search size={16} style={{ position: 'absolute', left: '12px', top: '10px', color: '#94A3B8' }} />
-                            <input type="text" placeholder="Search alerts..." style={{ width: '100%', padding: '10px 12px 10px 40px', border: '1px solid var(--color-border-light)', borderRadius: '10px', outline: 'none', fontSize: '13px' }} />
+                            <input type="text" placeholder="Filter signals..." style={{ width: '100%', padding: '10px 12px 10px 40px', border: '1px solid var(--color-border-light)', borderRadius: '10px', outline: 'none', fontSize: '13px' }} />
                         </div>
                         <button className="btn btn-secondary btn-sm" style={{ background: '#fff', border: '1px solid var(--color-border-light)' }}>
-                            <Filter size={14} /> Filter
+                            <Filter size={14} /> Refine View
                         </button>
-                    </div>
-                    <div style={{ fontSize: '12px', color: '#94A3B8', fontWeight: 500 }}>
-                        Showing {alerts.length} priority signals
                     </div>
                 </div>
 
                 <div style={{ width: '100%', overflowX: 'auto' }}>
                     <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                         <thead>
-                            <tr style={{ background: '#F8FAFC' }}>
+                            <tr style={{ borderBottom: '1px solid var(--color-border-light)' }}>
                                 <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '11px', fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase' }}>Alert ID</th>
                                 <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '11px', fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase' }}>Signal Source</th>
                                 <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '11px', fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase' }}>Description</th>
-                                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '11px', fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase' }}>Severity</th>
                                 <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '11px', fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase' }}>Status</th>
                                 <th style={{ padding: '12px 16px', textAlign: 'right', fontSize: '11px', fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase' }}>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {alerts.map((a) => (
-                                <tr key={a.id} style={{ borderBottom: '1px solid var(--color-border-light)', transition: 'background 0.15s' }}>
+                                <tr key={a.id} style={{ borderBottom: '1px solid var(--color-border-light)', transition: 'background 0.15s' }} className="table-row-hover">
                                     <td style={{ padding: '16px', fontSize: '13px', fontFamily: 'monospace', fontWeight: 600, color: 'var(--color-navy)' }}>{a.id}</td>
                                     <td style={{ padding: '16px' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                             <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: a.severity === 'critical' ? '#EF4444' : '#F59E0B' }} />
-                                            <span style={{ fontSize: '13px', color: '#64748B', fontWeight: 600 }}>{a.type}</span>
+                                            <span style={{ fontSize: '13px', color: '#475569', fontWeight: 700 }}>{a.type}</span>
                                         </div>
                                     </td>
                                     <td style={{ padding: '16px' }}>
@@ -69,17 +85,18 @@ export default function AlertsLedgerPage() {
                                         </div>
                                     </td>
                                     <td style={{ padding: '16px' }}>
-                                        <span style={{ fontSize: '10px', fontWeight: 800, textTransform: 'uppercase', color: a.severity === 'critical' ? '#EF4444' : a.severity === 'warning' ? '#F59E0B' : '#0EA5E9' }}>
-                                            {a.severity}
-                                        </span>
-                                    </td>
-                                    <td style={{ padding: '16px' }}>
                                         <span style={{ fontSize: '11px', fontWeight: 700, padding: '4px 10px', borderRadius: '20px', background: a.status === 'Resolved' ? '#DCFCE7' : a.status === 'Active' ? '#FEE2E2' : '#FEFABE', color: a.status === 'Resolved' ? '#15803D' : a.status === 'Active' ? '#B91C1C' : '#854D0E' }}>
                                             {a.status}
                                         </span>
                                     </td>
                                     <td style={{ padding: '16px', textAlign: 'right' }}>
-                                        <button className="btn btn-secondary btn-sm" style={{ background: '#fff' }}>Investigate</button>
+                                        <button 
+                                            onClick={() => handleInvestigate(a)}
+                                            className="btn btn-secondary btn-sm" 
+                                            style={{ background: '#fff' }}
+                                        >
+                                            Investigate
+                                        </button>
                                     </td>
                                 </tr>
                             ))}
@@ -87,6 +104,61 @@ export default function AlertsLedgerPage() {
                     </table>
                 </div>
             </div>
+
+            {/* Investigation Modal */}
+            {selectedAlert && (
+                <div className="modal-overlay" onClick={() => setSelectedAlert(null)}>
+                    <div className="modal-card" onClick={e => e.stopPropagation()}>
+                        <div style={{ padding: '24px', borderBottom: '1px solid var(--color-border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: selectedAlert.severity === 'critical' ? '#FFF1F2' : '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center', color: selectedAlert.severity === 'critical' ? '#E11D48' : '#2563EB' }}>
+                                    <AlertTriangle size={20} />
+                                </div>
+                                <div>
+                                    <div style={{ fontSize: '16px', fontWeight: 800, color: 'var(--color-navy)' }}>Investigate Signal</div>
+                                    <div style={{ fontSize: '12px', color: '#94A3B8' }}>{selectedAlert.id} • {selectedAlert.type}</div>
+                                </div>
+                            </div>
+                            <button onClick={() => setSelectedAlert(null)} style={{ background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer' }}><X size={20} /></button>
+                        </div>
+                        <div style={{ padding: '24px' }}>
+                            <div style={{ background: '#F8FAFC', padding: '16px', borderRadius: '12px', marginBottom: '20px' }}>
+                                <div style={{ fontSize: '12px', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                    <Info size={14} /> Description
+                                </div>
+                                <div style={{ fontSize: '15px', color: 'var(--color-navy)', fontWeight: 600, lineHeight: 1.5 }}>
+                                    {selectedAlert.msg}
+                                </div>
+                                <div style={{ fontSize: '14px', color: '#64748B', marginTop: '10px' }}>
+                                    {selectedAlert.details}
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
+                                <div>
+                                    <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 700, textTransform: 'uppercase', marginBottom: '6px' }}>Impact Level</div>
+                                    <div style={{ fontSize: '14px', fontWeight: 700, color: selectedAlert.severity === 'critical' ? '#E11D48' : '#F59E0B' }}>
+                                        {selectedAlert.severity.toUpperCase()}
+                                    </div>
+                                </div>
+                                <div>
+                                    <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 700, textTransform: 'uppercase', marginBottom: '6px' }}>Escalation</div>
+                                    <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--color-navy)' }}>Level 2 Supervisor</div>
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'flex', gap: '12px' }}>
+                                <button className="action-btn" style={{ flex: 1, background: 'var(--color-navy)', color: '#fff', border: 'none' }} onClick={() => setSelectedAlert(null)}>
+                                    Resolve Signal
+                                </button>
+                                <button className="action-btn" style={{ flex: 1, background: '#fff', color: '#64748B', border: '1px solid #CBD5E1' }}>
+                                    Escalate Case
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

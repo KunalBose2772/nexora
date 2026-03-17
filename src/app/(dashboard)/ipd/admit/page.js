@@ -33,6 +33,7 @@ function AdmitForm() {
 
     useEffect(() => {
         const refId = searchParams.get('refId');
+        const refPatientId = searchParams.get('patientId');
         const refPatient = searchParams.get('patient');
         const refDoctor = searchParams.get('doctor');
         const refWard = searchParams.get('ward');
@@ -53,9 +54,22 @@ function AdmitForm() {
                     setPatients(allPatients);
 
                     // Auto-select patient from referral
-                    if (refPatient) {
-                        const found = allPatients.find(p => `${p.firstName} ${p.lastName}` === refPatient);
+                    if (refPatientId) {
+                        const found = allPatients.find(p => p.id === refPatientId);
                         if (found) setSelectedPatient(found);
+                    } else if (refPatient) {
+                        const searchLower = refPatient.toLowerCase().trim();
+                        const found = allPatients.find(p => 
+                            `${p.firstName} ${p.lastName}`.toLowerCase().trim() === searchLower ||
+                            p.firstName.toLowerCase().trim() === searchLower ||
+                            p.lastName.toLowerCase().trim() === searchLower
+                        );
+                        if (found) {
+                            setSelectedPatient(found);
+                        } else {
+                            // If direct registration match fails, at least pre-fill the search box to suggest results
+                            setSearchPatient(refPatient);
+                        }
                     }
                 }
                 if (wRes.ok) {

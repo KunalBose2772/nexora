@@ -1,5 +1,5 @@
 'use client';
-import { Save, ArrowLeft, Clock, UserIcon, Stethoscope, Search, Info, CheckCircle2 } from 'lucide-react';
+import { Save, ArrowLeft, Clock, UserIcon, Stethoscope, Search, Info, CheckCircle2, Loader2 } from 'lucide-react';
 import Skeleton from '@/components/common/Skeleton';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
@@ -394,20 +394,23 @@ export default function BookAppointmentPage() {
 
     return (
         <div className="fade-in">
-            <div className="dashboard-header-row">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                    <Link href="/dashboard" className="btn btn-secondary btn-sm" style={{ padding: '8px', border: 'none', background: '#FFFFFF', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
-                        <ArrowLeft size={18} />
+            <div className="dashboard-header-row mb-10">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                    <Link href="/appointments" className="btn btn-secondary" style={{ width: '44px', height: '44px', padding: 0, borderRadius: '12px', background: '#fff' }}>
+                        <ArrowLeft size={20} />
                     </Link>
                     <div>
-                        <h1 className="page-header__title" style={{ marginBottom: '4px' }}>Book Appointment</h1>
-                        <p className="page-header__subtitle">Schedule a consultation for external or registered patients.</p>
+                        <h1 className="responsive-h1" style={{ margin: 0 }}>Book Consultation</h1>
+                        <p style={{ fontSize: '14px', color: 'var(--color-text-secondary)', margin: '4px 0 0 0', fontWeight: 500 }}>Global appointment management and slot synchronization.</p>
                     </div>
                 </div>
-                <div className="dashboard-header-buttons">
-                    <Link href="/dashboard" className="btn btn-secondary btn-sm" style={{ background: '#fff', textDecoration: 'none' }}>
-                        Back
-                    </Link>
+                <div className="dashboard-header-buttons" style={{ display: 'flex', gap: '12px' }}>
+                    <button className="btn btn-secondary btn-sm" style={{ background: '#fff', height: '44px', padding: '0 24px' }} onClick={() => router.push('/appointments')}>
+                        Discard
+                    </button>
+                    <button className="btn btn-primary btn-sm" style={{ background: 'var(--color-navy)', height: '44px', padding: '0 24px', display: 'flex', alignItems: 'center', gap: '8px' }} onClick={handleSubmit} disabled={loading}>
+                        {loading ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />} Commit Booking
+                    </button>
                 </div>
             </div>
 
@@ -436,14 +439,15 @@ export default function BookAppointmentPage() {
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
                             {/* Patient Selection */}
-                            <div className="card" style={{ padding: '24px' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px', paddingBottom: '16px', borderBottom: '1px solid var(--color-border-light)' }}>
-                                    <div style={{ background: 'rgba(0,194,255,0.1)', color: 'var(--color-navy)', padding: '6px', borderRadius: '8px' }}>
-                                        <Search size={18} />
+                            <div className="form-card" style={{ background: '#fff', border: '1px solid var(--color-border-light)', borderRadius: '24px', padding: '32px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '28px', paddingBottom: '16px', borderBottom: '1px solid #F1F5F9' }}>
+                                    <div style={{ width: '40px', height: '40px', background: 'rgba(0,194,255,0.1)', color: 'var(--color-navy)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '12px' }}>
+                                        <Search size={20} strokeWidth={2.5} />
                                     </div>
-                                    <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--color-navy)' }}>
-                                        {selectedPatient ? 'Patient Selected' : 'Select Patient'} <span style={{ color: 'red' }}>*</span>
-                                    </h3>
+                                    <div>
+                                        <h3 style={{ fontSize: '17px', fontWeight: 800, color: 'var(--color-navy)', margin: 0 }}>Identify Patient</h3>
+                                        <p style={{ fontSize: '12px', color: '#94A3B8', margin: 0, fontWeight: 500 }}>Select from master registry or enroll new</p>
+                                    </div>
                                 </div>
                                 {!selectedPatient ? (
                                     <>
@@ -724,38 +728,41 @@ export default function BookAppointmentPage() {
                             </div>
 
                             {/* MLC Section */}
-                            <div style={{ marginTop: '12px', padding: '16px', background: formData.isMLC ? '#FFF5F5' : '#F8FAFC', border: `1px solid ${formData.isMLC ? '#FEB2B2' : '#E2E8F0'}`, borderRadius: '12px' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                            <div style={{ marginTop: '12px', padding: '20px', background: formData.isMLC ? '#FFF5F5' : '#F8FAFC', border: `1px solid ${formData.isMLC ? '#FEB2B2' : '#E2E8F0'}`, borderRadius: '16px', transition: 'all 0.3s' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
                                     <input
                                         type="checkbox"
                                         name="isMLC"
                                         id="isMLC"
                                         checked={formData.isMLC}
                                         onChange={handleFormChange}
-                                        style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                                        style={{ width: '20px', height: '20px', cursor: 'pointer', accentColor: '#C53030' }}
                                     />
-                                    <label htmlFor="isMLC" style={{ fontSize: '14px', fontWeight: 600, color: formData.isMLC ? '#C53030' : 'var(--color-navy)', cursor: 'pointer' }}>
-                                        Mark as Medico-Legal Case (MLC)
-                                    </label>
+                                    <div>
+                                        <label htmlFor="isMLC" style={{ fontSize: '15px', fontWeight: 800, color: formData.isMLC ? '#C53030' : 'var(--color-navy)', cursor: 'pointer', display: 'block' }}>
+                                            Medico-Legal Case (MLC) Protocol
+                                        </label>
+                                        <p style={{ fontSize: '12px', color: formData.isMLC ? '#E53E3E' : '#94A3B8', margin: 0, fontWeight: 500 }}>Toggle this for police-related cases, accidents, or assault records.</p>
+                                    </div>
                                 </div>
 
                                 {formData.isMLC && (
-                                    <div className="fade-in" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
+                                    <div className="fade-in" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', marginTop: '20px', paddingTop: '20px', borderTop: '1px solid rgba(197, 48, 48, 0.1)' }}>
                                         <div>
-                                            <label style={{ display: 'block', fontSize: '12px', marginBottom: '4px', color: '#742A2A', fontWeight: 600 }}>MLC Number <span style={{ color: 'red' }}>*</span></label>
-                                            <input type="text" name="mlcNumber" value={formData.mlcNumber} onChange={handleFormChange} placeholder="e.g. MLC-2024-001" style={{ width: '100%', padding: '8px 12px', border: '1px solid #FEB2B2', borderRadius: '6px', fontSize: '13px' }} required />
+                                            <label className="label-premium" style={{ color: '#C53030' }}>MLC Number <span style={{ color: 'red' }}>*</span></label>
+                                            <input type="text" name="mlcNumber" value={formData.mlcNumber} onChange={handleFormChange} placeholder="e.g. MLC-2024-001" className="input-premium" style={{ borderColor: '#FEB2B2' }} required />
                                         </div>
                                         <div>
-                                            <label style={{ display: 'block', fontSize: '12px', marginBottom: '4px', color: '#742A2A', fontWeight: 600 }}>Police Station</label>
-                                            <input type="text" name="policeStation" value={formData.policeStation} onChange={handleFormChange} placeholder="Assigned Station" style={{ width: '100%', padding: '8px 12px', border: '1px solid #FEB2B2', borderRadius: '6px', fontSize: '13px' }} />
+                                            <label className="label-premium" style={{ color: '#C53030' }}>Police Station</label>
+                                            <input type="text" name="policeStation" value={formData.policeStation} onChange={handleFormChange} placeholder="Assigned Station" className="input-premium" style={{ borderColor: '#FEB2B2' }} />
                                         </div>
                                         <div>
-                                            <label style={{ display: 'block', fontSize: '12px', marginBottom: '4px', color: '#742A2A', fontWeight: 600 }}>FIR No. (if any)</label>
-                                            <input type="text" name="firNumber" value={formData.firNumber} onChange={handleFormChange} placeholder="FIR Reference" style={{ width: '100%', padding: '8px 12px', border: '1px solid #FEB2B2', borderRadius: '6px', fontSize: '13px' }} />
+                                            <label className="label-premium" style={{ color: '#C53030' }}>FIR No. (if any)</label>
+                                            <input type="text" name="firNumber" value={formData.firNumber} onChange={handleFormChange} placeholder="FIR Reference" className="input-premium" style={{ borderColor: '#FEB2B2' }} />
                                         </div>
-                                        <div style={{ gridColumn: '1 / -1' }}>
-                                            <label style={{ display: 'block', fontSize: '12px', marginBottom: '4px', color: '#742A2A', fontWeight: 600 }}>Forensic/Incident Details</label>
-                                            <textarea name="mlcDetails" value={formData.mlcDetails} onChange={handleFormChange} rows="2" placeholder="Describe the incident (Accident, Assault, Poisoning, etc.)..." style={{ width: '100%', padding: '8px 12px', border: '1px solid #FEB2B2', borderRadius: '6px', fontSize: '13px', fontFamily: 'inherit' }}></textarea>
+                                        <div style={{ gridColumn: 'span 3' }}>
+                                            <label className="label-premium" style={{ color: '#C53030' }}>Forensic/Incident Details</label>
+                                            <textarea name="mlcDetails" value={formData.mlcDetails} onChange={handleFormChange} rows="2" placeholder="Describe the incident (Accident, Assault, Poisoning, etc.)..." className="input-premium" style={{ borderColor: '#FEB2B2', height: '80px', resize: 'none' }}></textarea>
                                         </div>
                                     </div>
                                 )}

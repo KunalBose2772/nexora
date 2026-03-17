@@ -40,6 +40,8 @@ export async function GET(request) {
 
             return {
                 ...p,
+                patientUhId: p.patient?.patientCode || null,
+                patientName: p.patient ? `${p.patient.firstName} ${p.patient.lastName}` : p.patientName,
                 ledgerTotal: charges, 
                 totalDeposits: directDeposits + tableAdvances
             };

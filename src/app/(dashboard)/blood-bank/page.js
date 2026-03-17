@@ -25,35 +25,68 @@ import Link from 'next/link';
 export default function BloodBankDashboard() {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [showDonationModal, setShowDonationModal] = useState(false);
+    const [saving, setSaving] = useState(false);
+    const [donationForm, setDonationForm] = useState({
+        bloodGroup: 'O+',
+        component: 'Whole Blood',
+        units: 1,
+        expiryDate: new Date(Date.now() + 35 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        source: 'Voluntary Donor'
+    });
+
     const now = new Date();
     const dateStr = now.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
     const loadData = useCallback(async () => {
         setLoading(true);
         try {
-            // Simulation
-            setTimeout(() => {
+            const [stockRes, flowRes] = await Promise.all([
+                fetch('/api/blood-bank/inventory'),
+                fetch('/api/blood-bank/requests')
+            ]);
+            
+            const stockData = await stockRes.json();
+            const flowData = await flowRes.json();
+
+            if (stockRes.ok && flowRes.ok) {
+                // Aggregate units by type
+                const groups = ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'];
+                const aggregated = groups.map(g => {
+                    const units = (stockData.stock || [])
+                        .filter(s => s.bloodGroup === g)
+                        .reduce((sum, s) => sum + s.units, 0);
+                    return {
+                        type: g,
+                        units: units,
+                        status: units > 10 ? 'Optimal' : units > 5 ? 'Low' : 'Critical'
+                    };
+                });
+
                 setData({
-                    inventory: [
-                        { type: 'A+', units: 12, status: 'Optimal', trend: 'steady' },
-                        { type: 'O+', units: 4, status: 'Low', trend: 'down' },
-                        { type: 'B+', units: 18, status: 'Optimal', trend: 'up' },
-                        { type: 'AB+', units: 2, status: 'Critical', trend: 'down' },
-                    ],
-                    pendingRequests: [
-                        { id: 'REQ-101', pt: 'Kunal Bose', type: 'O+', qty: '2 Units', urgency: 'Stat', time: '12 mins ago' },
-                        { id: 'REQ-105', pt: 'Amit Kumar', type: 'A+', qty: '1 Unit', urgency: 'Normal', time: '1h ago' },
-                    ],
+                    inventory: aggregated,
+                    pendingRequests: (flowData.requests || []).map(r => ({
+                        id: r.requestCode,
+                        pt: `${r.patient?.firstName} ${r.patient?.lastName}`,
+                        type: r.bloodGroup,
+                        qty: `${r.unitsRequired} Units`,
+                        urgency: r.priority,
+                        time: new Date(r.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                    })).slice(0, 5),
                     metrics: {
-                        todayIssued: 5,
-                        todayDonations: 8,
-                        expiringSoon: 3,
-                        totalInventory: 142
+                        todayIssued: (flowData.requests || []).filter(r => r.status === 'Issued').length,
+                        todayDonations: (stockData.stock || []).filter(s => new Date(s.createdAt).toDateString() === new Date().toDateString()).length,
+                        expiringSoon: (stockData.stock || []).filter(s => {
+                            const diff = new Date(s.expiryDate) - new Date();
+                            return diff > 0 && diff < (7 * 24 * 60 * 60 * 1000);
+                        }).length,
+                        totalInventory: (stockData.stock || []).reduce((sum, s) => sum + s.units, 0)
                     }
                 });
-                setLoading(false);
-            }, 800);
+            }
         } catch (e) {
+            console.error(e);
+        } finally {
             setLoading(false);
         }
     }, []);
@@ -88,7 +121,7 @@ export default function BloodBankDashboard() {
                         <RefreshCw size={14} style={{ animation: loading ? 'spin 1s linear infinite' : 'none' }} />
                         {loading ? 'Refreshing…' : 'Refresh Data'}
                     </button>
-                    <button className="btn btn-primary btn-sm">
+                    <button className="btn btn-primary btn-sm" onClick={() => setShowDonationModal(true)}>
                         <Plus size={15} /> New Collection
                     </button>
                 </div>
@@ -107,13 +140,74 @@ export default function BloodBankDashboard() {
                                 <span style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{card.label}</span>
                             </div>
                             <div style={{ fontSize: '32px', fontWeight: 800, color: 'var(--color-navy)', lineHeight: 1, marginBottom: '6px' }}>
-                                {loading && card.id !== 'inventory' ? <Loader2 size={22} className="animate-spin text-muted" /> : card.value}
+                                {loading ? <Loader2 size={22} className="animate-spin text-muted" /> : card.value}
                             </div>
                             <div style={{ fontSize: '12px', color: '#94A3B8' }}>{card.sub}</div>
                         </div>
                     );
                 })}
             </div>
+
+            {/* Donation Modal */}
+            {showDonationModal && (
+                <div className="modal-overlay" style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+                    <div className="card fade-in" style={{ width: '480px', padding: '32px', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.1)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                            <h2 style={{ fontSize: '18px', fontWeight: 800, color: 'var(--color-navy)', margin: 0 }}>Register New Collection</h2>
+                            <button onClick={() => setShowDonationModal(false)} style={{ background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer' }}><Plus size={20} style={{ transform: 'rotate(45deg)' }} /></button>
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+                            <div className="form-group">
+                                <label className="form-label">Blood Group</label>
+                                <select className="form-input" value={donationForm.bloodGroup} onChange={e => setDonationForm({...donationForm, bloodGroup: e.target.value})}>
+                                    {['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'].map(g => <option key={g}>{g}</option>)}
+                                </select>
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Component</label>
+                                <select className="form-input" value={donationForm.component} onChange={e => setDonationForm({...donationForm, component: e.target.value})}>
+                                    {['Whole Blood', 'PRC (Red Cells)', 'FFP (Plasma)', 'Platelets'].map(c => <option key={c}>{c}</option>)}
+                                </select>
+                            </div>
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '24px' }}>
+                            <div className="form-group">
+                                <label className="form-label">Units</label>
+                                <input type="number" className="form-input" value={donationForm.units} onChange={e => setDonationForm({...donationForm, units: e.target.value})} MIN="1" />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Expiry Date</label>
+                                <input type="date" className="form-input" value={donationForm.expiryDate} onChange={e => setDonationForm({...donationForm, expiryDate: e.target.value})} />
+                            </div>
+                        </div>
+                        <button 
+                            className="btn btn-primary" 
+                            style={{ width: '100%', height: '52px', background: '#EF4444', borderColor: '#EF4444' }}
+                            disabled={saving}
+                            onClick={async () => {
+                                setSaving(true);
+                                try {
+                                    const res = await fetch('/api/blood-bank/inventory', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify(donationForm)
+                                    });
+                                    if (res.ok) {
+                                        setShowDonationModal(false);
+                                        loadData();
+                                    }
+                                } catch (e) {
+                                    alert('Failed to sync donation record.');
+                                } finally {
+                                    setSaving(false);
+                                }
+                            }}
+                        >
+                            {saving ? <Loader2 className="animate-spin" size={20} /> : 'Confirm Clinical Ingress'}
+                        </button>
+                    </div>
+                </div>
+            )}
 
             <div className="grid-balanced" style={{ marginBottom: '28px' }}>
                 {/* Inventory Matrix */}
@@ -148,7 +242,10 @@ export default function BloodBankDashboard() {
                             <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--color-navy)' }}>Requisition Ledger</div>
                             <div style={{ fontSize: '12px', color: '#94A3B8', marginTop: '2px' }}>Clinical requests awaiting cross-matching</div>
                         </div>
-                        <History size={18} style={{ color: '#94A3B8' }} />
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                            <button className="btn btn-secondary btn-sm" style={{ padding: '6px 12px', fontSize: '11px', background: '#fff' }}>Manual Request</button>
+                            <History size={18} style={{ color: '#94A3B8' }} />
+                        </div>
                     </div>
                     {loading ? <div style={{ padding: '24px' }}><Skeleton height="240px" /></div> : (
                         <div style={{ width: '100%', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>

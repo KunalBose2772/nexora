@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { Pill, Plus, Search, AlertTriangle, AlertCircle, ShoppingCart, Activity, RefreshCw, X, PackagePlus, ArrowDownToLine, Package, ArrowRightLeft, MoreVertical, FileText, FileCheck, Layers, Boxes, TrendingUp, History, Siren, Ghost, Monitor, LayoutDashboard, Database, LayoutTemplate, Zap, Loader2 } from 'lucide-react';
+import { Pill, Plus, Search, AlertTriangle, AlertCircle, ShoppingCart, Activity, RefreshCw, X, PackagePlus, ArrowDownToLine, Package, ArrowRightLeft, MoreVertical, FileText, FileCheck, Layers, Boxes, TrendingUp, History, Siren, Ghost, Monitor, LayoutDashboard, Database, LayoutTemplate, Zap, Loader2, IndianRupee, Receipt, Stethoscope, Clock } from 'lucide-react';
 import Link from 'next/link';
 import Skeleton from '@/components/common/Skeleton';
 import PrintWrapper from '@/components/print/PrintWrapper';
@@ -32,10 +32,6 @@ export default function PharmacyPage() {
     const [dispensations, setDispensations] = useState([]);
     const [loadingDispenses, setLoadingDispenses] = useState(false);
 
-    const [showAdjustHistory, setShowAdjustHistory] = useState(false);
-    const [adjustments, setAdjustments] = useState([]);
-    const [loadingAdjustments, setLoadingAdjustments] = useState(false);
-
     const [form, setForm] = useState({ name: '', genericName: '', manufacturer: '', category: 'Tablet', batchNumber: '', expiryDate: '', mrp: '', costPrice: '', stock: '', minThreshold: '50' });
     const [saving, setSaving] = useState(false);
 
@@ -46,10 +42,6 @@ export default function PharmacyPage() {
     const [printBill, setPrintBill] = useState(null);
     const [printThermal, setPrintThermal] = useState(null);
     const [tan, setTan] = useState(null);
-
-    const [adjustModal, setAdjustModal] = useState(null);
-    const [adjustForm, setAdjustForm] = useState({ type: 'Damaged', quantity: '', notes: '', adjustmentPrice: '' });
-    const [adjustSaving, setAdjustSaving] = useState(false);
 
     const fetchMedicines = async () => {
         setLoading(true);
@@ -76,41 +68,7 @@ export default function PharmacyPage() {
         finally { setLoadingDispenses(false); }
     };
 
-    const fetchAdjustments = async () => {
-        setLoadingAdjustments(true);
-        try {
-            const res = await fetch('/api/pharmacy/stock-adjustments');
-            if (res.ok) {
-                const data = await res.json();
-                setAdjustments(data.adjustments || []);
-            }
-        } catch (err) { }
-        finally { setLoadingAdjustments(false); }
-    };
-
     useEffect(() => { fetchMedicines(); }, []);
-
-    const handleAddMedicine = async (e) => {
-        e.preventDefault();
-        setSaving(true);
-        try {
-            const res = await fetch('/api/pharmacy/medicines', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(form)
-            });
-            if (res.ok) {
-                const data = await res.json();
-                setMedicines(prev => [...prev, data.medicine].sort((a, b) => a.name.localeCompare(b.name)));
-                setShowAddModal(false);
-            }
-        } finally { setSaving(false); }
-    };
-
-    const openReceiveModal = (med) => {
-        setReceiveModal(med);
-        setReceiveForm({ qtyToAdd: '', batchNumber: med.batchNumber || '', expiryDate: med.expiryDate || '', mrp: med.mrp || '', costPrice: med.costPrice || '' });
-    };
 
     const handleReceiveStock = async (e) => {
         e.preventDefault();
@@ -138,29 +96,9 @@ export default function PharmacyPage() {
         } finally { setReceiveSaving(false); }
     };
 
-    const handlePostAdjustment = async (e) => {
-        e.preventDefault();
-        if (!adjustModal || !adjustForm.quantity) return;
-        setAdjustSaving(true);
-        try {
-            const res = await fetch('/api/pharmacy/stock-adjustments', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    medicineId: adjustModal.id,
-                    ...adjustForm
-                })
-            });
-            if (res.ok) {
-                setMedicines(prev => prev.map(m => m.id === adjustModal.id ? { ...m, stock: m.stock - parseInt(adjustForm.quantity) } : m));
-                setAdjustModal(null);
-            }
-        } finally { setAdjustSaving(false); }
-    };
-
     const filtered = medicines.filter(m => {
         const s = searchQuery.toLowerCase();
-        const matchSearch = !s || m.name.toLowerCase().includes(s) || (m.genericName || '').toLowerCase().includes(s) || (m.manufacturer || '').toLowerCase().includes(s) || m.drugCode.toLowerCase().includes(s);
+        const matchSearch = !s || m.name.toLowerCase().includes(s) || (m.genericName || '').toLowerCase().includes(s) || (m.manufacturer || '').toLowerCase().includes(s) || (m.drugCode || '').toLowerCase().includes(s);
         const statusLabel = STOCK_STATUS(m.stock, m.minThreshold).label;
         const matchStatus = filterStatus === 'All' || (filterStatus === 'Low Stock' && (statusLabel === 'Re-Order' || statusLabel === 'Stock-Out')) || (filterStatus === 'Expiring' && EXPIRY_WARNING(m.expiryDate)) || (filterStatus === 'Healthy' && statusLabel === 'Healthy');
         return matchSearch && matchStatus;
@@ -173,165 +111,211 @@ export default function PharmacyPage() {
         outOfStock: medicines.filter(m => m.stock === 0).length,
     };
 
+    const openReceiveModal = (med) => {
+        setReceiveModal(med);
+        setReceiveForm({ qtyToAdd: '', batchNumber: med.batchNumber || '', expiryDate: med.expiryDate || '', mrp: med.mrp || '', costPrice: med.costPrice || '' });
+    };
+
     return (
-        <div className="fade-in pb-12">
+        <div className="fade-in pb-20">
             <style jsx>{`
-                .kpi-card {
-                    background: #fff;
-                    border: 1px solid var(--color-border-light);
-                    border-radius: 20px;
-                    padding: 24px;
-                    transition: all 0.3s ease;
+                .stock-out-pulse { animation: stock-out-glow 2.5s infinite; }
+                @keyframes stock-out-glow {
+                    0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+                    70% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+                    100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
                 }
-                .status-badge {
-                    padding: 4px 10px;
-                    border-radius: 8px;
-                    font-size: 10px;
-                    font-weight: 901;
+                .med-action-btn {
+                    height: 38px;
+                    padding: 0 16px;
+                    border-radius: 10px;
+                    font-size: 11px;
+                    font-weight: 800;
                     text-transform: uppercase;
-                    letter-spacing: 0.1em;
+                    letter-spacing: 0.05em;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
                 }
-                .status-healthy { background: #F0FDF4; color: #10B981; border: 1px solid #DCFCE7; }
-                .status-low { background: #FFF7ED; color: #F97316; border: 1px solid #FFEDD5; }
-                .status-out { background: #FEF2F2; color: #EF4444; border: 1px solid #FEE2E2; }
             `}</style>
 
-            <div className="dashboard-header-row mb-8">
-                <div>
-                    <h1 className="responsive-h1">
-                        Clinical Pharmacy Operations
-                    </h1>
-                    <p style={{ fontSize: '14px', color: 'var(--color-text-secondary)', margin: 0 }}>Precision drug registry, pharmaceutical logistics, and prescription fulfillment.</p>
+            <div className="dashboard-header-row mb-10">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                    <div style={{ width: '52px', height: '52px', background: 'var(--color-navy)', color: '#fff', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 16px rgba(0,0,0,0.1)' }}>
+                        <Pill size={24} />
+                    </div>
+                    <div>
+                        <h1 className="responsive-h1" style={{ margin: 0 }}>Pharmacy Desk</h1>
+                        <p style={{ fontSize: '14px', color: 'var(--color-text-secondary)', margin: '4px 0 0 0', fontWeight: 500 }}>Precision drug management, stock audits, and clinical fulfillment.</p>
+                    </div>
                 </div>
-                <div className="dashboard-header-buttons">
-                    <button onClick={fetchMedicines} className="btn btn-secondary btn-sm h-11 px-6 bg-white shadow-sm border-slate-200 text-slate-600">
-                        <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Sync Store
+                <div className="dashboard-header-buttons" style={{ display: 'flex', gap: '12px' }}>
+                    <button onClick={fetchMedicines} className="btn btn-secondary" style={{ background: '#fff', color: 'var(--color-navy)', borderRadius: '12px', height: '44px', padding: '0 20px' }}>
+                        <RefreshCw size={16} className={loading ? 'animate-spin' : ''} style={{ marginRight: '8px' }} /> Sync Inventory
                     </button>
-                    <button onClick={() => { setShowDispenses(true); fetchDispensations(); }} className="btn btn-secondary btn-sm h-11 px-6 bg-white text-navy-900 border-slate-200">
-                        <History size={14} /> Bills
+                    <button onClick={() => { setShowDispenses(true); fetchDispensations(); }} className="btn btn-secondary" style={{ background: '#fff', color: 'var(--color-navy)', borderRadius: '12px', height: '44px', padding: '0 20px' }}>
+                        <History size={16} style={{ marginRight: '8px' }} /> Bill Ledger
                     </button>
-                    <button onClick={() => setShowAddModal(true)} className="btn btn-secondary btn-sm h-11 px-6 bg-white text-emerald-600 border-emerald-100">
-                        <PackagePlus size={14} /> Drug Registry
-                    </button>
-                    <Link href="/pharmacy/prescribe" className="btn btn-primary btn-sm h-11 px-8 flex items-center gap-2" style={{ textDecoration: 'none' }}>
-                        <Zap size={14} /> Dispense
+                    <Link href="/pharmacy/prescribe" className="btn btn-primary" style={{ background: 'var(--color-navy)', borderRadius: '12px', height: '44px', padding: '0 24px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Zap size={18} /> Dispense Hub
                     </Link>
                 </div>
             </div>
 
-            {/* KPI Strip */}
-            <div className="kpi-grid" style={{ marginBottom: '28px' }}>
+            <div className="kpi-grid mb-10">
                 {[
-                    { label: 'Store Volume', value: kpi.total, sub: 'Total SKUs', icon: Boxes, color: '#10B981' },
-                    { label: 'Availability Risk', value: kpi.lowStock, sub: 'Critical low', icon: AlertTriangle, color: '#EF4444' },
-                    { label: 'Stability Watch', value: kpi.expiring, sub: 'Near Expiry', icon: Clock, color: '#F59E0B' },
-                    { label: 'Daily Flux', value: 84, sub: 'Dispensed', icon: Activity, color: '#0EA5E9' },
+                    { label: 'Total SKUs', value: kpi.total, sub: 'Pharmacy Registry', icon: Boxes, color: '#0EA5E9' },
+                    { label: 'Stock Risks', value: kpi.lowStock, sub: 'Requires Re-order', icon: ShoppingCart, color: '#EF4444' },
+                    { label: 'Expiry Watch', value: kpi.expiring, sub: 'Near Expiry (90D)', icon: Clock, color: '#F59E0B' },
+                    { label: 'Healthy Stock', value: kpi.total - kpi.lowStock, sub: 'Available Units', icon: Package, color: '#10B981' },
                 ].map((card, i) => {
                     const Icon = card.icon;
                     return (
-                        <div key={i} className="kpi-card">
+                        <div key={i} className="kpi-card shadow-premium" style={{ border: '1px solid #F1F5F9' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
                                 <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: `${card.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    <Icon size={20} style={{ color: card.color }} strokeWidth={1.5} />
+                                    <Icon size={20} style={{ color: card.color }} strokeWidth={2} />
                                 </div>
-                                <span style={{ fontSize: '12px', color: '#94A3B8', fontWeight: 500 }}>{card.label}</span>
+                                <span style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{card.label}</span>
                             </div>
-                            <div style={{ fontSize: '32px', fontWeight: 800, color: 'var(--color-navy)', lineHeight: 1, marginBottom: '6px' }}>
-                                {loading ? <Loader2 size={22} className="animate-spin text-muted" /> : card.value}
+                            <div style={{ fontSize: '32px', fontWeight: 600, color: 'var(--color-navy)', lineHeight: 1, marginBottom: '6px' }}>
+                                {loading ? <Loader2 size={24} className="animate-spin text-slate-200" /> : card.value}
                             </div>
-                            <div style={{ fontSize: '12px', color: '#94A3B8' }}>{card.sub}</div>
+                            <div style={{ fontSize: '12px', color: '#94A3B8', fontWeight: 400 }}>{card.sub}</div>
                         </div>
                     );
                 })}
             </div>
 
-            <div className="card shadow-2xl shadow-slate-200/40">
-                <div className="p-6 border-b border-slate-100 flex flex-wrap gap-4 items-center justify-between">
-                    <div className="relative flex-1 min-w-[320px]">
-                        <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                        <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Search Molecular Registry by Drug Name, Batch or Code..." className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold outline-none focus:border-cyan-500 transition-all shadow-sm" />
+            <div className="card shadow-premium" style={{ padding: '0', overflow: 'hidden', border: '1px solid #F1F5F9' }}>
+                <div style={{ padding: '24px', background: '#fff', borderBottom: '1px solid #F1F5F9', display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
+                    <div style={{ flex: 1, minWidth: '300px', position: 'relative' }}>
+                        <Search size={18} color="#94A3B8" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
+                        <input 
+                            type="text" 
+                            value={searchQuery} 
+                            onChange={(e) => setSearchQuery(e.target.value)} 
+                            placeholder="Molecular registry search by Drug Name, Formula, or Batch..." 
+                            style={{ width: '100%', padding: '12px 16px 12px 48px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', outline: 'none', fontSize: '14px', fontWeight: 600, color: 'var(--color-navy)' }} 
+                        />
                     </div>
-                    <div className="flex gap-2">
+                    <div style={{ display: 'flex', gap: '8px' }}>
                         {['All', 'Healthy', 'Low Stock', 'Expiring'].map(f => (
-                            <button key={f} onClick={() => setFilterStatus(f)} className={`h-11 px-5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${filterStatus === f ? 'bg-navy-900 text-white shadow-xl' : 'bg-white border border-slate-200 text-slate-400'}`}>
+                            <button key={f} onClick={() => setFilterStatus(f)} style={{ height: '42px', padding: '0 16px', borderRadius: '10px', fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', border: filterStatus === f ? '1px solid var(--color-navy)' : '1px solid #E2E8F0', background: filterStatus === f ? 'var(--color-navy)' : '#fff', color: filterStatus === f ? '#fff' : '#94A3B8', transition: 'all 0.2s' }}>
                                 {f}
                             </button>
                         ))}
                     </div>
                 </div>
 
-                <div className="data-table-wrapper border-none">
+                <div className="responsive-table-container">
                     <table className="data-table">
                         <thead>
                             <tr>
-                                <th>Drug & Demographics</th>
-                                <th>Category / Class</th>
-                                <th>Batch / Lifecycle</th>
+                                <th style={{ paddingLeft: '24px' }}>Pharmaceutical Registry</th>
+                                <th>Molecular Class</th>
+                                <th>Batch & Lifecycle</th>
                                 <th>Inventory Depth</th>
                                 <th>State</th>
-                                <th style={{ textAlign: 'right' }}>Management</th>
+                                <th style={{ textAlign: 'right', paddingRight: '24px' }}>Logistics</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {loading ? [1, 2, 3, 4, 5].map(i => <tr key={i}><td colSpan="6"><Skeleton height="20px" /></td></tr>) : filtered.length === 0 ? (
-                                <tr><td colSpan="6" className="text-center py-24 text-slate-300 font-bold uppercase tracking-widest text-xs">No molecular data detected</td></tr>
-                            ) : filtered.map(med => {
-                                const { label, cls } = STOCK_STATUS(med.stock, med.minThreshold);
-                                const expWarn = EXPIRY_WARNING(med.expiryDate);
-                                return (
-                                    <tr key={med.id} className="hover:bg-slate-50 transition-all">
-                                        <td>
-                                            <div className="text-[14px] font-black text-navy-900">{med.name}</div>
-                                            <div className="text-[10px] font-bold text-slate-400 uppercase mt-1 tracking-tight">{med.genericName || 'Formula Pending'} · {med.drugCode}</div>
-                                        </td>
-                                        <td>
-                                            <div className="text-[10px] font-black uppercase py-1 px-2 rounded-lg bg-slate-100 text-slate-600 inline-block">{med.category}</div>
-                                            <div className="text-[10px] font-bold text-slate-400 truncate max-w-[120px] mt-1 uppercase">{med.manufacturer || 'Global Generic'}</div>
-                                        </td>
-                                        <td>
-                                            <div className="text-[13px] font-black text-navy-900 font-mono italic tracking-tighter">{med.batchNumber || '—'}</div>
-                                            <div className={`text-[10px] font-black uppercase mt-1 ${expWarn ? 'text-red-500 animate-pulse' : 'text-slate-400'}`}>
-                                                {expWarn ? 'EXPIRING: ' : 'EXP: '}{med.expiryDate || 'N/A'}
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div className="text-[15px] font-black text-navy-900">{med.stock.toLocaleString()} <span className="text-[10px] font-bold text-slate-400">UNITS</span></div>
-                                            <div className="text-[10px] font-bold text-emerald-600 mt-1 uppercase">MRP: ₹{med.mrp}</div>
-                                        </td>
-                                        <td><span className={`status-badge ${cls}`}>{label}</span></td>
-                                        <td style={{ textAlign: 'right' }}>
-                                            <div className="flex gap-2 justify-end">
-                                                <button onClick={() => setAdjustModal(med)} className="w-9 h-9 flex items-center justify-center rounded-lg bg-red-50 text-red-600 border border-transparent hover:border-red-100"><AlertTriangle size={16} /></button>
-                                                <button onClick={() => openReceiveModal(med)} className="h-9 px-4 rounded-lg bg-navy-900 text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-navy-200">Replenish</button>
-                                                <button className="w-9 h-9 flex items-center justify-center rounded-lg bg-slate-50 text-slate-400"><MoreVertical size={16} /></button>
-                                            </div>
-                                        </td>
+                            {loading ? (
+                                [1, 2, 3, 4, 5].map(i => (
+                                    <tr key={i}>
+                                        <td colSpan="6" style={{ padding: '16px 24px' }}><Skeleton className="h-4 w-full" /></td>
                                     </tr>
-                                );
-                            })}
+                                ))
+                            ) : filtered.length === 0 ? (
+                                <tr>
+                                    <td colSpan="6" style={{ padding: '80px 24px', textAlign: 'center' }}>
+                                        <div style={{ color: '#94A3B8', fontSize: '14px', fontWeight: 600 }}>No molecular data detected in this segment.</div>
+                                    </td>
+                                </tr>
+                            ) : (
+                                filtered.map((med) => {
+                                    const { label, cls } = STOCK_STATUS(med.stock, med.minThreshold);
+                                    const expWarn = EXPIRY_WARNING(med.expiryDate);
+                                    return (
+                                        <tr key={med.id} className="interactive-row">
+                                            <td style={{ paddingLeft: '24px' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                                    <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: '#F1F5F9', color: 'var(--color-navy)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                        <FileText size={14} />
+                                                    </div>
+                                                    <div>
+                                                        <div style={{ color: 'var(--color-navy)', fontWeight: 600, fontSize: '14px' }}>{med.name}</div>
+                                                        <div style={{ color: '#94A3B8', fontWeight: 500, fontSize: '11px', textTransform: 'uppercase' }}>{med.drugCode}</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div style={{ display: 'inline-block', padding: '4px 8px', background: '#F1F5F9', color: '#64748B', borderRadius: '6px', fontSize: '10px', fontWeight: 600, textTransform: 'uppercase' }}>{med.category}</div>
+                                                <div style={{ color: '#94A3B8', fontSize: '11px', fontWeight: 500, marginTop: '2px' }}>{med.genericName || 'Formula Pending'}</div>
+                                            </td>
+                                            <td>
+                                                <div style={{ color: 'var(--color-navy)', fontWeight: 500, fontSize: '13px', fontFamily: 'monospace' }}>Batch: {med.batchNumber || '—'}</div>
+                                                <div style={{ color: expWarn ? '#EF4444' : '#94A3B8', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                    {expWarn && <AlertTriangle size={10} />} Exp: {med.expiryDate || 'N/A'}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div style={{ color: 'var(--color-navy)', fontWeight: 800, fontSize: '15px' }}>{med.stock.toLocaleString()} <span style={{ fontSize: '10px', color: '#94A3B8' }}>Units</span></div>
+                                                <div style={{ color: '#10B981', fontSize: '11px', fontWeight: 800, marginTop: '2px' }}>MRP: ₹{med.mrp}</div>
+                                            </td>
+                                            <td>
+                                                <span className={`status-badge ${cls === 'status-out' ? 'status-out stock-out-pulse' : cls === 'status-low' ? 'status-low' : 'status-healthy'}`} style={{ 
+                                                    padding: '4px 10px', 
+                                                    borderRadius: '8px', 
+                                                    fontSize: '10px', 
+                                                    fontWeight: 900, 
+                                                    textTransform: 'uppercase',
+                                                    background: cls === 'status-out' ? '#EF4444' : cls === 'status-low' ? '#FFF7ED' : '#F0FDF4',
+                                                    color: cls === 'status-out' ? '#fff' : cls === 'status-low' ? '#F97316' : '#10B981',
+                                                    border: 'none'
+                                                }}>
+                                                    {label}
+                                                </span>
+                                            </td>
+                                            <td style={{ textAlign: 'right', paddingRight: '24px' }}>
+                                                <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                                                    <button onClick={() => openReceiveModal(med)} className="med-action-btn" style={{ background: 'var(--color-navy)', color: '#fff', border: 'none' }}>
+                                                        <Plus size={14} /> Replenish
+                                                    </button>
+                                                    <button className="btn-circle-secondary" style={{ width: '38px', height: '38px', background: '#F8FAFC', color: '#94A3B8', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #E2E8F0' }}>
+                                                        <MoreVertical size={16} />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    );
+                                })
+                            )}
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            {/* Modals Refactored */}
+            {/* Replenish Modal */}
             {receiveModal && (
                 <div className="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
                     <div className="bg-white rounded-[24px] w-full max-w-[500px] p-8 shadow-2xl animate-scale-up">
                         <div className="flex justify-between items-center mb-8">
-                            <h2 className="text-xl font-black text-navy-900">Capital Induction</h2>
+                            <h2 className="text-xl font-black text-navy-900">Induction Registry</h2>
                             <button onClick={() => setReceiveModal(null)} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-slate-50 text-slate-400 transition-all"><X size={20} /></button>
                         </div>
                         <div className="p-5 bg-sky-50 border border-sky-100 rounded-[20px] flex gap-5 items-center mb-8">
                             <div className="w-14 h-14 bg-white rounded-2xl shadow-sm text-sky-500 flex items-center justify-center shrink-0"><Package size={28} /></div>
                             <div>
                                 <div className="text-[16px] font-black text-navy-900 leading-tight">{receiveModal.name}</div>
-                                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Registry: {receiveModal.drugCode}</div>
+                                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">CODE: {receiveModal.drugCode}</div>
                             </div>
                         </div>
                         <form onSubmit={handleReceiveStock} className="space-y-6">
                             <div>
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 block">Induction Units</label>
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 block">Stocking Units</label>
                                 <input required autoFocus type="number" min="1" value={receiveForm.qtyToAdd} onChange={e => setReceiveForm({ ...receiveForm, qtyToAdd: e.target.value })} className="w-full px-5 py-4 bg-slate-50 border-2 border-slate-100 rounded-xl font-black text-2xl text-navy-900 focus:border-sky-500 outline-none transition-all placeholder:text-slate-200" placeholder="000" />
                             </div>
                             <div className="grid grid-cols-2 gap-4">
@@ -346,21 +330,20 @@ export default function PharmacyPage() {
                             </div>
                             <div className="flex gap-4 pt-2">
                                 <button type="button" onClick={() => setReceiveModal(null)} className="flex-1 py-4 bg-slate-50 text-slate-500 font-black text-[10px] uppercase tracking-widest rounded-xl">Abort</button>
-                                <button type="submit" disabled={receiveSaving} className="flex-2 px-8 py-4 bg-navy-900 text-white font-black text-[10px] uppercase tracking-widest rounded-xl shadow-xl shadow-slate-200 active:scale-95 transition-all">Preserve to Registry</button>
+                                <button type="submit" disabled={receiveSaving} className="flex-2 px-8 py-4 bg-navy-900 text-white font-black text-[10px] uppercase tracking-widest rounded-xl shadow-xl shadow-slate-200 active:scale-95 transition-all">Induct Medicine</button>
                             </div>
                         </form>
                     </div>
                 </div>
             )}
 
-            {/* Bil History / Dispenses Modal */}
             {showDispenses && (
                 <div className="fixed inset-0 z-[110] bg-slate-900/70 backdrop-blur-md flex items-center justify-center p-10">
                     <div className="bg-white rounded-[32px] w-full max-w-[900px] h-[85vh] flex flex-col shadow-2xl overflow-hidden">
                         <div className="p-10 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
                             <div>
                                 <h2 className="text-2xl font-black text-navy-900">Dispensation Ledger</h2>
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Complete historical bill registry for pharmacy unit</p>
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Audit log of all processed pharmacy bills</p>
                             </div>
                             <button onClick={() => setShowDispenses(false)} className="w-12 h-12 flex items-center justify-center rounded-2xl hover:bg-white text-slate-400 transition-all shadow-sm border border-transparent hover:border-slate-100"><X size={24} /></button>
                         </div>
@@ -378,11 +361,11 @@ export default function PharmacyPage() {
                                     <div className="flex gap-8 items-center">
                                         <div className="text-right">
                                             <div className="text-2xl font-black text-emerald-600">₹{d.netAmount.toFixed(2)}</div>
-                                            <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{d.items.length} Molecular Units</div>
+                                            <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{d.items.length} Units</div>
                                         </div>
                                         <div className="flex gap-2">
-                                            <button onClick={() => setPrintBill(d)} className="h-10 px-6 rounded-xl bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest">Audit A4</button>
-                                            <button onClick={() => setPrintThermal(d)} className="w-10 h-10 flex items-center justify-center rounded-xl bg-cyan-50 text-cyan-600 shadow-sm"><Receipt size={18} /></button>
+                                            <button onClick={() => setPrintBill(d)} className="h-10 px-6 rounded-xl bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest">Audit Bill</button>
+                                            <button onClick={() => setPrintThermal(d)} className="w-10 h-10 flex items-center justify-center rounded-xl bg-cyan-50 text-cyan-600 shadow-sm"><IndianRupee size={18} /></button>
                                         </div>
                                     </div>
                                 </div>
@@ -392,7 +375,6 @@ export default function PharmacyPage() {
                 </div>
             )}
 
-            {/* Overlays / Prints (Refactored to match) */}
             {printBill && (
                 <div className="fixed inset-0 z-[150] bg-slate-900/80 backdrop-blur-sm p-10 flex items-center justify-center animate-fade-in">
                     <div className="bg-white rounded-[32px] w-full max-w-[850px] shadow-2xl overflow-hidden flex flex-col h-[90vh]">

@@ -7,17 +7,16 @@ export async function GET(req) {
         const session = await getSessionFromRequest(req);
         if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-        // Since we can't alter the schema for a new 'Surgery' table without stopping the server,
-        // we'll store OT Schedules in the generic Appointment table with type = 'Surgery'
-
-        const surgeries = await prisma.appointment.findMany({
+        const surgeries = await prisma.surgery.findMany({
             where: {
-                tenantId: session.tenantId,
-                type: 'Surgery'
+                tenantId: session.tenantId
+            },
+            include: {
+                patient: true
             },
             orderBy: [
-                { date: 'asc' },
-                { time: 'asc' }
+                { startTime: 'asc' },
+                { createdAt: 'desc' }
             ]
         });
 
@@ -35,20 +34,22 @@ export async function POST(req) {
 
         const data = await req.json();
 
-        // Simulate creating an OT Block
-        const newSurgery = await prisma.appointment.create({
+        const randCode = `SUR-${Math.floor(1000 + Math.random() * 9000)}`;
+
+        const newSurgery = await prisma.surgery.create({
             data: {
-                apptCode: `OT-${Math.random().toString(36).substring(2, 6).toUpperCase()}`,
-                patientName: data.patientName,
-                patientId: data.patientId || null,
-                doctorName: data.surgeonName,
-                department: data.otRoom || 'Main OT',
-                date: data.date,
-                time: data.time,
-                type: 'Surgery',
+                surgeryCode: randCode,
+                patientId: data.patientId,
+                procedureName: data.procedureName,
+                surgeonName: data.surgeonName,
+                otRoom: data.otRoom || 'Main OT',
                 status: 'Scheduled',
-                admitNotes: `[PRE-OP CHECKLIST: ${data.checklistCleared ? 'CLEARED' : 'PENDING'}] Surgery: ${data.surgeryType} | Implant Serial: ${data.implantSerial || 'N/A'} | Anesthesia: ${data.anesthesiaRequired ? 'Yes' : 'No'}`,
+                anesthesiaType: data.anesthesiaType || 'General',
+                preOpDiagnosis: data.preOpDiagnosis || '',
                 tenantId: session.tenantId,
+            },
+            include: {
+                patient: true
             }
         });
 

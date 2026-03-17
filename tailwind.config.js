@@ -10,6 +10,21 @@ module.exports = {
             colors: {
                 background: "var(--background)",
                 foreground: "var(--foreground)",
+                navy: {
+                    50: '#F0F9FF',
+                    100: '#E1E7EF',
+                    200: '#C2CFDF',
+                    300: '#A3B7CF',
+                    400: '#849FBF',
+                    500: '#6587AF',
+                    600: '#466F9F',
+                    700: '#27578F',
+                    800: '#083F7F',
+                    900: 'var(--color-navy)',
+                },
+                cyan: {
+                    500: 'var(--color-cyan)',
+                }
             },
         },
     },

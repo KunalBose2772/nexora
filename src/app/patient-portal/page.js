@@ -46,7 +46,10 @@ export default async function PatientPortalPage() {
                     <span style={{ fontSize: '18px', fontWeight: 700, letterSpacing: '-0.01em' }}>Nexora Patient Portal</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                    <span style={{ fontSize: '14px', color: '#94A3B8' }}>{patientData.firstName} {patientData.lastName}</span>
+                    <div style={{ textAlign: 'right' }}>
+                        <div style={{ fontSize: '14px', fontWeight: 700 }}>{patientData.firstName} {patientData.lastName}</div>
+                        <div style={{ fontSize: '11px', color: '#64748B', fontWeight: 800 }}>ID: {patientData.patientCode}</div>
+                    </div>
                     <form action="/api/auth/logout" method="POST" style={{ margin: 0 }}>
                         <button type="submit" style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', padding: '8px 12px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }}>
                             <LogOut size={14} /> Sign Out

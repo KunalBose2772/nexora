@@ -80,28 +80,28 @@ h6 {
 }
 
 h1 {
-  font-size: 28px;
+  font-size: 26px;
   font-weight: 600;
   line-height: 1.3;
   color: var(--color-text-primary);
 }
 
 h2 {
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 500;
   line-height: 1.4;
   color: var(--color-text-primary);
 }
 
 h3 {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 500;
   line-height: 1.4;
   color: var(--color-text-primary);
 }
 
 p {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 400;
   line-height: 1.6;
   color: var(--color-text-secondary);
@@ -114,6 +114,134 @@ p {
   p { font-size: 14px !important; }
   .page-header__title { font-size: 18px !important; }
 }
+
+/* ── Utility Classes ── */
+.responsive-h1 {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--color-navy);
+  letter-spacing: -0.015em;
+  margin-bottom: 2px;
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.grid-balanced {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+@media (max-width: 1200px) {
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .responsive-h1 { font-size: 24px; }
+  .kpi-grid { grid-template-columns: 1fr; gap: 16px; }
+  .grid-balanced { grid-template-columns: 1fr; }
+}
+
+/* ── Executive UI Components ── */
+.kpi-card { 
+  background: var(--color-white); 
+  border: 1px solid var(--color-border-light); 
+  border-radius: 20px; 
+  padding: 24px; 
+  text-decoration: none; 
+  display: block; 
+  transition: all 0.2s; 
+  position: relative; 
+  overflow: hidden; 
+}
+
+.kpi-card:hover { 
+  box-shadow: var(--shadow-card-hover); 
+  transform: translateY(-3px); 
+  border-color: var(--color-border); 
+}
+
+.kpi-card::after { 
+  content: ''; 
+  position: absolute; 
+  top: 0; 
+  left: 0; 
+  width: 4px; 
+  height: 100%; 
+  background: var(--color-icon); 
+  opacity: 0; 
+  transition: opacity 0.2s; 
+}
+
+.kpi-card:hover::after { 
+  opacity: 1; 
+}
+
+.bot-kpi-card { 
+  background: var(--color-white); 
+  border: 1px solid var(--color-border-light); 
+  border-radius: 14px; 
+  padding: 16px; 
+  text-decoration: none; 
+  display: flex; 
+  align-items: center; 
+  gap: 14px; 
+  transition: all 0.15s; 
+}
+
+/* ── KPI Stat Card ── */
+.stat-card {
+  background: var(--color-white);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--color-border-light);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stat-card:hover {
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-2px);
+  border-color: var(--color-cyan)33;
+}
+
+.stat-card__label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.stat-card__value {
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  line-height: 1;
+}
+
+.shadow-premium {
+    box-shadow: 0 10px 25px -5px rgba(10, 46, 77, 0.05), 0 8px 10px -6px rgba(10, 46, 77, 0.05);
+}
+
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+@keyframes heartbeat {
+    0% { transform: scale(1); }
+    14% { transform: scale(1.1); }
+    28% { transform: scale(1); }
+    42% { transform: scale(1.1); }
+    70% { transform: scale(1); }
+}
+
+.heartbeat-icon { animation: heartbeat 2s infinite ease-in-out; }
 
 /* ── Links ── */
 a {
@@ -205,55 +333,49 @@ a:hover {
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-card);
   border: 1px solid var(--color-border-light);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .card:hover {
   box-shadow: var(--shadow-card-hover);
-  transition: box-shadow var(--transition);
 }
 
-/* ── KPI Stat Card ── */
-.stat-card {
-  background: var(--color-white);
-  border-radius: var(--radius-card);
-  box-shadow: var(--shadow-card);
-  border: 1px solid var(--color-border-light);
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+.shadow-premium {
+    box-shadow: 0 10px 25px -5px rgba(10, 46, 77, 0.05), 0 8px 10px -6px rgba(10, 46, 77, 0.05);
 }
 
-.stat-card__label {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--color-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+/* ── Interactive Tables ── */
+.interactive-row {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.stat-card__value {
-  font-size: 28px;
-  font-weight: 600;
-  color: var(--color-text-primary);
-  line-height: 1;
+.interactive-row:hover {
+    background: #F8FAFC !important;
 }
 
-.stat-card__trend {
-  font-size: 12px;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 4px;
+.table-row-hover:hover {
+    background: #F8FAFC !important;
 }
 
-.stat-card__trend--up {
-  color: var(--color-success);
+/* ── Unified Status Badges ── */
+.status-badge {
+    padding: 4px 12px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid transparent;
 }
 
-.stat-card__trend--down {
-  color: var(--color-error);
-}
+.badge-paid, .badge-completed { background: #F0FDF4; color: #10B981; border-color: #DCFCE7; }
+.badge-pending, .badge-scheduled { background: #FFF7ED; color: #F97316; border-color: #FFEDD5; }
+.badge-cancelled, .badge-urgent { background: #FEF2F2; color: #EF4444; border-color: #FEE2E2; }
+.badge-processing, .badge-in-progress { background: #F0F9FF; color: #0EA5E9; border-color: #E0F2FE; }
+.badge-grey { background: #F1F5F9; color: #475569; border-color: #E2E8F0; }
 
 /* ── Buttons ── */
 .btn {
@@ -465,7 +587,7 @@ a:hover {
   color: var(--color-navy);
 }
 
-/* ── Table ── */
+/* ── Table & Registries ── */
 .data-table-wrapper {
   overflow-x: auto;
   border-radius: var(--radius-card);
@@ -504,13 +626,61 @@ a:hover {
   vertical-align: middle;
 }
 
-.data-table tbody tr:nth-child(even) {
+.data-table tbody tr:hover {
   background: #FAFCFF;
+  transition: background var(--transition);
 }
 
-.data-table tbody tr:hover {
-  background: #F0F7FF;
-  transition: background var(--transition);
+.registry-row {
+  border-bottom: 1px solid var(--color-border-light);
+  transition: background 0.2s;
+  cursor: pointer;
+}
+
+.registry-row:hover {
+  background: #F8FAFC !important;
+}
+
+/* ── Actions Dropdown ── */
+.actions-dropdown {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  background: #fff;
+  border: 1px solid var(--color-border-light);
+  border-radius: 12px;
+  box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
+  z-index: 150;
+  width: 200px;
+  overflow: hidden;
+  animation: registrySlideDown 0.2s ease;
+}
+
+@keyframes registrySlideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dropdown-item {
+  width: 100%;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-navy);
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s;
+  text-decoration: none;
+}
+
+.dropdown-item:hover {
+  background: #F8FAFC;
+  color: var(--color-cyan);
 }
 
 .data-table tbody tr:last-child td {

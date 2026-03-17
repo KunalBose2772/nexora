@@ -224,8 +224,14 @@ export default function SurgeryDetailPage() {
                                         </div>
                                     </div>
                                 </div>
-                                <button className="btn btn-primary" style={{ height: '56px', fontSize: '16px', fontWeight: 800 }}>
-                                    <Scissors size={20} /> SIGN PROCEDURAL RECORD
+                                <button 
+                                    className="btn btn-primary" 
+                                    style={{ height: '56px', fontSize: '16px', fontWeight: 800 }}
+                                    onClick={() => handleUpdate({ status: 'Completed' })}
+                                    disabled={saving}
+                                >
+                                    {saving ? <Loader2 size={20} className="animate-spin" /> : <Scissors size={20} />} 
+                                    SIGN PROCEDURAL RECORD
                                 </button>
                             </div>
                         </div>

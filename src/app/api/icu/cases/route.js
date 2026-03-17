@@ -12,10 +12,10 @@ export async function GET(request) {
         const cases = await prisma.appointment.findMany({
             where: {
                 tenantId: session.tenantId,
-                status: { in: ['Admitted', 'In Progress'] },
                 OR: [
-                    { ward: { contains: 'ICU' } },
-                    { department: { contains: 'ICU' } }
+                    { status: { in: ['Admitted', 'In Progress'] }, ward: { contains: 'ICU' } },
+                    { status: { in: ['Admitted', 'In Progress'] }, department: { contains: 'ICU' } },
+                    { status: { contains: 'Referred: ICU' } }
                 ]
             },
             include: {

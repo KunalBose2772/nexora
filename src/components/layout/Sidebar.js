@@ -85,7 +85,7 @@ const NAV_GROUPS = [
         label: 'Administration',
         items: [
             { href: '/hr', icon: UserCog, label: 'HR & Staff' },
-            { href: '/hr/attendance', icon: Clock, label: 'Attendance' },
+            { href: '/hrms/attendance', icon: Clock, label: 'Attendance' },
             { href: '/reports', icon: BarChart3, label: 'Reports' },
             { href: '/branches', icon: Building2, label: 'Branches' },
             { href: '/settings/facility', icon: BedDouble, label: 'Facility Setup' },
@@ -207,7 +207,7 @@ export default function Sidebar({ collapsed, setCollapsed, mobileOpen }) {
                             <div
                                 style={{
                                     fontSize: '9.5px',
-                                    fontWeight: 700,
+                                    fontWeight: 550,
                                     textTransform: 'uppercase',
                                     letterSpacing: '0.10em',
                                     color: 'rgba(255,255,255,0.28)',

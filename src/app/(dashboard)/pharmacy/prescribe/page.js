@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Pill, Save, ArrowLeft, Search, ShoppingCart, Trash2, X, Plus, Minus, ScanLine } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function PrescribeMedicinePage() {
     const router = useRouter();
@@ -28,6 +28,8 @@ export default function PrescribeMedicinePage() {
     const [cart, setCart] = useState([]);
     const [discount, setDiscount] = useState(0);
 
+    const searchParams = useSearchParams();
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -36,13 +38,27 @@ export default function PrescribeMedicinePage() {
                     fetch('/api/patients')
                 ]);
                 if (mRes.ok) setMedicines((await mRes.json()).medicines || []);
-                if (pRes.ok) setPatients((await pRes.json()).patients || []);
+                if (pRes.ok) {
+                    const allPatients = (await pRes.json()).patients || [];
+                    setPatients(allPatients);
+
+                    // Auto-select patient from query params
+                    const pid = searchParams.get('patientId');
+                    const pname = searchParams.get('patient');
+                    
+                    if (pid) {
+                        const found = allPatients.find(p => p.id === pid);
+                        if (found) setSelectedPatient(found);
+                    } else if (pname) {
+                        setWalkInName(pname);
+                    }
+                }
             } catch (err) {
                 console.error(err);
             }
         };
         fetchData();
-    }, []);
+    }, [searchParams]);
 
     const filteredPatients = searchPatient
         ? patients.filter(p =>

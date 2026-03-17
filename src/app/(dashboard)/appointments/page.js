@@ -1,7 +1,10 @@
 'use client';
-import { Calendar as CalIcon, Filter, Plus, Search, CalendarDays, List, ChevronLeft, ChevronRight, Activity } from 'lucide-react';
+import { Calendar as CalIcon, Filter, Plus, Search, CalendarDays, List, ChevronLeft, ChevronRight, Activity, Clock, User, UserCheck, Loader2, MoreVertical, FileText, CheckCircle, X } from 'lucide-react';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
+
+// Shared Skeleton for loading states
+const Skeleton = ({ className }) => <div className={`animate-pulse bg-slate-100 rounded-md ${className}`} />;
 
 export default function AppointmentsPage() {
     const [appointments, setAppointments] = useState([]);
@@ -9,6 +12,7 @@ export default function AppointmentsPage() {
     const [search, setSearch] = useState('');
     const [viewMode, setViewMode] = useState('list'); // 'list' or 'calendar'
     const [showFilters, setShowFilters] = useState(false);
+    const [openMenuId, setOpenMenuId] = useState(null);
 
     // Filters logic
     const [filterStatus, setFilterStatus] = useState('All');
@@ -46,7 +50,7 @@ export default function AppointmentsPage() {
     const todayStr = new Date().toISOString().split('T')[0];
     const todayAppointments = appointments.filter(a => a.date === todayStr).length;
     const completedConsults = appointments.filter(a => a.status === 'Completed').length;
-    const cancelledCount = appointments.filter(a => a.status === 'Cancelled').length;
+    const waitingCount = appointments.filter(a => a.status === 'Waiting').length;
 
     // Calendar generation logic
     const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -76,177 +80,286 @@ export default function AppointmentsPage() {
     };
 
     return (
-        <div className="fade-in">
-            <div className="dashboard-header-row mb-8">
+        <div className="fade-in pb-20">
+            <style jsx>{`
+                .view-toggle-btn {
+                    height: 44px;
+                    padding: 0 20px;
+                    border-radius: 12px;
+                    font-weight: 600;
+                    font-size: 13px;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    transition: all 0.2s ease;
+                }
+                .calendar-cell {
+                    min-height: 120px;
+                    padding: 12px;
+                    border-right: 1px solid #F1F5F9;
+                    border-bottom: 1px solid #F1F5F9;
+                    background: #fff;
+                    transition: all 0.2s;
+                }
+                .calendar-cell:hover {
+                    background: #F8FAFC;
+                }
+                .appt-pill {
+                    padding: 4px 8px;
+                    border-radius: 6px;
+                    font-size: 11px;
+                    font-weight: 500;
+                    margin-bottom: 4px;
+                    border-left: 3px solid transparent;
+                }
+            `}</style>
+
+            <div className="dashboard-header-row mb-10">
                 <div>
-                    <h1 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--color-navy)', margin: '0 0 4px', letterSpacing: '-0.02em' }}>
-                        Appointments & Scheduling Desk
-                    </h1>
-                    <p style={{ fontSize: '14px', color: 'var(--color-text-secondary)', margin: 0 }}>Clinical queue management, slot optimization, and patient flow governance.</p>
+                    <h1 className="responsive-h1" style={{ margin: 0 }}>Clinical Scheduler</h1>
+                    <p style={{ fontSize: '14px', color: 'var(--color-text-secondary)', margin: '4px 0 0 0', fontWeight: 500 }}>Global queue governance, slot optimization, and patient flow.</p>
                 </div>
-                <div className="dashboard-header-buttons">
-                    <button onClick={() => setViewMode(viewMode === 'list' ? 'calendar' : 'list')} className="btn btn-secondary btn-sm h-11 px-5 border-slate-200 bg-white shadow-sm">
-                        {viewMode === 'list' ? <><CalendarDays size={14} /> Full Calendar</> : <><List size={14} /> List View</>}
-                    </button>
-                    <Link href="/appointments/new" className="btn btn-primary btn-sm h-11 px-6 flex items-center gap-2" style={{ textDecoration: 'none' }}>
-                        <Plus size={15} strokeWidth={1.5} />
-                        New Booking
+                <div className="dashboard-header-buttons" style={{ display: 'flex', gap: '12px' }}>
+                    <div style={{ background: '#F1F5F9', padding: '4px', borderRadius: '12px', display: 'flex', gap: '4px' }}>
+                        <button 
+                            onClick={() => setViewMode('list')} 
+                            className={`view-toggle-btn ${viewMode === 'list' ? 'bg-white shadow-sm text-navy-900' : 'text-slate-500'}`}
+                        >
+                            <List size={16} /> List
+                        </button>
+                        <button 
+                            onClick={() => setViewMode('calendar')} 
+                            className={`view-toggle-btn ${viewMode === 'calendar' ? 'bg-white shadow-sm text-navy-900' : 'text-slate-500'}`}
+                        >
+                            <CalendarDays size={16} /> Calendar
+                        </button>
+                    </div>
+                    <Link href="/appointments/new" className="btn btn-primary" style={{ textDecoration: 'none', height: '44px', borderRadius: '12px', padding: '0 24px', display: 'flex', alignItems: 'center', gap: '8px', background: 'var(--color-navy)' }}>
+                        <Plus size={18} /> New Booking
                     </Link>
                 </div>
             </div>
 
-            <div className="kpi-grid" style={{ marginBottom: '28px' }}>
+            <div className="kpi-grid mb-10">
                 {[
                     { label: 'Today\'s Flux', value: todayAppointments, sub: 'Visits Scheduled', icon: CalendarDays, color: '#0EA5E9' },
-                    { label: 'Clinical Output', value: completedConsults, sub: 'Consults Finished', icon: Activity, color: '#10B981' },
-                    { label: 'System Leakage', value: cancelledCount, sub: 'Cancellations', icon: Filter, color: '#EF4444' },
+                    { label: 'Current Queue', value: waitingCount, sub: 'Physically Present', icon: Clock, color: '#F59E0B' },
+                    { label: 'Clinical Output', value: completedConsults, sub: 'Consults Finished', icon: UserCheck, color: '#10B981' },
                 ].map((card, i) => {
                     const Icon = card.icon;
                     return (
-                        <div key={i} className="kpi-card">
+                        <div key={i} className="kpi-card" style={{ border: '1px solid #F1F5F9' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
                                 <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: `${card.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    <Icon size={20} style={{ color: card.color }} strokeWidth={1.5} />
+                                    <Icon size={20} style={{ color: card.color }} strokeWidth={2} />
                                 </div>
-                                <span style={{ fontSize: '12px', color: '#94A3B8', fontWeight: 500 }}>{card.label}</span>
+                                <span style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{card.label}</span>
                             </div>
-                            <div style={{ fontSize: '32px', fontWeight: 800, color: 'var(--color-navy)', lineHeight: 1, marginBottom: '6px' }}>
-                                {loading ? <Loader2 size={22} className="animate-spin text-muted" /> : card.value}
+                            <div style={{ fontSize: '32px', fontWeight: 600, color: 'var(--color-navy)', lineHeight: 1, marginBottom: '6px' }}>
+                                {loading ? <Loader2 size={24} className="animate-spin text-slate-200" /> : card.value}
                             </div>
-                            <div style={{ fontSize: '12px', color: '#94A3B8' }}>{card.sub}</div>
+                            <div style={{ fontSize: '12px', color: '#94A3B8', fontWeight: 500 }}>{card.sub}</div>
                         </div>
                     );
                 })}
             </div>
 
-            <div className="card" style={{ padding: '24px' }}>
-                <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <div style={{ display: 'flex', gap: '12px', flex: 1, minWidth: '300px' }}>
-                        <div style={{ flex: 1, position: 'relative' }}>
-                            <Search size={16} color="#94A3B8" style={{ position: 'absolute', left: '16px', top: '12px' }} />
-                            <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search appointments by Patient name, Doctor, or Token..." style={{ width: '100%', padding: '12px 16px 12px 42px', border: '1px solid var(--color-border-light)', borderRadius: '8px', outline: 'none', fontSize: '14px' }} />
-                        </div>
-                        <button onClick={() => setShowFilters(!showFilters)} className={`btn ${showFilters ? 'btn-primary' : 'btn-secondary'}`} style={{ background: showFilters ? 'var(--color-navy)' : '#fff' }}>
-                            <Filter size={16} /> Advanced Filters
-                        </button>
+            <div className="card shadow-premium" style={{ padding: '0', overflow: 'hidden', border: '1px solid #F1F5F9' }}>
+                <div style={{ padding: '24px', background: '#fff', borderBottom: '1px solid #F1F5F9', display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
+                    <div style={{ flex: 1, minWidth: '300px', position: 'relative' }}>
+                        <Search size={18} color="#94A3B8" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
+                        <input 
+                            type="text" 
+                            value={search} 
+                            onChange={(e) => setSearch(e.target.value)} 
+                            placeholder="Universal search by Token, Patient, or Clinician..." 
+                            style={{ width: '100%', padding: '12px 16px 12px 48px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', outline: 'none', fontSize: '14px', fontWeight: 600, color: 'var(--color-navy)' }} 
+                        />
                     </div>
+                    <button onClick={() => setShowFilters(!showFilters)} className={`btn ${showFilters ? 'btn-primary' : 'btn-secondary'}`} style={{ height: '44px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '8px', background: showFilters ? 'var(--color-navy)' : '#fff' }}>
+                        <Filter size={18} /> Options
+                    </button>
                 </div>
 
-                {/* Filter Expandable Area */}
                 {showFilters && (
-                    <div style={{ display: 'flex', gap: '16px', padding: '16px', background: '#F8FAFC', borderRadius: '8px', marginBottom: '24px', border: '1px solid var(--color-border-light)' }}>
-                        <div style={{ flex: 1 }}>
-                            <label style={{ display: 'block', fontSize: '12px', color: 'var(--color-text-secondary)', marginBottom: '4px', fontWeight: 500 }}>Filter by Status</label>
-                            <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--color-border-light)', borderRadius: '6px', fontSize: '13px' }}>
-                                <option value="All">All Statuses</option>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', padding: '24px', background: '#F8FAFC', borderBottom: '1px solid #F1F5F9' }}>
+                        <div>
+                            <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>Operational State</label>
+                            <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} style={{ width: '100%', padding: '10px 12px', background: '#fff', border: '1px solid #E2E8F0', borderRadius: '10px', fontSize: '13px', fontWeight: 600 }}>
+                                <option value="All">All Transactions</option>
                                 <option value="Scheduled">Scheduled</option>
                                 <option value="Waiting">Waiting</option>
                                 <option value="Completed">Completed</option>
                                 <option value="Cancelled">Cancelled</option>
                             </select>
                         </div>
-                        <div style={{ flex: 1 }}>
-                            <label style={{ display: 'block', fontSize: '12px', color: 'var(--color-text-secondary)', marginBottom: '4px', fontWeight: 500 }}>Filter by Department</label>
-                            <select value={filterDept} onChange={(e) => setFilterDept(e.target.value)} style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--color-border-light)', borderRadius: '6px', fontSize: '13px' }}>
-                                <option value="All">All Departments</option>
+                        <div>
+                            <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>Clinical Dept</label>
+                            <select value={filterDept} onChange={(e) => setFilterDept(e.target.value)} style={{ width: '100%', padding: '10px 12px', background: '#fff', border: '1px solid #E2E8F0', borderRadius: '10px', fontSize: '13px', fontWeight: 600 }}>
+                                <option value="All">All Specializations</option>
                                 <option value="Cardiology">Cardiology</option>
                                 <option value="Orthopedics">Orthopedics</option>
                                 <option value="Neurology">Neurology</option>
                                 <option value="General Med">General Med</option>
-                                <option value="Pediatrics">Pediatrics</option>
                             </select>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'flex-end' }}>
-                            <button onClick={() => { setFilterStatus('All'); setFilterDept('All'); setSearch(''); }} className="btn btn-secondary btn-sm" style={{ background: '#fff' }}>Reset All</button>
+                            <button onClick={() => { setFilterStatus('All'); setFilterDept('All'); setSearch(''); }} style={{ width: '100%', height: '40px', background: '#fff', border: '1px solid #E2E8F0', borderRadius: '10px', fontSize: '12px', fontWeight: 600, color: '#EF4444', textTransform: 'uppercase' }}>Flush Filters</button>
                         </div>
                     </div>
                 )}
 
-                {/* Main Views Toggle */}
                 {viewMode === 'list' ? (
-                    <div className="data-table-wrapper border-none">
+                    <div className="responsive-table-container">
                         <table className="data-table">
                             <thead>
-                                <tr>
-                                    <th>Time slot & Token</th>
-                                    <th>Patient Archetype</th>
-                                    <th>Clinical Consultant</th>
-                                    <th>Logistics</th>
-                                    <th>Operational State</th>
-                                    <th style={{ textAlign: 'right' }}>Management</th>
+                                <tr style={{ background: '#F8FAFC', borderBottom: '1px solid var(--color-border-light)' }}>
+                                    <th style={{ padding: '16px', fontWeight: 600, color: 'var(--color-text-secondary)', fontSize: '12px', textTransform: 'uppercase' }}>Time slot & Token</th>
+                                    <th style={{ padding: '16px', fontWeight: 600, color: 'var(--color-text-secondary)', fontSize: '12px', textTransform: 'uppercase' }}>Patient Info</th>
+                                    <th style={{ padding: '16px', fontWeight: 600, color: 'var(--color-text-secondary)', fontSize: '12px', textTransform: 'uppercase' }}>Consulting Doctor</th>
+                                    <th style={{ padding: '16px', fontWeight: 600, color: 'var(--color-text-secondary)', fontSize: '12px', textTransform: 'uppercase' }}>Type</th>
+                                    <th style={{ padding: '16px', fontWeight: 600, color: 'var(--color-text-secondary)', fontSize: '12px', textTransform: 'uppercase' }}>Status</th>
+                                    <th style={{ padding: '16px', fontWeight: 600, color: 'var(--color-text-secondary)', fontSize: '12px', textTransform: 'uppercase', textAlign: 'right' }}>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {loading ? [1, 2, 3, 4, 5].map(i => <tr key={i}><td colSpan="6"><Skeleton height="20px" /></td></tr>) : filteredAppointments.length === 0 ? (
-                                    <tr><td colSpan="6" className="text-center py-20 text-slate-400 font-bold uppercase tracking-widest text-xs italic">No matching records</td></tr>
+                                {loading ? (
+                                    [1, 2, 3, 4, 5].map(i => (
+                                        <tr key={i}>
+                                            <td colSpan="6" style={{ padding: '16px 24px' }}><Skeleton className="h-4 w-full" /></td>
+                                        </tr>
+                                    ))
+                                ) : filteredAppointments.length === 0 ? (
+                                    <tr>
+                                        <td colSpan="6" style={{ padding: '80px 24px', textAlign: 'center' }}>
+                                            <div style={{ color: '#94A3B8', fontSize: '14px', fontWeight: 600 }}>No slot transactions found for this query.</div>
+                                        </td>
+                                    </tr>
                                 ) : (
                                     filteredAppointments.map((row) => (
-                                        <tr key={row.id} className="hover:bg-slate-50 transition-all cursor-pointer" onClick={() => window.location.href = `/appointments/${row.apptCode}`}>
-                                            <td>
-                                                <div className="text-[14px] font-black text-navy-900">{row.date} {row.time ? `• ${row.time.split(' ')[0]}` : ''}</div>
-                                                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-tight mt-1 font-mono">{row.apptCode}</div>
-                                            </td>
-                                            <td>
-                                                <div className="text-[14px] font-black text-navy-900">{row.patientName}</div>
-                                                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-tight mt-1">{row.patient?.patientCode || 'UHID-PENDING'}</div>
-                                            </td>
-                                            <td>
-                                                <div className="text-[12px] font-bold text-slate-600 uppercase">Dr. {row.doctorName}</div>
-                                                <div className="text-[10px] font-bold text-slate-400 mt-0.5 uppercase">{row.department}</div>
-                                            </td>
-                                            <td>
-                                                <div className={`text-[10px] font-black uppercase py-1 px-2 rounded-lg inline-block ${row.type === 'IPD' ? 'bg-amber-50 text-amber-600' : 'bg-sky-50 text-sky-600'}`}>{row.type || 'OPD'}</div>
-                                            </td>
-                                            <td>
-                                                <span className={`status-badge ${row.status === 'Completed' ? 'status-ready' : row.status === 'Cancelled' ? 'status-out' : 'status-pending'}`}>
-                                                    {row.status}
-                                                </span>
-                                            </td>
-                                            <td style={{ textAlign: 'right' }}>
-                                                <div className="flex gap-2 justify-end">
-                                                    <Link href={`/appointments/${row.apptCode}`} className="h-9 px-4 rounded-lg bg-navy-900 text-white text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-sm flex items-center justify-center">Manage</Link>
-                                                </div>
-                                            </td>
-                                        </tr>
+                                         <tr key={row.id} 
+                                            className="registry-row"
+                                            onClick={() => window.location.href = `/appointments/${row.apptCode}`}
+                                         >
+                                             <td style={{ padding: '16px' }}>
+                                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                     <span style={{ fontWeight: 600, color: 'var(--color-navy)', fontSize: '14px' }}>{row.date} {row.time ? `• ${row.time.split(' ')[0]}` : ''}</span>
+                                                     <span style={{ fontSize: '12px', color: 'var(--color-text-secondary)', fontFamily: 'monospace' }}>{row.apptCode}</span>
+                                                 </div>
+                                             </td>
+                                             <td style={{ padding: '16px' }}>
+                                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                     <span style={{ fontWeight: 600, color: 'var(--color-text-primary)', fontSize: '15px' }}>{row.patientName}</span>
+                                                     <span style={{ fontSize: '12px', color: '#94A3B8' }}>{row.patient?.patientCode || '-'}</span>
+                                                 </div>
+                                             </td>
+                                             <td style={{ padding: '16px' }}>
+                                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                     <span style={{ color: 'var(--color-text-primary)', fontWeight: 500 }}>Dr. {row.doctorName}</span>
+                                                     <span style={{ fontSize: '11px', color: '#94A3B8' }}>{row.department}</span>
+                                                 </div>
+                                             </td>
+                                             <td style={{ padding: '16px' }}>
+                                                 <span className="badge badge-navy" style={{ fontSize: '11px', padding: '2px 8px' }}>{row.type || 'OPD'}</span>
+                                             </td>
+                                             <td style={{ padding: '16px' }}>
+                                                 <span className={`badge ${row.status === 'Completed' ? 'badge-success' : row.status === 'Cancelled' ? 'badge-error' : 'badge-info'}`} style={{ padding: '4px 10px', fontSize: '12px' }}>
+                                                     {row.status}
+                                                 </span>
+                                             </td>
+                                             <td style={{ padding: '16px', textAlign: 'right' }}>
+                                                 <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', alignItems: 'center', position: 'relative' }} onClick={e => e.stopPropagation()}>
+                                                     <Link href={`/appointments/${row.apptCode}`} className="btn btn-secondary btn-sm" style={{ padding: '0 12px', height: '32px', background: '#F8FAFC', textDecoration: 'none', borderRadius: '6px', fontSize: '12px', color: 'var(--color-navy)', border: '1px solid #E2E8F0', display: 'inline-flex', alignItems: 'center' }}>
+                                                         Manage
+                                                     </Link>
+                                                     <div style={{ position: 'relative' }}>
+                                                        <button 
+                                                            type="button"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                setOpenMenuId(openMenuId === row.id ? null : row.id);
+                                                            }}
+                                                            className="btn btn-secondary btn-sm" 
+                                                            style={{ width: '32px', height: '32px', padding: 0, background: openMenuId === row.id ? '#F1F5F9' : '#fff', borderRadius: '6px', border: '1px solid #E2E8F0' }}
+                                                        >
+                                                            <MoreVertical size={14} color="#64748B" />
+                                                        </button>
+                                                        
+                                                        {openMenuId === row.id && (
+                                                            <div className="actions-dropdown shadow-lg" style={{ right: 0, top: '40px', textAlign: 'left' }} onClick={e => e.stopPropagation()}>
+                                                                <Link href={`/appointments/${row.apptCode}`} className="dropdown-item">
+                                                                    <FileText size={14} /> Full Details
+                                                                </Link>
+                                                                <button type="button" className="dropdown-item">
+                                                                    <CheckCircle size={14} /> Mark Arrived
+                                                                </button>
+                                                                <button type="button" className="dropdown-item" style={{ color: '#EF4444' }}>
+                                                                    <X size={14} /> No Show
+                                                                </button>
+                                                            </div>
+                                                        )}
+                                                     </div>
+                                                 </div>
+                                             </td>
+                                         </tr>
                                     ))
                                 )}
                             </tbody>
                         </table>
                     </div>
                 ) : (
-                    <div style={{ border: '1px solid var(--color-border-light)', borderRadius: '12px', overflow: 'hidden' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', background: '#F8FAFC', borderBottom: '1px solid var(--color-border-light)' }}>
-                            <h2 style={{ fontSize: '16px', fontWeight: 600, margin: 0, color: 'var(--color-navy)' }}>
+                    <div style={{ background: '#fff' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 24px', background: '#F8FAFC', borderBottom: '1px solid #F1F5F9' }}>
+                            <h2 style={{ fontSize: '17px', fontWeight: 800, margin: 0, color: 'var(--color-navy)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <CalIcon size={18} color="var(--color-cyan)" />
                                 {currentMonth.toLocaleString('default', { month: 'long', year: 'numeric' })}
                             </h2>
-                            <div style={{ display: 'flex', gap: '8px' }}>
-                                <button onClick={prevMonth} className="btn btn-secondary btn-sm" style={{ padding: '6px', background: '#fff' }}><ChevronLeft size={16} /></button>
-                                <button onClick={() => setCurrentMonth(new Date())} className="btn btn-secondary btn-sm" style={{ background: '#fff' }}>Today</button>
-                                <button onClick={nextMonth} className="btn btn-secondary btn-sm" style={{ padding: '6px', background: '#fff' }}><ChevronRight size={16} /></button>
+                            <div style={{ display: 'flex', gap: '10px' }}>
+                                <button onClick={prevMonth} className="btn-circle-secondary" style={{ width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', background: '#fff', border: '1px solid #E2E8F0' }}><ChevronLeft size={16} /></button>
+                                <button onClick={() => setCurrentMonth(new Date())} style={{ height: '36px', padding: '0 16px', background: '#fff', border: '1px solid #E2E8F0', borderRadius: '10px', fontSize: '12px', fontWeight: 700 }}>Today</button>
+                                <button onClick={nextMonth} className="btn-circle-secondary" style={{ width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', background: '#fff', border: '1px solid #E2E8F0' }}><ChevronRight size={16} /></button>
                             </div>
                         </div>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', background: '#F1F5F9', borderBottom: '1px solid var(--color-border-light)' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', background: '#F8FAFC', borderBottom: '1px solid #F1F5F9' }}>
                             {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((d) => (
-                                <div key={d} style={{ padding: '12px', textAlign: 'center', fontSize: '12px', fontWeight: 600, color: 'var(--color-text-secondary)', textTransform: 'uppercase' }}>{d}</div>
+                                <div key={d} style={{ padding: '12px', textAlign: 'center', fontSize: '11px', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{d}</div>
                             ))}
                         </div>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gridAutoRows: 'minmax(100px, auto)' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' }}>
                             {generateCalendarDays().map((day, i) => (
-                                <div key={i} style={{ padding: '8px', borderRight: '1px solid var(--color-border-light)', borderBottom: '1px solid var(--color-border-light)', background: day.empty ? '#FAFCFF' : '#fff', position: 'relative' }}>
+                                <div key={i} className="calendar-cell" style={{ opacity: day.empty ? 0.3 : 1 }}>
                                     {!day.empty && (
                                         <>
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                                                <span style={{ fontSize: '13px', fontWeight: day.fullDate === todayStr ? 700 : 500, color: day.fullDate === todayStr ? 'var(--color-cyan)' : 'var(--color-navy)', background: day.fullDate === todayStr ? 'rgba(0,194,255,0.1)' : 'transparent', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%' }}>
+                                            <div style={{ marginBottom: '12px' }}>
+                                                <span style={{ 
+                                                    fontSize: '14px', 
+                                                    fontWeight: 800, 
+                                                    color: day.fullDate === todayStr ? '#fff' : 'var(--color-navy)', 
+                                                    background: day.fullDate === todayStr ? 'var(--color-cyan)' : 'transparent', 
+                                                    width: '28px', 
+                                                    height: '28px', 
+                                                    display: 'flex', 
+                                                    alignItems: 'center', 
+                                                    justifyContent: 'center', 
+                                                    borderRadius: '8px',
+                                                    boxShadow: day.fullDate === todayStr ? '0 4px 12px rgba(0,194,255,0.3)' : 'none'
+                                                }}>
                                                     {day.date}
                                                 </span>
                                             </div>
                                             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                                {day.appointments && day.appointments.map(apt => (
-                                                    <Link key={apt.id} href={`/appointments/${apt.apptCode}`} style={{ display: 'block', padding: '4px 6px', background: apt.status === 'Completed' ? '#F0FDF4' : apt.status === 'Cancelled' ? '#FEF2F2' : 'rgba(0,194,255,0.05)', borderLeft: `3px solid ${apt.status === 'Completed' ? '#22C55E' : apt.status === 'Cancelled' ? '#EF4444' : 'var(--color-cyan)'}`, borderRadius: '4px', fontSize: '11px', textDecoration: 'none', color: 'var(--color-navy)' }}>
-                                                        <div style={{ fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{apt.time?.split(' ')[0]}</div>
-                                                        <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', opacity: 0.8 }}>{apt.patientName}</div>
-                                                    </Link>
+                                                {day.appointments && day.appointments.slice(0, 3).map(apt => (
+                                                    <div key={apt.id} className="appt-pill" style={{ 
+                                                        background: apt.status === 'Completed' ? '#F0FDF4' : apt.status === 'Cancelled' ? '#FEF2F2' : '#F0F9FF', 
+                                                        borderColor: apt.status === 'Completed' ? '#22C55E' : apt.status === 'Cancelled' ? '#EF4444' : '#0EA5E9',
+                                                        color: apt.status === 'Completed' ? '#166534' : apt.status === 'Cancelled' ? '#991B1B' : '#0369A1'
+                                                    }}>
+                                                        <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{apt.patientName}</div>
+                                                    </div>
                                                 ))}
+                                                {day.appointments?.length > 3 && (
+                                                    <div style={{ fontSize: '10px', fontWeight: 800, color: '#94A3B8', textAlign: 'center', marginTop: '4px' }}>+ {day.appointments.length - 3} more</div>
+                                                )}
                                             </div>
                                         </>
                                     )}

@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getSessionFromRequest } from '@/lib/auth';
 import bcrypt from 'bcryptjs';
+import { sendEmail } from '@/lib/email';
+import { sendExternalMessage } from '@/lib/notifications';
 
 export async function GET(request) {
     try {
@@ -57,32 +59,49 @@ export async function POST(request) {
                 email: patientEmail,
                 address: data.address ? data.address.trim() : null,
                 bloodGroup: data.bloodGroup || null,
+                photo: data.photo || null,
                 passwordHash,
             }
         });
 
         if (patientEmail) {
-            console.log(`\n\n[MOCK EMAIL SEND: WELCOME PATIENT] 
-To: ${patientEmail}
-Subject: Welcome to Nexora Health! Your Patient Portal Access
+            await sendEmail({
+                to: patientEmail,
+                subject: 'Welcome to Nexora Health! Your Patient Portal Access',
+                html: `
+                    <div style="font-family: sans-serif; padding: 20px; color: #1e293b;">
+                        <h2 style="color: #0ea5e9;">Welcome to Nexora Health, ${newPatient.firstName}!</h2>
+                        <p>You have been registered successfully at our hospital. You can now log in to the Patient Portal to view your records, lab reports, and book appointments.</p>
+                        <div style="background: #f8fafc; padding: 20px; border-radius: 12px; margin: 20px 0;">
+                            <p style="margin: 0; font-size: 14px; color: #64748b;">Portal Login ID:</p>
+                            <p style="margin: 4px 0 16px 0; font-weight: 700; font-size: 18px;">${patientEmail}</p>
+                            <p style="margin: 0; font-size: 14px; color: #64748b;">Temporary Password:</p>
+                            <p style="margin: 4px 0 0 0; font-weight: 700; font-size: 18px;">${generatedPassword}</p>
+                        </div>
+                        <p style="font-size: 12px; color: #94a3b8;">Please log in and change your password immediately for security.</p>
+                        <a href="${process.env.NEXT_PUBLIC_APP_URL || ''}/login" style="display: inline-block; background: #0ea5e9; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; margin-top: 10px;">Login to Patient Portal</a>
+                    </div>
+                `
+            });
 
-Hello ${newPatient.firstName},
-You have been registered successfully at our hospital. 
-You can now log in to the Patient Portal to view your records, lab reports, and book appointments.
-
-Portal Login ID: ${patientEmail}
-Your Temporary Password: ${generatedPassword}
-
-Please log in and change your password immediately.
-------------------------------------------------------\n\n`);
+            await sendExternalMessage({
+                tenantId: session.tenantId,
+                recipientName: `${newPatient.firstName} ${newPatient.lastName}`,
+                recipientPhone: newPatient.phone,
+                channel: 'Email',
+                type: 'Transactional',
+                message: `Portal credentials sent to ${patientEmail}`
+            });
         } else {
-            // If no email, maybe fallback to sending SMS
-            console.log(`\n\n[MOCK SMS SEND: WELCOME PATIENT] 
-To: ${newPatient.phone}
-Welcome to Nexora Health! Your Patient Portal Login: 
-Phone: ${newPatient.phone}
-Password: ${generatedPassword}
-------------------------------------------------------\n\n`);
+            // Log the SMS intent
+            await sendExternalMessage({
+                tenantId: session.tenantId,
+                recipientName: `${newPatient.firstName} ${newPatient.lastName}`,
+                recipientPhone: newPatient.phone,
+                channel: 'SMS',
+                type: 'Verification',
+                message: `Welcome to Nexora Health! Your login: Phone ${newPatient.phone}, Pwd ${generatedPassword}`
+            });
         }
 
         return NextResponse.json({ ok: true, patient: newPatient }, { status: 201 });

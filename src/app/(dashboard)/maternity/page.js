@@ -13,12 +13,30 @@ export default function MaternityDashboard() {
     const [cases, setCases] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    const [showAdmitModal, setShowAdmitModal] = useState(false);
+    const [saving, setSaving] = useState(false);
+    const [patients, setPatients] = useState([]);
+    const [searchPT, setSearchPT] = useState('');
+    const [selectedPT, setSelectedPT] = useState(null);
+    const [form, setForm] = useState({
+        edd: '',
+        gravida: 0,
+        para: 0,
+        living: 0,
+        abortion: 0
+    });
+
     const fetchData = async () => {
         setLoading(true);
         try {
-            const res = await fetch('/api/maternity/labor');
-            const data = await res.json();
-            if (res.ok) setCases(data.cases);
+            const [lRes, pRes] = await Promise.all([
+                fetch('/api/maternity/labor'),
+                fetch('/api/patients')
+            ]);
+            const lData = await lRes.json();
+            const pData = await pRes.json();
+            if (lRes.ok) setCases(lData.cases);
+            if (pRes.ok) setPatients(pData.patients || []);
         } catch (err) {
             console.error(err);
         } finally {
@@ -75,7 +93,7 @@ export default function MaternityDashboard() {
                     <button className="btn btn-secondary btn-sm" style={{ background: '#fff' }} onClick={fetchData}>
                         <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Sync Records
                     </button>
-                    <button className="btn btn-primary btn-sm" style={{ background: '#EC4899', borderColor: '#EC4899' }}>
+                    <button className="btn btn-primary btn-sm" style={{ background: '#EC4899', borderColor: '#EC4899' }} onClick={() => setShowAdmitModal(true)}>
                         <Plus size={15} strokeWidth={1.5} /> Admit to Labor
                     </button>
                 </div>
@@ -232,6 +250,98 @@ export default function MaternityDashboard() {
                     </div>
                 </div>
             </div>
+
+            {/* Admit Modal */}
+            {showAdmitModal && (
+                <div className="modal-overlay" style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+                    <div className="card fade-in" style={{ width: '500px', padding: '32px', borderRadius: '24px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                            <h2 style={{ fontSize: '20px', fontWeight: 900, color: 'var(--color-navy)', margin: 0 }}>Clinical Labor Ingress</h2>
+                            <button onClick={() => setShowAdmitModal(false)} style={{ background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer' }}><Plus size={24} style={{ transform: 'rotate(45deg)' }} /></button>
+                        </div>
+
+                        {!selectedPT ? (
+                            <div className="mb-6">
+                                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest block mb-2">Search Patient Registry</label>
+                                <div className="relative">
+                                    <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                                    <input 
+                                        type="text" 
+                                        className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold outline-none" 
+                                        placeholder="Name or UHID..."
+                                        value={searchPT}
+                                        onChange={e => setSearchPT(e.target.value)}
+                                    />
+                                    {searchPT && (
+                                        <div className="absolute top-full left-0 right-0 bg-white border border-slate-100 rounded-xl mt-2 shadow-xl z-10 max-h-48 overflow-y-auto">
+                                            {patients.filter(p => `${p.firstName} ${p.lastName}`.toLowerCase().includes(searchPT.toLowerCase())).map(p => (
+                                                <div key={p.id} className="p-3 hover:bg-pink-50 cursor-pointer border-bottom border-slate-50" onClick={() => setSelectedPT(p)}>
+                                                    <div className="text-sm font-bold text-navy-900">{p.firstName} {p.lastName}</div>
+                                                    <div className="text-[10px] text-slate-400 font-bold uppercase">{p.patientCode}</div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="mb-6 p-4 bg-pink-50 rounded-2xl border border-pink-100 flex justify-between items-center">
+                                <div>
+                                    <div className="text-sm font-black text-pink-600">{selectedPT.firstName} {selectedPT.lastName}</div>
+                                    <div className="text-[10px] text-pink-400 font-bold uppercase tracking-widest">{selectedPT.patientCode}</div>
+                                </div>
+                                <button className="text-[10px] font-black text-pink-600 uppercase border-b border-pink-600" onClick={() => setSelectedPT(null)}>Change</button>
+                            </div>
+                        )}
+
+                        <div className="grid grid-cols-2 gap-4 mb-6">
+                            <div>
+                                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest block mb-2">Estimated EDD</label>
+                                <input type="date" className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold outline-none" value={form.edd} onChange={e => setForm({...form, edd: e.target.value})} />
+                            </div>
+                            <div>
+                                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest block mb-2">Gravida</label>
+                                <input type="number" className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold outline-none" value={form.gravida} onChange={e => setForm({...form, gravida: e.target.value})} />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-4 mb-8">
+                            {['Para', 'Living', 'Abortion'].map(f => (
+                                <div key={f}>
+                                    <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest block mb-1.5">{f}</label>
+                                    <input type="number" className="w-full p-2.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold outline-none" value={form[f.toLowerCase()]} onChange={e => setForm({...form, [f.toLowerCase()]: e.target.value})} />
+                                </div>
+                            ))}
+                        </div>
+
+                        <button 
+                            className="btn btn-primary w-full h-14" 
+                            style={{ background: '#EC4899', borderColor: '#EC4899', borderRadius: '16px', fontSize: '14px' }}
+                            disabled={saving || !selectedPT}
+                            onClick={async () => {
+                                setSaving(true);
+                                try {
+                                    const res = await fetch('/api/maternity/labor', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ patientId: selectedPT.id, ...form })
+                                    });
+                                    if (res.ok) {
+                                        setShowAdmitModal(false);
+                                        fetchData();
+                                    }
+                                } catch (e) {
+                                    console.error(e);
+                                } finally {
+                                    setSaving(false);
+                                }
+                            }}
+                        >
+                            {saving ? <Loader2 className="animate-spin" size={20} /> : 'CONFIRM LABOR ADMISSION'}
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
