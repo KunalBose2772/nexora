@@ -60,9 +60,8 @@ export default async function PatientPortalPage() {
 
             <main style={{ maxWidth: '1000px', margin: '40px auto', padding: '0 24px' }}>
                 <PortalDashboardClient patient={patientData}>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
-                    {/* Appointments Card */}
-                    <div style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: '16px', padding: '24px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)' }}>
+                    {/* Appointments Component */}
+                    <div id="appointments-card" key="appointments" style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: '16px', padding: '24px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
                             <div style={{ background: '#F0F9FF', padding: '10px', borderRadius: '10px', color: '#0EA5E9' }}><Calendar size={20} /></div>
                             <h2 style={{ fontSize: '18px', fontWeight: 700, margin: 0, color: '#0F172A' }}>Appointments</h2>
@@ -84,11 +83,11 @@ export default async function PatientPortalPage() {
                         )}
                     </div>
 
-                    {/* Prescriptions Card */}
-                    <PortalPrescriptions prescriptions={patientData.prescriptions} />
+                    {/* Prescriptions Component */}
+                    <PortalPrescriptions id="prescriptions-card" key="prescriptions" prescriptions={patientData.prescriptions} />
 
-                    {/* Labs Card */}
-                    <div style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: '16px', padding: '24px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)' }}>
+                    {/* Labs Component */}
+                    <div id="reports-card" key="labs" style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: '16px', padding: '24px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
                             <div style={{ background: '#FEF2F2', padding: '10px', borderRadius: '10px', color: '#EF4444' }}><FlaskConical size={20} /></div>
                             <h2 style={{ fontSize: '18px', fontWeight: 700, margin: 0, color: '#0F172A' }}>Lab Reports</h2>
@@ -110,12 +109,9 @@ export default async function PatientPortalPage() {
                             </div>
                         )}
                     </div>
-                    {/* Portal Invoices / Billing Component (Client Side Dynamic with Printing) */}
-                    <PortalInvoices invoices={invoices} />
 
-                    {/* Feedback & Grievance Component */}
-                    <PortalGrievance />
-                </div>
+                    <PortalInvoices id="billing-card" key="billing" invoices={invoices} />
+                    <PortalGrievance id="feedback-card" key="feedback" />
                 </PortalDashboardClient>
             </main>
         </div>
