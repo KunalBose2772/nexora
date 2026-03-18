@@ -220,6 +220,78 @@ function BillingContent() {
                     color: #0F172A;
                     border-bottom-color: #0EA5E9;
                 }
+
+                .modal-overlay-executive {
+                    position: fixed;
+                    inset: 0;
+                    background: rgba(15, 23, 42, 0.6);
+                    backdrop-filter: blur(4px);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 1000;
+                    padding: 20px;
+                }
+                .modal-card-executive {
+                    background: #fff;
+                    border-radius: 12px;
+                    width: 100%;
+                    max-width: 480px;
+                    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+                    overflow: hidden;
+                    animation: slideUp 0.2s ease-out;
+                }
+                .modal-header-executive {
+                    padding: 14px 20px;
+                    border-bottom: 1px solid #E2E8F0;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    background: #F8FAFC;
+                }
+                .modal-title-executive {
+                    font-size: 15px;
+                    font-weight: 600;
+                    color: #0F172A;
+                    margin: 0;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                }
+                .label-executive { 
+                    display: block; 
+                    font-size: 12px; 
+                    font-weight: 500; 
+                    color: #64748B; 
+                    margin-bottom: 6px; 
+                }
+                .form-control-executive { 
+                    width: 100%; 
+                    border-radius: 6px; 
+                    border: 1px solid #CBD5E1; 
+                    padding: 8px 12px; 
+                    font-size: 13px; 
+                    font-weight: 400;
+                    color: #0F172A;
+                    outline: none; 
+                    height: 38px;
+                    background: #fff;
+                }
+                .btn-executive {
+                    height: 38px;
+                    padding: 0 16px;
+                    font-size: 13px;
+                    font-weight: 600;
+                    border-radius: 6px;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 8px;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                    border: none;
+                }
+                @keyframes slideUp { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
             `}</style>
 
             <div className="dashboard-header-row mb-10">
@@ -386,79 +458,6 @@ function BillingContent() {
             {/* Executive Modals */}
             {showAdvanceModal && (
                 <div className="modal-overlay-executive">
-                    <style jsx>{`
-                        .modal-overlay-executive {
-                            position: fixed;
-                            inset: 0;
-                            background: rgba(15, 23, 42, 0.6);
-                            backdrop-filter: blur(4px);
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            z-index: 1000;
-                            padding: 20px;
-                        }
-                        .modal-card-executive {
-                            background: #fff;
-                            border-radius: 12px;
-                            width: 100%;
-                            max-width: 480px;
-                            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-                            overflow: hidden;
-                            animation: slideUp 0.2s ease-out;
-                        }
-                        .modal-header-executive {
-                            padding: 14px 20px;
-                            border-bottom: 1px solid #E2E8F0;
-                            display: flex;
-                            justify-content: space-between;
-                            align-items: center;
-                            background: #F8FAFC;
-                        }
-                        .modal-title-executive {
-                            font-size: 15px;
-                            font-weight: 600;
-                            color: #0F172A;
-                            margin: 0;
-                            display: flex;
-                            align-items: center;
-                            gap: 8px;
-                        }
-                        .label-executive { 
-                            display: block; 
-                            font-size: 12px; 
-                            font-weight: 500; 
-                            color: #64748B; 
-                            margin-bottom: 6px; 
-                        }
-                        .form-control-executive { 
-                            width: 100%; 
-                            border-radius: 6px; 
-                            border: 1px solid #CBD5E1; 
-                            padding: 8px 12px; 
-                            font-size: 13px; 
-                            font-weight: 400;
-                            color: #0F172A;
-                            outline: none; 
-                            height: 38px;
-                            background: #fff;
-                        }
-                        .btn-executive {
-                            height: 38px;
-                            padding: 0 16px;
-                            font-size: 13px;
-                            font-weight: 600;
-                            border-radius: 6px;
-                            display: inline-flex;
-                            align-items: center;
-                            justify-content: center;
-                            gap: 8px;
-                            cursor: pointer;
-                            transition: all 0.2s;
-                            border: none;
-                        }
-                        @keyframes slideUp { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-                    `}</style>
 
                     <div className="modal-card-executive">
                         <div className="modal-header-executive">
