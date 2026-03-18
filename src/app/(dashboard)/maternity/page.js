@@ -12,6 +12,9 @@ import Skeleton from '@/components/common/Skeleton';
 export default function MaternityDashboard() {
     const [cases, setCases] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => { setIsMounted(true); }, []);
 
     const [showAdmitModal, setShowAdmitModal] = useState(false);
     const [saving, setSaving] = useState(false);
@@ -323,7 +326,7 @@ export default function MaternityDashboard() {
                                     <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: '#FDF2F8', color: '#EC4899', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Baby size={20} /></div>
                                     <div style={{ flex: 1 }}>
                                         <div style={{ fontSize: '14px', fontWeight: 700, color: '#0F172A' }}>{i % 2 === 0 ? 'Female' : 'Male'} • 3.4 Kg</div>
-                                        <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500 }}>Born: {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                                        <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500 }}>Born: {isMounted ? new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--:--'}</div>
                                     </div>
                                     <ChevronRight size={16} color="#CBD5E1" />
                                 </div>
