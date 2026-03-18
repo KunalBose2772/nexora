@@ -1,5 +1,5 @@
 'use client';
-import { BedDouble, Plus, Search, Filter, Activity, ShieldAlert, IndianRupee, ArrowRightLeft, LogOut, Clock, UserRound, MapPin, AlertCircle, CheckCircle2, Siren, Ghost, Monitor, LayoutDashboard, Database, RefreshCw, X, Loader2, ArrowLeft, Users, UserCheck, MoreVertical, FileText, HeartPulse } from 'lucide-react';
+import { BedDouble, Plus, Search, Filter, Activity, ShieldAlert, IndianRupee, ArrowRightLeft, LogOut, Clock, UserRound, MapPin, AlertCircle, CheckCircle2, Siren, Ghost, Monitor, LayoutDashboard, Database, RefreshCw, X, Loader2, ArrowLeft, Users, UserCheck, MoreVertical, FileText, HeartPulse, Stethoscope } from 'lucide-react';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import Skeleton from '@/components/common/Skeleton';
