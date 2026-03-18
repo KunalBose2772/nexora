@@ -100,3 +100,56 @@ export async function checkInventoryThresholds(tenantId) {
         }
     }
 }
+
+/**
+ * checkBiomedicalAlerts
+ * Scans for hospital machinery due for calibration/maintenance.
+ * Creates system notifications for equipment due within 7 days.
+ */
+export async function checkBiomedicalAlerts(tenantId) {
+    const today = new Date();
+    const sevenDaysFromNow = new Date(today);
+    sevenDaysFromNow.setDate(today.getDate() + 7);
+
+    // Fetch all Biomedical Asset tracking entries
+    const assets = await prisma.appointment.findMany({
+        where: {
+            tenantId,
+            type: 'BiomedicalAsset',
+            status: 'Active'
+        }
+    });
+
+    for (const asset of assets) {
+        if (!asset.time) continue; // No calibration date set
+        
+        const nextCalib = new Date(asset.time);
+        if (nextCalib <= sevenDaysFromNow) {
+            const startOfDay = new Date();
+            startOfDay.setHours(0,0,0,0);
+
+            // Check if we already alerted today
+            const existing = await prisma.notification.findFirst({
+                where: {
+                    tenantId,
+                    text: { contains: asset.patientName }, // patientName stores the Asset Name as per route.js
+                    createdAt: { gte: startOfDay }
+                }
+            });
+
+            if (!existing) {
+                const daysLeft = Math.ceil((nextCalib - today) / (1000 * 60 * 60 * 24));
+                const text = daysLeft <= 0 
+                    ? `OVERDUE: Maintenance required for ${asset.patientName} (${asset.doctorName}).`
+                    : `Maintenance Alert: ${asset.patientName} is due for calibration in ${daysLeft} days.`;
+
+                await createSystemNotification({
+                    tenantId,
+                    text,
+                    type: daysLeft <= 0 ? 'error' : 'warning',
+                    category: 'Biomedical'
+                });
+            }
+        }
+    }
+}

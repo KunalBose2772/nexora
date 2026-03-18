@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getSessionFromRequest } from '@/lib/auth';
+import { logAudit } from '@/lib/audit';
 
 export async function GET(request) {
     try {
@@ -53,6 +54,37 @@ export async function POST(request) {
         return NextResponse.json({ laborRecord }, { status: 201 });
     } catch (err) {
         console.error('[POST /api/maternity/labor]', err);
+        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    }
+}
+
+export async function PUT(request) {
+    try {
+        const session = await getSessionFromRequest(request);
+        if (!session || !session.tenantId) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
+        const { id, status } = await request.json();
+
+        const updated = await prisma.laborRecord.update({
+            where: { id, tenantId: session.tenantId },
+            data: { status }
+        });
+
+        await logAudit({
+            req: request,
+            session,
+            action: 'UPDATE',
+            resource: 'LaborRecord',
+            resourceId: id,
+            description: `Labor status transitioned to ${status}`,
+            newValue: updated
+        });
+
+        return NextResponse.json({ updated }, { status: 200 });
+    } catch (err) {
+        console.error('[PUT /api/maternity/labor]', err);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }

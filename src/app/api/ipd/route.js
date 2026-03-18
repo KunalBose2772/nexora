@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getSessionFromRequest } from '@/lib/auth';
+import { logAudit } from '@/lib/audit';
 
 export async function GET(request) {
     try {
@@ -136,6 +137,18 @@ export async function POST(request) {
             }
         }
 
+
+        // Audit Logging for new IPD admission
+        await logAudit({
+            req: request,
+            session,
+            action: 'ADMIT',
+            resource: 'IPD',
+            resourceId: newAdmission.id,
+            description: `Patient ${data.patientName} admitted to ${data.ward} - ${data.bed}`,
+            newValue: newAdmission
+        });
+
         return NextResponse.json({ ok: true, admission: newAdmission }, { status: 201 });
     } catch (err) {
         console.error('[POST /api/ipd]', err);
@@ -171,6 +184,18 @@ export async function PUT(request) {
         const updated = await prisma.appointment.update({
             where: { id },
             data: updateData
+        });
+
+        // Audit Logging for IPD status change
+        await logAudit({
+            req: request,
+            session,
+            action: 'UPDATE_STATUS',
+            resource: 'IPD',
+            resourceId: id,
+            description: `IPD Status changed from ${current.status} to ${status} for ${current.patientName}`,
+            oldValue: current,
+            newValue: updated
         });
 
         return NextResponse.json({ ok: true, admission: updated });

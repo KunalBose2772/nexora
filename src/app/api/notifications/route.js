@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getSessionFromRequest } from '@/lib/auth';
-import { checkInventoryThresholds } from '@/lib/notifications';
+import { checkInventoryThresholds, checkBiomedicalAlerts } from '@/lib/notifications';
 
 function timeAgo(date) {
     const seconds = Math.floor((new Date() - new Date(date)) / 1000);
@@ -27,6 +27,7 @@ export async function GET(req) {
 
         // 1. Run low-stock check automatically on notification pop-up load
         await checkInventoryThresholds(tenantId);
+        await checkBiomedicalAlerts(tenantId);
 
         // 2. Fetch the top 5 alerts from the notification table
         const dbNotifications = await prisma.notification.findMany({

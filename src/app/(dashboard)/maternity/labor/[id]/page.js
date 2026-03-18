@@ -47,12 +47,20 @@ export default function LaborCaseMonitoringPage() {
 
     const handleUpdateStatus = async (status) => {
         setSaving(true);
-        // We'll simulate the status update for now as we don't have a PATCH endpoint for labor yet
-        // but the UI should reflect the intent.
-        setTimeout(() => {
+        try {
+            const res = await fetch('/api/maternity/labor', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id, status })
+            });
+
+            if (res.ok) {
+                router.push('/maternity');
+            }
+        } catch (err) {
+        } finally {
             setSaving(false);
-            router.push('/maternity');
-        }, 800);
+        }
     };
 
     if (loading) return <div className="p-12 text-center text-slate-400 font-bold uppercase tracking-widest"><Loader2 className="animate-spin mx-auto mb-4" /> Syncing Labor Record...</div>;

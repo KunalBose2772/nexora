@@ -6,6 +6,7 @@ import Link from 'next/link';
 export default function BillingAuditPage() {
     const [invoices, setInvoices] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [search, setSearch] = useState('');
 
     const fetchData = async () => {
         setLoading(true);
@@ -21,7 +22,16 @@ export default function BillingAuditPage() {
     useEffect(() => { fetchData(); }, []);
 
     // Audit Analytics
-    const exceptions = invoices.filter(inv => inv.discount > 5 || inv.status === 'Cancelled' || inv.status === 'Voided');
+    const exceptions = invoices.filter(inv => {
+        const isException = inv.discount > 5 || inv.status === 'Cancelled' || inv.status === 'Voided';
+        if (!isException) return false;
+        
+        const query = search.toLowerCase();
+        return !query || 
+               inv.invoiceCode.toLowerCase().includes(query) || 
+               inv.patientName.toLowerCase().includes(query) ||
+               (inv.notes || '').toLowerCase().includes(query);
+    });
     const totalDiscountsGiven = invoices.reduce((s, inv) => s + (inv.amount * (inv.discount / 100)), 0);
     const totalVoids = invoices.filter(inv => inv.status === 'Cancelled').length;
     const highValueOverrides = invoices.filter(inv => inv.discount > 5).length;
@@ -63,8 +73,17 @@ export default function BillingAuditPage() {
             </div>
 
             <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
-                <div className="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                    <h3 className="font-black text-slate-800 flex items-center gap-2"><FileWarning size={18} className="text-red-500"/> Critical Exceptions (Discounts {'>'} 5% or Voids)</h3>
+                <div className="px-6 py-5 border-b border-slate-100 flex flex-wrap gap-4 items-center justify-between bg-slate-50/50">
+                    <h3 className="font-black text-slate-800 flex items-center gap-2 text-sm uppercase tracking-widest"><FileWarning size={18} className="text-red-500"/> Critical Exceptions</h3>
+                    <div className="relative min-w-[300px]">
+                        <input 
+                            type="text" 
+                            placeholder="Search Exceptions by Code or Patient..." 
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="w-full pl-4 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold outline-none focus:border-red-500 transition-all shadow-sm"
+                        />
+                    </div>
                 </div>
                 
                 <div className="overflow-x-auto">
@@ -101,7 +120,7 @@ export default function BillingAuditPage() {
                                         <td className="px-6 py-5">
                                             <div className="max-w-xs text-xs text-slate-600 italic whitespace-normal leading-relaxed">
                                                 {inv.notes || 'No audit notes provided.'}
-                                                {isHighDiscount && !inv.notes.includes('Audit:') && <span className="block mt-1 text-red-500 font-bold uppercase text-[9px]">Missing Audit Log!</span>}
+                                                {isHighDiscount && !(inv.notes || '').includes('Audit:') && <span className="block mt-1 text-red-500 font-bold uppercase text-[9px]">Missing Audit Log!</span>}
                                             </div>
                                         </td>
                                         <td className="px-6 py-5 text-right">

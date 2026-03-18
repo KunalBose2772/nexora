@@ -1,20 +1,46 @@
 'use client';
 import { Bell, ArrowLeft, Search, Filter, CheckCircle2, AlertTriangle, Siren, Clock, X, Info, User, Zap } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 export default function AlertsLedgerPage() {
     const [selectedAlert, setSelectedAlert] = useState(null);
-    const [alerts, setAlerts] = useState([
-        { id: 'ALT-981', type: 'Emergency', msg: 'Triage Overload (Zone A)', time: '2 mins ago', severity: 'critical', status: 'Active', details: 'Patient arrival rate exceeding capacity by 40% in the last 15 minutes.' },
-        { id: 'ALT-975', type: 'Pharmacy', msg: 'Adrenaline Stock Critical', time: '15 mins ago', severity: 'warning', status: 'Pending', details: 'Current stock is below 10 units. Immediate replenishment required.' },
-        { id: 'ALT-970', type: 'IPD', msg: 'Bed Shortage (Ward 4)', time: '40 mins ago', severity: 'info', status: 'Resolved', details: 'All 20 beds occupied. Scheduled discharges pending for 2:00 PM.' },
-        { id: 'ALT-965', type: 'Laboratory', msg: 'LIS Synchronization Error', time: '1 hour ago', severity: 'warning', status: 'Resolved', details: 'Minor lag in result transmission to EMR. System rebooted.' },
-        { id: 'ALT-960', type: 'OT', msg: 'Theater-1 HEPA Fault', time: '2 hours ago', severity: 'critical', status: 'Active', details: 'Air quality sensors reporting high particulate matter.' },
-    ]);
+    const [alerts, setAlerts] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    const fetchData = useCallback(async () => {
+        setLoading(true);
+        try {
+            const res = await fetch('/api/command-center/alerts');
+            if (res.ok) {
+                const data = await res.json();
+                setAlerts(data.alerts || []);
+            }
+        } catch(e) {} finally { setLoading(false); }
+    }, []);
+
+    useEffect(() => { fetchData(); }, [fetchData]);
 
     const handleInvestigate = (alert) => {
         setSelectedAlert(alert);
+    };
+
+    const handleResolve = async (id) => {
+        // Find the database ID. In my API, I used `ALT-XXXX` for display.
+        // Let's modify the API to return the actual database ID too.
+        // Or for now, I'll update the API to return `dbId`.
+        const dbId = selectedAlert.dbId;
+        try {
+            const res = await fetch('/api/command-center/alerts', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: dbId, resolve: true })
+            });
+            if (res.ok) {
+                setSelectedAlert(null);
+                fetchData();
+            }
+        } catch(e) {}
     };
 
     return (
@@ -69,12 +95,14 @@ export default function AlertsLedgerPage() {
                             </tr>
                         </thead>
                         <tbody>
+                            {loading && <tr><td colSpan="5" className="text-center py-10 text-slate-400">Scanning neural signals...</td></tr>}
+                            {!loading && alerts.length === 0 && <tr><td colSpan="5" className="text-center py-20 text-slate-400"><Siren className="mx-auto mb-4 opacity-10" size={48} /><p className="font-bold">Signals Clear</p></td></tr>}
                             {alerts.map((a) => (
                                 <tr key={a.id} style={{ borderBottom: '1px solid var(--color-border-light)', transition: 'background 0.15s' }} className="table-row-hover">
                                     <td style={{ padding: '16px', fontSize: '13px', fontFamily: 'monospace', fontWeight: 600, color: 'var(--color-navy)' }}>{a.id}</td>
                                     <td style={{ padding: '16px' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                            <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: a.severity === 'critical' ? '#EF4444' : '#F59E0B' }} />
+                                            <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: a.severity === 'critical' ? '#EF4444' : a.severity === 'warning' ? '#F59E0B' : '#3B82F6' }} />
                                             <span style={{ fontSize: '13px', color: '#475569', fontWeight: 700 }}>{a.type}</span>
                                         </div>
                                     </td>
@@ -148,7 +176,7 @@ export default function AlertsLedgerPage() {
                             </div>
 
                             <div style={{ display: 'flex', gap: '12px' }}>
-                                <button className="action-btn" style={{ flex: 1, background: 'var(--color-navy)', color: '#fff', border: 'none' }} onClick={() => setSelectedAlert(null)}>
+                                <button className="action-btn" style={{ flex: 1, background: 'var(--color-navy)', color: '#fff', border: 'none' }} onClick={() => handleResolve(selectedAlert.id)}>
                                     Resolve Signal
                                 </button>
                                 <button className="action-btn" style={{ flex: 1, background: '#fff', color: '#64748B', border: '1px solid #CBD5E1' }}>

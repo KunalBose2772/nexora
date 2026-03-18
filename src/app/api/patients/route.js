@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getSessionFromRequest } from '@/lib/auth';
+import { logAudit } from '@/lib/audit';
 import bcrypt from 'bcryptjs';
 import { sendEmail } from '@/lib/email';
 import { sendExternalMessage } from '@/lib/notifications';
@@ -103,6 +104,16 @@ export async function POST(request) {
                 message: `Welcome to Nexora Health! Your login: Phone ${newPatient.phone}, Pwd ${generatedPassword}`
             });
         }
+
+        await logAudit({
+            req: request,
+            session,
+            action: 'CREATE',
+            resource: 'Patient',
+            resourceId: newPatient.id,
+            description: `Registered new patient: ${newPatient.firstName} ${newPatient.lastName} (${newPatient.patientCode})`,
+            newValue: newPatient
+        });
 
         return NextResponse.json({ ok: true, patient: newPatient }, { status: 201 });
     } catch (err) {

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getSessionFromRequest } from '@/lib/auth';
+import { logAudit } from '@/lib/audit';
 
 export async function GET(req) {
     try {
@@ -89,6 +90,17 @@ export async function POST(req) {
                 tpaStatus: isTpa ? 'Pending' : 'None'
             }
         });
+        
+        // Audit Logging for new Invoices
+        await logAudit({
+            req,
+            session,
+            action: 'CREATE',
+            resource: 'Invoice',
+            resourceId: invoice.id,
+            description: `Invoice ${invoiceCode} generated for ${patientName}${requestedDiscount > 5 ? ' (MANAGER OVERRIDE)' : ''}`,
+            newValue: invoice
+        });
 
         return NextResponse.json({ invoice }, { status: 201 });
     } catch (error) {
@@ -125,6 +137,20 @@ export async function PUT(req) {
                 notes: finalNotes
             }
         });
+
+        // Audit Logging for voiding
+        if (status === 'Cancelled' || status === 'Voided') {
+            await logAudit({
+                req,
+                session,
+                action: 'VOID',
+                resource: 'Invoice',
+                resourceId: id,
+                description: `Invoice ${existing.invoiceCode} voided. Reason: ${voidReason}`,
+                oldValue: existing,
+                newValue: updated
+            });
+        }
 
         return NextResponse.json({ invoice: updated });
     } catch (error) {

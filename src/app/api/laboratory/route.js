@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getSessionFromRequest } from '@/lib/auth';
 import { createSystemNotification, sendExternalMessage } from '@/lib/notifications';
+import { logAudit } from '@/lib/audit';
 
 export async function GET(req) {
     try {
@@ -55,6 +56,15 @@ export async function POST(req) {
             createdRequests.push(labReq);
         }
 
+        await logAudit({
+            req, session,
+            action: 'CREATE',
+            resource: 'LabRequest',
+            resourceId: createdRequests[0]?.id,
+            description: `Generated ${tests.length} lab requests for ${patientName} (${trackingIdBase})`,
+            newValue: createdRequests
+        });
+
         return NextResponse.json({ message: 'Lab requests created', labRequests: createdRequests }, { status: 201 });
     } catch (error) {
         console.error('Create Lab Request Error:', error);
@@ -97,6 +107,15 @@ export async function PUT(req) {
                 });
             }
         }
+
+        await logAudit({
+            req, session,
+            action: 'UPDATE',
+            resource: 'LabRequest',
+            resourceId: id,
+            description: `Lab status updated to ${status} for ${updated.patientName}`,
+            newValue: updated
+        });
 
         return NextResponse.json({ labRequest: updated });
     } catch (error) {

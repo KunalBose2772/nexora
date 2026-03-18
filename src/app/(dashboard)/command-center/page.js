@@ -25,8 +25,22 @@ import {
     ShieldCheck,
     Globe,
     Terminal,
-    ChevronRight
+    ChevronRight,
+    Search
 } from 'lucide-react';
+
+const ICON_MAP = {
+    Stethoscope, 
+    BedDouble, 
+    Microscope, 
+    Pill, 
+    Siren, 
+    Scissors,
+    ShieldAlert,
+    AlertTriangle,
+    Hospital,
+    Activity
+};
 import { useState, useEffect, useCallback } from 'react';
 import Skeleton from '@/components/common/Skeleton';
 import Link from 'next/link';
@@ -43,41 +57,15 @@ export default function CommandCenterDashboard() {
     const loadData = useCallback(async () => {
         setLoading(true);
         try {
-            // Simulation of real-time data fetch
-            setTimeout(() => {
-                setData({
-                    metrics: {
-                        activeEmergency: 4,
-                        criticalIcu: 2,
-                        totalPatients: 140,
-                        staffOnDuty: 85,
-                        occupancy: '92%',
-                        efficiency: '96.8%'
-                    },
-                    units: [
-                        { id: 'opd', unit: 'OPD Desk', status: 'Online', perf: 'Optimal', icon: Stethoscope, color: '#10B981', sub: 'Consultation Flow', href: '/opd' },
-                        { id: 'ipd', unit: 'IPD Wards', status: 'Online', perf: 'High Load', icon: BedDouble, color: '#F59E0B', sub: 'Admissions Desk', href: '/ipd' },
-                        { id: 'laboratory', unit: 'Laboratory', status: 'Online', perf: 'Processing', icon: Microscope, color: '#0EA5E9', sub: 'Diagnostic Hub', href: '/laboratory' },
-                        { id: 'pharmacy', unit: 'Pharmacy', status: 'Online', perf: 'Optimal', icon: Pill, color: '#10B981', sub: 'Inventory Sync', href: '/pharmacy' },
-                        { id: 'emergency', unit: 'Emergency', status: 'Active', perf: 'Alert', icon: Siren, color: '#EF4444', sub: 'Triage Center', href: '/emergency' },
-                        { id: 'ot', unit: 'Surgical OT', status: 'In-Use', perf: 'Optimal', icon: Scissors, color: '#6366F1', sub: 'OR Schedules', href: '/ot' },
-                    ],
-                    recentAlerts: [
-                        { id: 1, type: 'ER', msg: 'Triage Overload (Zone A)', time: '2 mins ago', severity: 'critical' },
-                        { id: 2, type: 'PHARM', msg: 'Adrenaline Stock Warning', time: '15 mins ago', severity: 'warning' },
-                        { id: 3, type: 'IPD', msg: 'Bed Shortage (Ward 4)', time: '40 mins ago', severity: 'info' },
-                    ],
-                    logs: [
-                        { time: '11:24', event: 'Oxygen levels verified in Zone B' },
-                        { time: '11:15', event: 'Shift changeover completed' },
-                        { time: '11:02', event: 'Institutional Backup active' },
-                    ]
-                });
-                setLoading(false);
-                setLastUpdated(new Date());
-            }, 800);
+            const res = await fetch('/api/command-center/stats');
+            if (res.ok) {
+                const fetched = await res.json();
+                setData(fetched);
+            }
         } catch (e) {
+        } finally {
             setLoading(false);
+            setLastUpdated(new Date());
         }
     }, []);
 
@@ -288,7 +276,7 @@ export default function CommandCenterDashboard() {
                         {loading ? <Skeleton height="320px" /> : (
                             <div className="grid-2-col" style={{ gap: '16px' }}>
                                 {data?.units.map((unit) => {
-                                    const UnitIcon = unit.icon;
+                                    const UnitIcon = ICON_MAP[unit.icon] || Globe;
                                     return (
                                         <Link href={unit.href} key={unit.id} className="unit-card">
                                             <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: `${unit.color}12`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>

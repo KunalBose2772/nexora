@@ -102,6 +102,9 @@ export default function BiomedicalAssetPage() {
                     <button onClick={fetchData} className="btn btn-secondary btn-sm" style={{ background: '#fff' }}>
                         <RefreshCw size={14} className={loading && "animate-spin"} /> Sync Assets
                     </button>
+                    <Link href="/biomedical/waste" className="btn btn-secondary btn-sm" style={{ background: '#fff' }}>
+                        <Siren size={14} className="text-amber-500" /> Waste Log
+                    </Link>
                     <button onClick={() => setShowModal(true)} className="btn btn-primary btn-sm">
                         <Plus size={15} strokeWidth={1.5} /> Register Machine
                     </button>
