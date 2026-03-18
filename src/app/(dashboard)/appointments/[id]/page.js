@@ -14,6 +14,7 @@ export default function AppointmentDetailsPage() {
     const [successMsg, setSuccessMsg] = useState('');
     const [prescriptions, setPrescriptions] = useState([]);
     const [signingId, setSigningId] = useState(null);
+    const [tenant, setTenant] = useState(null);
 
     // Editable states
     const [formData, setFormData] = useState({
@@ -55,7 +56,70 @@ export default function AppointmentDetailsPage() {
             }
         };
         fetchAppointment();
+
+        fetch('/api/settings')
+            .then(res => res.json())
+            .then(data => { if (data.settings) setTenant(data.settings); })
+            .catch(() => { });
     }, [id]);
+
+    const printRx = (rx) => {
+        const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/><title>Rx ${rx.rxCode}</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;color:#1a2336;padding:40px;max-width:800px;margin:0 auto}
+.header{display:flex;justify-content:space-between;align-items:start;margin-bottom:32px;padding-bottom:24px;border-bottom:2px solid #0f3460}
+.header-left{flex:1}
+.header-right{text-align:right;flex:1}
+.rx-symbol{font-size:42px;font-weight:900;color:#0f3460;line-height:1;margin-bottom:4px}
+.doctor-name{font-size:24px;font-weight:800;color:#0f3460;margin-bottom:4px}
+.dept-name{font-size:13px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+.h-name{font-size:18px;font-weight:900;color:#1e293b;text-transform:uppercase;margin-bottom:6px}
+.h-info{font-size:11px;color:#64748b;line-height:1.5;max-width:280px;margin-left:auto}
+.logo{width:60px;height:60px;object-fit:contain;margin-bottom:10px}
+.logo-placeholder{width:60px;height:60px;background:#0f172a;color:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-left:auto;margin-bottom:10px}
+.section{margin-bottom:24px}.section-title{font-size:11px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;border-bottom:1.5px solid #f1f5f9;padding-bottom:6px}
+.row{display:flex;justify-content:space-between;font-size:14px;margin-bottom:6px}.label{color:#64748b}.value{font-weight:700;color:#1a2336}
+table{width:100%;border-collapse:collapse;margin-top:12px}th{background:#f8fafc;font-size:11px;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:0.05em;padding:10px 14px;text-align:left;border:1.5px solid #e2e8f0}td{padding:10px 14px;font-size:14px;border:1.5px solid #e2e8f0;vertical-align:top}
+.footer{text-align:center;margin-top:48px;padding-top:24px;border-top:1px dashed #cbd5e1;font-size:12px;color:#94a3b8}
+.sign-box{margin-top:60px;text-align:right}.sign-line{display:inline-block;width:220px;border-top:2px solid #0f172a;padding-top:8px;font-size:13px;color:#0f172a;font-weight:800}
+@media print{body{padding:0}.no-print{display:none}}
+</style></head><body>
+<div class="header">
+    <div class="header-left">
+        <div class="rx-symbol">℞</div>
+        <div class="doctor-name">Dr. ${rx.doctorName || appointment.doctorName}</div>
+        <div class="dept-name">${appointment.department || 'General OPD'} • ${rx.rxCode}</div>
+    </div>
+    <div class="header-right">
+        ${tenant?.logoUrl ? `<img src="${tenant.logoUrl}" class="logo" alt="Logo" />` : `<div class="logo-placeholder"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></svg></div>`}
+        <div class="h-name">${tenant?.name || 'Nexora Health Systems'}</div>
+        <div class="h-info">
+            ${tenant?.address || 'Hospital Address Configuration Pending'}<br>
+            Phone: ${tenant?.phone || 'N/A'}<br>
+            Web: nexora.cloud
+        </div>
+    </div>
+</div>
+<div class="section"><div class="section-title">Patient Details</div>
+<div class="row"><span class="label">Patient</span><span class="value">${appointment.patientName}</span></div>
+<div class="row"><span class="label">UHID</span><span class="value">${appointment.patient?.patientCode || 'Guest'}</span></div>
+<div class="row"><span class="label">Date</span><span class="value">${new Date(rx.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })}</span></div>
+</div>
+${rx.chiefComplaint ? `<div class="section"><div class="section-title">Chief Complaint</div><p style="font-size:13px;color:#334155">${rx.chiefComplaint}</p></div>` : ''}
+${rx.diagnosis ? `<div class="section"><div class="section-title">Diagnosis</div><p style="font-size:14px;font-weight:700;color:#0f3460">${rx.diagnosis}</p></div>` : ''}
+${rx.items?.length > 0 ? `
+<div class="section"><div class="section-title">Prescription</div>
+<table><thead><tr><th>#</th><th>Medicine</th><th>Dosage</th><th>Frequency</th><th>Duration</th><th>Qty</th></tr></thead>
+<tbody>${rx.items.map((item, i) => `<tr><td>${i + 1}</td><td><strong>${item.medicineName}</strong></td><td>${item.dosage || '—'}</td><td>${item.frequency}</td><td>${item.duration}</td><td>${item.quantity}</td></tr>`).join('')}</tbody>
+</table></div>` : ''}
+<div class="sign-box"><div class="sign-line">Dr. ${rx.doctorName || appointment.doctorName}<br><span style="font-weight:400">Signature & Stamp</span></div></div>
+<div class="footer"><p>This is a computer-generated prescription from Nexora Health.</p></div>
+<script>window.onload=()=>{window.print()}<\/script></body></html>`;
+        const win = window.open('', '_blank', 'width=720,height=900');
+        win.document.write(html);
+        win.document.close();
+    };
 
     const handleSignPrescription = async (rxId) => {
         setSigningId(rxId);
@@ -299,14 +363,13 @@ export default function AppointmentDetailsPage() {
                                                         {signingId === rx.id ? 'Signing...' : 'Approve & Sign'}
                                                     </button>
                                                 )}
-                                                <Link 
-                                                    href={`/api/prescriptions/print/${rx.id}`}
-                                                    target="_blank"
+                                                <button 
+                                                    onClick={() => printRx(rx)}
                                                     className="btn btn-secondary btn-sm" 
                                                     style={{ background: '#fff' }}
                                                 >
                                                     View Detail
-                                                </Link>
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
