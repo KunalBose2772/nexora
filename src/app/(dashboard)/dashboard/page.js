@@ -219,6 +219,26 @@ export default function DashboardPage() {
                     transform: translateY(-1px); 
                     border-color: #CBD5E1; 
                 }
+                .btn-executive {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 10px 18px;
+                    border-radius: 10px;
+                    font-size: 13px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+                    height: 42px;
+                    border: 1px solid transparent;
+                }
+                .btn-executive:hover {
+                    transform: translateY(-1.5px);
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+                }
+                .btn-executive:active {
+                    transform: translateY(0);
+                }
             `}</style>
 
             {/* Header */}
@@ -237,11 +257,11 @@ export default function DashboardPage() {
                     </div>
                 </div>
                 <div style={{ display: 'flex', gap: '12px' }}>
-                    <button className="btn-executive" onClick={load} disabled={loading} style={{ background: '#fff', border: '1px solid #E2E8F0', color: '#445566' }}>
+                    <button className="btn-executive" onClick={load} disabled={loading} style={{ background: '#fff', border: '1px solid #E2E8F0', color: '#0F172A' }}>
                         <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
                         {loading ? 'Polling…' : 'Sync Telemetry'}
                     </button>
-                    <Link href="/command-center" className="btn-executive" style={{ textDecoration: 'none', background: '#0F172A', color: '#fff' }}>
+                    <Link href="/command-center" className="btn-executive shadow-premium" style={{ textDecoration: 'none', background: '#0F172A', color: '#fff', borderColor: '#0F172A' }}>
                         <Activity size={16} /> Mission Control
                     </Link>
                 </div>
