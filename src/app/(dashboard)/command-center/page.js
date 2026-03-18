@@ -26,7 +26,8 @@ import {
     Globe,
     Terminal,
     ChevronRight,
-    Search
+    Search,
+    Hospital
 } from 'lucide-react';
 
 const ICON_MAP = {
