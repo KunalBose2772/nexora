@@ -5,7 +5,7 @@ import {
     Thermometer, HeartPulse, Clock, FileText,
     CheckCircle2, AlertTriangle, ChevronRight,
     Save, Plus, Pill, FlaskConical, Stethoscope,
-    ArrowUpRight
+    ArrowUpRight, BedDouble
 } from 'lucide-react';
 import Link from 'next/link';
 import { useState, useEffect, useCallback } from 'react';
