@@ -1,3 +1,4 @@
+'use client';
 import React, { useState } from 'react';
 import { LayoutDashboard, Calendar, FileText, CreditCard, Settings, User, LogOut, ChevronRight, Menu, X } from 'lucide-react';
 import AppointmentBooking from '@/components/portal/AppointmentBooking';
