@@ -383,118 +383,272 @@ function BillingContent() {
                 </div>
             </div>
 
-            {/* Modals & Popups (Refactored for style) */}
+            {/* Executive Modals */}
             {showAdvanceModal && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-md">
-                    <div className="bg-white rounded-[32px] w-full max-w-[500px] p-10 shadow-2xl animate-scale-up border border-white/20">
-                        <div className="flex justify-between items-center mb-10">
-                            <div>
-                                <h2 className="text-2xl font-black text-navy-900 letter-spacing-tight">Capital Induction</h2>
-                                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Patient Deposit Protocls</p>
-                            </div>
-                            <button onClick={() => setShowAdvanceModal(false)} className="w-12 h-12 flex items-center justify-center rounded-full hover:bg-slate-50 text-slate-400 transition-all border border-slate-100"><X size={24} /></button>
+                <div className="modal-overlay-executive">
+                    <style jsx>{`
+                        .modal-overlay-executive {
+                            position: fixed;
+                            inset: 0;
+                            background: rgba(15, 23, 42, 0.6);
+                            backdrop-filter: blur(4px);
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            z-index: 1000;
+                            padding: 20px;
+                        }
+                        .modal-card-executive {
+                            background: #fff;
+                            border-radius: 12px;
+                            width: 100%;
+                            max-width: 480px;
+                            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+                            overflow: hidden;
+                            animation: slideUp 0.2s ease-out;
+                        }
+                        .modal-header-executive {
+                            padding: 14px 20px;
+                            border-bottom: 1px solid #E2E8F0;
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            background: #F8FAFC;
+                        }
+                        .modal-title-executive {
+                            font-size: 15px;
+                            font-weight: 600;
+                            color: #0F172A;
+                            margin: 0;
+                            display: flex;
+                            align-items: center;
+                            gap: 8px;
+                        }
+                        .label-executive { 
+                            display: block; 
+                            font-size: 12px; 
+                            font-weight: 500; 
+                            color: #64748B; 
+                            margin-bottom: 6px; 
+                        }
+                        .form-control-executive { 
+                            width: 100%; 
+                            border-radius: 6px; 
+                            border: 1px solid #CBD5E1; 
+                            padding: 8px 12px; 
+                            font-size: 13px; 
+                            font-weight: 400;
+                            color: #0F172A;
+                            outline: none; 
+                            height: 38px;
+                            background: #fff;
+                        }
+                        .btn-executive {
+                            height: 38px;
+                            padding: 0 16px;
+                            font-size: 13px;
+                            font-weight: 600;
+                            border-radius: 6px;
+                            display: inline-flex;
+                            align-items: center;
+                            justify-content: center;
+                            gap: 8px;
+                            cursor: pointer;
+                            transition: all 0.2s;
+                            border: none;
+                        }
+                        @keyframes slideUp { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+                    `}</style>
+
+                    <div className="modal-card-executive">
+                        <div className="modal-header-executive">
+                            <h3 className="modal-title-executive"><Wallet size={16} className="text-emerald-500" /> Capital Induction</h3>
+                            <button onClick={() => setShowAdvanceModal(false)} style={{ border: 'none', background: 'none', color: '#94A3B8', cursor: 'pointer', fontSize: '20px' }}>×</button>
                         </div>
-                        <form onSubmit={handleCreateAdvance} className="space-y-8">
-                            <div className="relative">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3 block">Account Search</label>
-                                <div className="relative">
-                                    <Search size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400" />
-                                    <input value={patientSearch} onChange={e => { setPatientSearch(e.target.value); setSelectedPatient(null); }} placeholder="Find by UHID or Name..." className="w-full pl-14 pr-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl font-bold text-sm outline-none focus:border-cyan-500 focus:bg-white transition-all shadow-sm" />
-                                </div>
-                                {filteredPatients.length > 0 && !selectedPatient && (
-                                    <div className="absolute top-full left-0 right-0 z-10 mt-2 bg-white border border-slate-100 rounded-[24px] shadow-2xl overflow-hidden py-2 border-b-4 border-cyan-500">
-                                        {filteredPatients.map(p => (
-                                            <div key={p.id} onClick={() => { setSelectedPatient(p); setPatientSearch(`${p.firstName} ${p.lastName} (${p.patientCode})`); }} className="p-5 hover:bg-slate-50 cursor-pointer border-b border-slate-50 last:border-0 transition-all group">
-                                                <div className="font-black text-navy-900 group-hover:text-cyan-600 transition-colors">{p.firstName} {p.lastName}</div>
-                                                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter mt-1">{p.patientCode} • {p.phone || 'NO CONTACT'}</div>
-                                            </div>
-                                        ))}
+                        
+                        <div style={{ padding: '20px' }}>
+                            <form onSubmit={handleCreateAdvance} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                <div style={{ position: 'relative' }}>
+                                    <label className="label-executive">Patient Account Locator</label>
+                                    <div style={{ position: 'relative' }}>
+                                        <Search size={14} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
+                                        <input 
+                                            value={patientSearch} 
+                                            onChange={e => { setPatientSearch(e.target.value); setSelectedPatient(null); }} 
+                                            placeholder="Find by UHID or Name..." 
+                                            className="form-control-executive"
+                                            style={{ paddingLeft: '34px' }}
+                                        />
                                     </div>
-                                )}
-                            </div>
-                            <div className="grid grid-cols-2 gap-6">
-                                <div>
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3 block">Principal Sum (₹)</label>
-                                    <input required type="number" value={advForm.amount} onChange={e => setAdvForm({ ...advForm, amount: e.target.value })} className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl font-black text-2xl text-emerald-600 outline-none focus:border-emerald-500 focus:bg-white transition-all text-center shadow-sm" placeholder="0.00" />
+                                    {filteredPatients.length > 0 && !selectedPatient && (
+                                        <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 10, marginTop: '4px', background: '#fff', border: '1px solid #E2E8F0', borderRadius: '8px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', overflow: 'hidden' }}>
+                                            {filteredPatients.map(p => (
+                                                <div key={p.id} onClick={() => { setSelectedPatient(p); setPatientSearch(`${p.firstName} ${p.lastName} (${p.patientCode})`); }} style={{ padding: '10px 12px', cursor: 'pointer', borderBottom: '1px solid #F1F5F9' }}>
+                                                    <div style={{ fontSize: '13px', fontWeight: 600, color: '#0F172A' }}>{p.firstName} {p.lastName}</div>
+                                                    <div style={{ fontSize: '11px', color: '#64748B' }}>{p.patientCode} • {p.phone || 'N/A'}</div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
-                                <div>
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3 block">Transaction Hub</label>
-                                    <select value={advForm.paymentMethod} onChange={e => setAdvForm({ ...advForm, paymentMethod: e.target.value })} className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl font-bold text-sm outline-none focus:border-cyan-500 focus:bg-white transition-all appearance-none cursor-pointer shadow-sm">
-                                        {PAYMENT_METHODS.map(m => <option key={m}>{m}</option>)}
-                                    </select>
+
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                                    <div>
+                                        <label className="label-executive">Principal Sum (₹)</label>
+                                        <input 
+                                            required 
+                                            type="number" 
+                                            value={advForm.amount} 
+                                            onChange={e => setAdvForm({ ...advForm, amount: e.target.value })} 
+                                            className="form-control-executive"
+                                            style={{ fontSize: '16px', fontWeight: 600, color: '#10B981', textAlign: 'center' }}
+                                            placeholder="0.00" 
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="label-executive">Transaction Mode</label>
+                                        <select 
+                                            value={advForm.paymentMethod} 
+                                            onChange={e => setAdvForm({ ...advForm, paymentMethod: e.target.value })} 
+                                            className="form-control-executive"
+                                        >
+                                            {PAYMENT_METHODS.map(m => <option key={m}>{m}</option>)}
+                                        </select>
+                                    </div>
                                 </div>
-                            </div>
-                            <button disabled={advanceSaving || !selectedPatient} className="w-full py-5 rounded-2xl bg-navy-900 text-white font-black uppercase tracking-[0.25em] text-[11px] shadow-xl shadow-slate-200 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-30 disabled:grayscale">
-                                {advanceSaving ? <Loader2 size={18} className="animate-spin mx-auto" /> : 'Confirm Financial Ledger Posting'}
-                            </button>
-                        </form>
+
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '12px', marginTop: '8px' }}>
+                                    <button 
+                                        type="button" 
+                                        onClick={() => setShowAdvanceModal(false)}
+                                        className="btn-executive"
+                                        style={{ background: '#fff', border: '1px solid #E2E8F0', color: '#64748B' }}
+                                    >
+                                        Abort
+                                    </button>
+                                    <button 
+                                        type="submit" 
+                                        disabled={advanceSaving || !selectedPatient}
+                                        className="btn-executive"
+                                        style={{ background: 'var(--color-navy)', color: '#fff' }}
+                                    >
+                                        {advanceSaving ? <Loader2 size={16} className="animate-spin" /> : 'Commit Ledger Posting'}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
             )}
 
             {showModal && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-md">
-                    <div className="bg-white rounded-[32px] w-full max-w-[560px] p-10 shadow-2xl animate-scale-up border border-white/20">
-                        <div className="flex justify-between items-center mb-10">
-                            <div>
-                                <h2 className="text-2xl font-black text-navy-900">Revenue Generation</h2>
-                                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Invoice Emission Protocols</p>
-                            </div>
-                            <button onClick={() => setShowModal(false)} className="w-12 h-12 flex items-center justify-center rounded-full hover:bg-slate-50 text-slate-400 transition-all border border-slate-100"><X size={24} /></button>
+                <div className="modal-overlay-executive">
+                    <div className="modal-card-executive" style={{ maxWidth: '520px' }}>
+                        <div className="modal-header-executive">
+                            <h3 className="modal-title-executive"><Receipt size={16} className="text-blue-500" /> Revenue Generation</h3>
+                            <button onClick={() => setShowModal(false)} style={{ border: 'none', background: 'none', color: '#94A3B8', cursor: 'pointer', fontSize: '20px' }}>×</button>
                         </div>
-                        <form onSubmit={handleCreate} className="space-y-8">
-                            <div className="relative">
-                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-3 block">Debtor Account</label>
-                                {selectedPatient ? (
-                                    <div className="flex justify-between p-5 bg-slate-50 border-2 border-cyan-100 rounded-2xl items-center shadow-inner">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-10 h-10 rounded-full bg-cyan-600 text-white flex items-center justify-center font-bold">{selectedPatient.firstName[0]}</div>
-                                            <div>
-                                                <div className="font-bold text-navy-900 text-base">{selectedPatient.firstName} {selectedPatient.lastName}</div>
-                                                <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest leading-none mt-1">{selectedPatient.patientCode}</div>
+
+                        <div style={{ padding: '20px' }}>
+                            <form onSubmit={handleCreate} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                <div style={{ position: 'relative' }}>
+                                    <label className="label-executive">Debtor Identity</label>
+                                    {selectedPatient ? (
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 14px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', alignItems: 'center' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                <div style={{ width: '32px', height: '32px', borderRadius: '50%', bg: 'var(--color-navy)', background: '#0F172A', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 600 }}>
+                                                    {selectedPatient.firstName[0]}
+                                                </div>
+                                                <div>
+                                                    <div style={{ fontSize: '13px', fontWeight: 600, color: '#0F172A' }}>{selectedPatient.firstName} {selectedPatient.lastName}</div>
+                                                    <div style={{ fontSize: '11px', color: '#64748B' }}>{selectedPatient.patientCode}</div>
+                                                </div>
                                             </div>
+                                            <button type="button" onClick={() => setSelectedPatient(null)} style={{ border: 'none', background: 'none', color: '#EF4444', cursor: 'pointer' }}><X size={16} /></button>
                                         </div>
-                                        <button type="button" onClick={() => setSelectedPatient(null)} className="text-red-500 hover:bg-red-50 p-2.5 rounded-xl transition-all"><X size={20} /></button>
+                                    ) : (
+                                        <div style={{ position: 'relative' }}>
+                                            <Search size={14} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
+                                            <input 
+                                                value={patientSearch} 
+                                                onChange={e => setPatientSearch(e.target.value)} 
+                                                placeholder="Search Ledger Index..." 
+                                                className="form-control-executive"
+                                                style={{ paddingLeft: '34px' }}
+                                            />
+                                        </div>
+                                    )}
+                                    {filteredPatients.length > 0 && !selectedPatient && (
+                                        <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 10, marginTop: '4px', background: '#fff', border: '1px solid #E2E8F0', borderRadius: '8px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', overflow: 'hidden' }}>
+                                            {filteredPatients.map(p => (
+                                                <div key={p.id} onClick={() => { setSelectedPatient(p); setPatientSearch(`${p.firstName} ${p.lastName} (${p.patientCode})`); }} style={{ padding: '10px 12px', cursor: 'pointer', borderBottom: '1px solid #F1F5F9' }}>
+                                                    <div style={{ fontSize: '13px', fontWeight: 600, color: '#0F172A' }}>{p.firstName} {p.lastName}</div>
+                                                    <div style={{ fontSize: '11px', color: '#64748B' }}>{p.patientCode}</div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                                    <div>
+                                        <label className="label-executive">Revenue Stream</label>
+                                        <select 
+                                            value={form.serviceType} 
+                                            onChange={e => setForm({ ...form, serviceType: e.target.value })} 
+                                            className="form-control-executive"
+                                        >
+                                            {SERVICE_TYPES.map(s => <option key={s}>{s}</option>)}
+                                        </select>
                                     </div>
-                                ) : (
-                                    <div className="relative">
-                                        <Search size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400" />
-                                        <input value={patientSearch} onChange={e => setPatientSearch(e.target.value)} placeholder="Search Ledger Index..." className="w-full pl-14 pr-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl font-semibold text-sm outline-none focus:border-cyan-500 focus:bg-white transition-all shadow-sm" />
+                                    <div>
+                                        <label className="label-executive">Settlement Amount (₹)</label>
+                                        <input 
+                                            required 
+                                            type="number" 
+                                            value={form.amount} 
+                                            onChange={e => setForm({ ...form, amount: e.target.value })} 
+                                            className="form-control-executive"
+                                            style={{ fontSize: '16px', fontWeight: 600, color: '#0F172A', textAlign: 'center' }}
+                                            placeholder="0.00" 
+                                        />
+                                    </div>
+                                </div>
+
+                                {requirePin && (
+                                    <div style={{ padding: '12px', background: '#FEF2F2', border: '1px solid #FEE2E2', borderRadius: '8px' }}>
+                                        <label className="label-executive" style={{ color: '#B91C1C', textAlign: 'center' }}>Managerial Override Authorization</label>
+                                        <input 
+                                            type="password" 
+                                            value={managerPin} 
+                                            onChange={e => setManagerPin(e.target.value)} 
+                                            placeholder="••••" 
+                                            className="form-control-executive"
+                                            style={{ textAlign: 'center', fontSize: '18px', letterSpacing: '8px', border: '1px solid #FCA5A5' }}
+                                        />
                                     </div>
                                 )}
-                                {filteredPatients.length > 0 && !selectedPatient && (
-                                    <div className="absolute top-full left-0 right-0 z-10 mt-2 bg-white border border-slate-100 rounded-[24px] shadow-2xl overflow-hidden py-2 border-b-4 border-cyan-500">
-                                        {filteredPatients.map(p => (
-                                            <div key={p.id} onClick={() => { setSelectedPatient(p); setPatientSearch(`${p.firstName} ${p.lastName} (${p.patientCode})`); }} className="p-5 hover:bg-slate-50 cursor-pointer border-b border-slate-50 transition-all group">
-                                                <div className="font-bold text-navy-900 group-hover:text-cyan-600 transition-colors">{p.firstName} {p.lastName}</div>
-                                                <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-tighter mt-1">{p.patientCode}</div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                            <div className="grid grid-cols-2 gap-6">
-                                <div>
-                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-3 block">Revenue Unit</label>
-                                    <select value={form.serviceType} onChange={e => setForm({ ...form, serviceType: e.target.value })} className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl font-semibold text-sm outline-none focus:border-cyan-500 focus:bg-white transition-all appearance-none cursor-pointer shadow-sm">
-                                        {SERVICE_TYPES.map(s => <option key={s}>{s}</option>)}
-                                    </select>
+
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '12px', marginTop: '8px' }}>
+                                    <button 
+                                        type="button" 
+                                        onClick={() => setShowModal(false)}
+                                        className="btn-executive"
+                                        style={{ background: '#fff', border: '1px solid #E2E8F0', color: '#64748B' }}
+                                    >
+                                        Dismiss
+                                    </button>
+                                    <button 
+                                        type="submit" 
+                                        disabled={saving} 
+                                        className="btn-executive"
+                                        style={{ background: 'var(--color-navy)', color: '#fff' }}
+                                    >
+                                        {saving ? <Loader2 size={16} className="animate-spin" /> : 'Authorize & Emit Invoice'}
+                                    </button>
                                 </div>
-                                <div>
-                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-3 block">Settlement Sum (₹)</label>
-                                    <input required type="number" value={form.amount} onChange={e => setForm({ ...form, amount: e.target.value })} className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl font-bold text-2xl text-navy-900 outline-none focus:border-cyan-500 focus:bg-white transition-all text-center" placeholder="0.00" />
-                                </div>
-                            </div>
-                            {requirePin && (
-                                <div className="p-6 bg-red-50 border border-red-100 rounded-[24px] animate-pulse">
-                                    <label className="text-[10px] font-bold text-red-600 uppercase tracking-[0.2em] mb-3 block text-center">Managerial Override Required</label>
-                                    <input type="password" value={managerPin} onChange={e => setManagerPin(e.target.value)} placeholder="••••" className="w-full px-6 py-3 bg-white border border-red-200 rounded-xl text-center font-bold text-2xl tracking-[0.5em] outline-none focus:border-red-500 shadow-sm" />
-                                </div>
-                            )}
-                            <button disabled={saving} className="w-full py-5 rounded-2xl bg-cyan-600 text-white font-bold uppercase tracking-[0.25em] text-[11px] shadow-xl shadow-cyan-100 hover:bg-cyan-700 hover:scale-[1.01] active:scale-[0.99] transition-all">
-                                {saving ? <Loader2 size={18} className="animate-spin mx-auto" /> : 'Authorize & Emit Invoice'}
-                            </button>
-                        </form>
+                            </form>
+                        </div>
                     </div>
                 </div>
             )}

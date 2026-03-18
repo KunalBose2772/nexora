@@ -66,42 +66,111 @@ export default function TransferModal({ patient, isOpen, onClose, onTransferSucc
     const availableBeds = selectedWard?.beds?.filter(b => b.status === 'Vacant') || [];
 
     return (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex justify-center items-center z-50">
-            <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-                <div className="bg-slate-800 px-6 py-4 border-b flex justify-between items-center">
-                    <h3 className="font-bold text-white flex items-center gap-2"><ArrowRightLeft size={18} className="text-blue-400" /> Patient Internal Transfer</h3>
-                    <button onClick={onClose} className="text-slate-400 hover:text-white transition-colors text-xl">×</button>
+        <div className="modal-overlay-executive">
+            <style jsx>{`
+                .modal-overlay-executive {
+                    position: fixed;
+                    inset: 0;
+                    background: rgba(15, 23, 42, 0.6);
+                    backdrop-filter: blur(4px);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 1000;
+                    padding: 20px;
+                }
+                .modal-card-executive {
+                    background: #fff;
+                    border-radius: 12px;
+                    width: 100%;
+                    max-width: 440px;
+                    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+                    overflow: hidden;
+                    animation: slideUp 0.2s ease-out;
+                }
+                .modal-header-executive {
+                    padding: 14px 20px;
+                    border-bottom: 1px solid #E2E8F0;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    background: #F8FAFC;
+                }
+                .modal-title-executive {
+                    font-size: 15px;
+                    font-weight: 600;
+                    color: #0F172A;
+                    margin: 0;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                }
+                .label-executive { 
+                    display: block; 
+                    font-size: 12px; 
+                    font-weight: 500; 
+                    color: #64748B; 
+                    margin-bottom: 6px; 
+                }
+                .form-control-executive { 
+                    width: 100%; 
+                    border-radius: 6px; 
+                    border: 1px solid #CBD5E1; 
+                    padding: 8px 12px; 
+                    font-size: 13px; 
+                    font-weight: 400;
+                    color: #0F172A;
+                    outline: none; 
+                    height: 38px;
+                    background: #fff;
+                }
+                .btn-executive {
+                    height: 36px;
+                    padding: 0 16px;
+                    font-size: 13px;
+                    font-weight: 600;
+                    border-radius: 6px;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 8px;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                    border: none;
+                }
+                @keyframes slideUp { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+            `}</style>
+
+            <div className="modal-card-executive">
+                <div className="modal-header-executive">
+                    <h3 className="modal-title-executive"><ArrowRightLeft size={16} className="text-blue-500" /> Internal Transfer</h3>
+                    <button onClick={onClose} style={{ border: 'none', background: 'none', color: '#94A3B8', cursor: 'pointer', fontSize: '20px' }}>×</button>
                 </div>
 
-                <div className="p-6">
-                    {/* Patient Context */}
-                    <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 mb-6">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">
-                                {patient.patientName?.charAt(0)}
-                            </div>
-                            <div>
-                                <h4 className="font-black text-slate-800 leading-none">{patient.patientName}</h4>
-                                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Current: {patient.ward} • Bed {patient.bed}</p>
-                            </div>
+                <div style={{ padding: '20px' }}>
+                    <div style={{ background: '#F0F9FF', border: '1px solid #E0F2FE', borderRadius: '10px', padding: '12px 16px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div style={{ width: '36px', height: '36px', background: '#3B82F6', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '14px', fontWeight: 600 }}>
+                            {patient.patientName?.charAt(0)}
+                        </div>
+                        <div>
+                            <h4 style={{ margin: 0, fontSize: '14px', fontWeight: 600, color: '#1E3A8A' }}>{patient.patientName}</h4>
+                            <p style={{ margin: '2px 0 0 0', fontSize: '11px', color: '#60A5FA', fontWeight: 500 }}>{patient.ward} • Bed {patient.bed}</p>
                         </div>
                     </div>
 
-                    <form onSubmit={handleTransfer} className="space-y-5">
+                    <form onSubmit={handleTransfer} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                         <div>
-                            <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
-                                <MapPin size={12}/> Select Target Ward
-                            </label>
+                            <label className="label-executive">Target Ward Allocation</label>
                             <select 
                                 required
-                                className="w-full p-2.5 border border-slate-300 rounded-lg outline-none focus:border-blue-500 transition-all font-medium text-slate-700 bg-white"
+                                className="form-control-executive"
                                 value={selectedWardId}
                                 onChange={(e) => {
                                     setSelectedWardId(e.target.value);
                                     setSelectedBedNumber('');
                                 }}
                             >
-                                <option value="">Select Ward...</option>
+                                <option value="">Select Wing/Ward...</option>
                                 {wards.map(w => (
                                     <option key={w.id} value={w.id}>{w.name} ({w.floorWing || 'Main Wing'})</option>
                                 ))}
@@ -109,13 +178,12 @@ export default function TransferModal({ patient, isOpen, onClose, onTransferSucc
                         </div>
 
                         <div>
-                            <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
-                                <BedDouble size={12}/> Available Bed Allocation
-                            </label>
+                            <label className="label-executive">Available Bed Locator</label>
                             <select 
                                 required
                                 disabled={!selectedWardId || loading}
-                                className="w-full p-2.5 border border-slate-300 rounded-lg outline-none focus:border-blue-500 transition-all font-medium text-slate-700 bg-white disabled:bg-slate-50"
+                                className="form-control-executive"
+                                style={{ background: (!selectedWardId || loading) ? '#F8FAFC' : '#fff' }}
                                 value={selectedBedNumber}
                                 onChange={(e) => setSelectedBedNumber(e.target.value)}
                             >
@@ -124,31 +192,33 @@ export default function TransferModal({ patient, isOpen, onClose, onTransferSucc
                                     <option key={b.id} value={b.bedNumber}>Bed {b.bedNumber} ({b.type})</option>
                                 ))}
                                 {!loading && selectedWardId && availableBeds.length === 0 && (
-                                    <option disabled>NO VACANT BEDS IN THIS WARD</option>
+                                    <option disabled>NO VACANT BEDS</option>
                                 )}
                             </select>
                             {selectedWardId && availableBeds.length === 0 && !loading && (
-                                <p className="text-[10px] text-red-500 font-bold mt-1.5 flex items-center gap-1">
-                                    <AlertCircle size={10}/> Ward is currently at full capacity.
+                                <p style={{ fontSize: '10px', color: '#EF4444', fontWeight: 500, marginTop: '6px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                    <AlertCircle size={12}/> Ward is currently at full capacity.
                                 </p>
                             )}
                         </div>
 
-                        <div className="pt-4 border-t border-slate-100 flex justify-end gap-3 mt-4">
+                        <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
                             <button 
                                 type="button" 
                                 onClick={onClose}
-                                className="px-5 py-2.5 bg-slate-100 font-bold text-slate-600 rounded-lg hover:bg-slate-200 transition-colors text-xs"
+                                className="btn-executive"
+                                style={{ flex: 1, background: '#fff', border: '1px solid #E2E8F0', color: '#64748B' }}
                             >
-                                Cancel
+                                Dismiss
                             </button>
                             <button 
                                 type="submit" 
                                 disabled={transferring || !selectedBedNumber}
-                                className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-lg flex items-center gap-2 transition-all disabled:opacity-50 text-xs"
+                                className="btn-executive"
+                                style={{ flex: 1.5, background: '#3B82F6', color: '#fff' }}
                             >
                                 {transferring ? <RefreshCw size={14} className="animate-spin"/> : <ArrowRightLeft size={14}/>}
-                                {transferring ? 'Executing Transfer...' : 'Commit Patient Transfer'}
+                                {transferring ? 'Processing...' : 'Commit Transfer'}
                             </button>
                         </div>
                     </form>

@@ -126,18 +126,86 @@ export default function PharmacyPage() {
                     100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
                 }
                 .med-action-btn {
-                    height: 38px;
-                    padding: 0 16px;
-                    border-radius: 10px;
+                    height: 32px;
+                    padding: 0 12px;
+                    border-radius: 6px;
                     font-size: 11px;
-                    font-weight: 800;
+                    font-weight: 600;
                     text-transform: uppercase;
-                    letter-spacing: 0.05em;
                     display: flex;
                     align-items: center;
-                    gap: 8px;
-                    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+                    gap: 6px;
+                    transition: all 0.2s;
                 }
+
+                .modal-overlay-executive {
+                    position: fixed;
+                    inset: 0;
+                    background: rgba(15, 23, 42, 0.6);
+                    backdrop-filter: blur(4px);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 1000;
+                    padding: 20px;
+                    animation: fadeIn 0.15s ease-out;
+                }
+                .modal-card-executive {
+                    background: #fff;
+                    border-radius: 12px;
+                    width: 100%;
+                    max-width: 480px;
+                    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+                    animation: slideUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+                    overflow: hidden;
+                }
+                .modal-header-executive {
+                    padding: 14px 20px;
+                    border-bottom: 1px solid #E2E8F0;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    background: #F8FAFC;
+                }
+                .modal-title-executive {
+                    font-size: 15px;
+                    font-weight: 600;
+                    color: #0F172A;
+                    margin: 0;
+                }
+                .label-executive { 
+                    display: block; 
+                    font-size: 12px; 
+                    font-weight: 500; 
+                    color: #64748B; 
+                    margin-bottom: 6px; 
+                }
+                .form-control-executive { 
+                    width: 100%; 
+                    border-radius: 6px; 
+                    border: 1px solid #CBD5E1; 
+                    padding: 8px 12px; 
+                    font-size: 13px; 
+                    font-weight: 400;
+                    color: #0F172A;
+                    outline: none; 
+                    height: 38px;
+                }
+                .btn-executive {
+                    height: 38px;
+                    padding: 0 16px;
+                    font-size: 13px;
+                    font-weight: 600;
+                    border-radius: 6px;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 8px;
+                    cursor: pointer;
+                }
+
+                @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+                @keyframes slideUp { from { transform: translateY(12px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
             `}</style>
 
             <div className="dashboard-header-row mb-10">
@@ -300,37 +368,39 @@ export default function PharmacyPage() {
 
             {/* Replenish Modal */}
             {receiveModal && (
-                <div className="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6">
-                    <div className="bg-white rounded-[24px] w-full max-w-[500px] p-8 shadow-2xl animate-scale-up">
-                        <div className="flex justify-between items-center mb-8">
-                            <h2 className="text-xl font-black text-navy-900">Induction Registry</h2>
-                            <button onClick={() => setReceiveModal(null)} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-slate-50 text-slate-400 transition-all"><X size={20} /></button>
+                <div className="modal-overlay-executive">
+                    <div className="modal-card-executive">
+                        <div className="modal-header-executive">
+                            <h2 className="modal-title-executive">Molecular Induction Registry</h2>
+                            <button onClick={() => setReceiveModal(null)} style={{ border: 'none', background: 'none', color: '#94A3B8', cursor: 'pointer' }}><X size={18} /></button>
                         </div>
-                        <div className="p-5 bg-sky-50 border border-sky-100 rounded-[20px] flex gap-5 items-center mb-8">
-                            <div className="w-14 h-14 bg-white rounded-2xl shadow-sm text-sky-500 flex items-center justify-center shrink-0"><Package size={28} /></div>
+                        <div style={{ padding: '16px 20px', background: '#F0F9FF', borderBottom: '1px solid #E0F2FE', display: 'flex', gap: '12px', alignItems: 'center' }}>
+                            <div style={{ width: '40px', height: '40px', background: '#fff', borderRadius: '8px', color: '#0EA5E9', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #BAE6FD' }}><Package size={20} /></div>
                             <div>
-                                <div className="text-[16px] font-black text-navy-900 leading-tight">{receiveModal.name}</div>
-                                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">CODE: {receiveModal.drugCode}</div>
+                                <div style={{ fontSize: '14px', fontWeight: 600, color: '#0C4A6E' }}>{receiveModal.name}</div>
+                                <div style={{ fontSize: '10px', color: '#0EA5E9', fontWeight: 600 }}>CODE: {receiveModal.drugCode}</div>
                             </div>
                         </div>
-                        <form onSubmit={handleReceiveStock} className="space-y-6">
-                            <div>
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 block">Stocking Units</label>
-                                <input required autoFocus type="number" min="1" value={receiveForm.qtyToAdd} onChange={e => setReceiveForm({ ...receiveForm, qtyToAdd: e.target.value })} className="w-full px-5 py-4 bg-slate-50 border-2 border-slate-100 rounded-xl font-black text-2xl text-navy-900 focus:border-sky-500 outline-none transition-all placeholder:text-slate-200" placeholder="000" />
+                        <form onSubmit={handleReceiveStock} style={{ padding: '20px' }}>
+                            <div style={{ marginBottom: '16px' }}>
+                                <label className="label-executive">Stocking Units (Quantity)</label>
+                                <input required autoFocus type="number" min="1" value={receiveForm.qtyToAdd} onChange={e => setReceiveForm({ ...receiveForm, qtyToAdd: e.target.value })} className="form-control-executive" style={{ fontSize: '18px', fontWeight: 600 }} placeholder="0" />
                             </div>
-                            <div className="grid grid-cols-2 gap-4">
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
                                 <div>
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 block">Batch Trace</label>
-                                    <input value={receiveForm.batchNumber} onChange={e => setReceiveForm({ ...receiveForm, batchNumber: e.target.value })} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-xs" />
+                                    <label className="label-executive">Batch Identification</label>
+                                    <input value={receiveForm.batchNumber} onChange={e => setReceiveForm({ ...receiveForm, batchNumber: e.target.value })} className="form-control-executive" placeholder="Batch ID" />
                                 </div>
                                 <div>
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 block">Expiry Gate</label>
-                                    <input type="date" value={receiveForm.expiryDate} onChange={e => setReceiveForm({ ...receiveForm, expiryDate: e.target.value })} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-xs" />
+                                    <label className="label-executive">Expiry Schedule</label>
+                                    <input type="date" value={receiveForm.expiryDate} onChange={e => setReceiveForm({ ...receiveForm, expiryDate: e.target.value })} className="form-control-executive" />
                                 </div>
                             </div>
-                            <div className="flex gap-4 pt-2">
-                                <button type="button" onClick={() => setReceiveModal(null)} className="flex-1 py-4 bg-slate-50 text-slate-500 font-black text-[10px] uppercase tracking-widest rounded-xl">Abort</button>
-                                <button type="submit" disabled={receiveSaving} className="flex-2 px-8 py-4 bg-navy-900 text-white font-black text-[10px] uppercase tracking-widest rounded-xl shadow-xl shadow-slate-200 active:scale-95 transition-all">Induct Medicine</button>
+                            <div style={{ display: 'flex', gap: '12px' }}>
+                                <button type="button" onClick={() => setReceiveModal(null)} className="btn-executive" style={{ flex: 1, background: '#fff', border: '1px solid #E2E8F0', color: '#64748B' }}>Cancel</button>
+                                <button type="submit" disabled={receiveSaving} className="btn-executive" style={{ flex: 2, background: 'var(--color-navy)', border: 'none', color: '#fff' }}>
+                                    {receiveSaving ? <Loader2 size={16} className="animate-spin" /> : 'Confirm Stock Intake'}
+                                </button>
                             </div>
                         </form>
                     </div>
@@ -338,34 +408,33 @@ export default function PharmacyPage() {
             )}
 
             {showDispenses && (
-                <div className="fixed inset-0 z-[110] bg-slate-900/70 backdrop-blur-md flex items-center justify-center p-10">
-                    <div className="bg-white rounded-[32px] w-full max-w-[900px] h-[85vh] flex flex-col shadow-2xl overflow-hidden">
-                        <div className="p-10 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <div className="modal-overlay-executive">
+                    <div className="modal-card-executive" style={{ maxWidth: '840px', height: '80vh', display: 'flex', flexDirection: 'column' }}>
+                        <div className="modal-header-executive" style={{ background: '#F8FAFC' }}>
                             <div>
-                                <h2 className="text-2xl font-black text-navy-900">Dispensation Ledger</h2>
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Audit log of all processed pharmacy bills</p>
+                                <h2 className="modal-title-executive">Dispensation Ledger</h2>
+                                <p style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500, margin: '2px 0 0' }}>Audit log of processed pharmacy bills</p>
                             </div>
-                            <button onClick={() => setShowDispenses(false)} className="w-12 h-12 flex items-center justify-center rounded-2xl hover:bg-white text-slate-400 transition-all shadow-sm border border-transparent hover:border-slate-100"><X size={24} /></button>
+                            <button onClick={() => setShowDispenses(false)} style={{ border: 'none', background: 'none', color: '#94A3B8', cursor: 'pointer' }}><X size={20} /></button>
                         </div>
-                        <div className="flex-1 overflow-y-auto p-10 space-y-4">
-                            {loadingDispenses ? <Skeleton count={5} height="80px" /> : dispensations.map(d => (
-                                <div key={d.id} className="p-6 rounded-[24px] border border-slate-100 hover:border-emerald-100 hover:shadow-xl hover:shadow-emerald-500/5 transition-all flex justify-between items-center group bg-white">
-                                    <div className="flex gap-6 items-center">
-                                        <div className="w-12 h-12 rounded-2xl bg-slate-50 text-slate-400 flex items-center justify-center group-hover:bg-emerald-50 group-hover:text-emerald-500 transition-all"><FileText size={20} /></div>
+                        <div style={{ flex: 1, overflowY: 'auto', padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            {loadingDispenses ? <Loader2 size={24} className="animate-spin" /> : dispensations.map(d => (
+                                <div key={d.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', borderRadius: '10px', border: '1px solid #F1F5F9', background: '#fff' }}>
+                                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                                        <div style={{ width: '40px', height: '40px', borderRadius: '8px', background: '#F1F5F9', color: '#64748B', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><FileText size={18} /></div>
                                         <div>
-                                            <div className="text-[14px] font-black text-navy-900 font-mono tracking-tighter">{d.billCode}</div>
-                                            <div className="text-[14px] font-black text-slate-600 mt-0.5">{d.patientName}</div>
-                                            <div className="text-[10px] font-bold text-slate-400 uppercase mt-1">{new Date(d.createdAt).toLocaleString()}</div>
+                                            <div style={{ fontSize: '13px', fontWeight: 600, color: '#0F172A' }}>{d.billCode} | {d.patientName}</div>
+                                            <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500 }}>{new Date(d.createdAt).toLocaleString()}</div>
                                         </div>
                                     </div>
-                                    <div className="flex gap-8 items-center">
-                                        <div className="text-right">
-                                            <div className="text-2xl font-black text-emerald-600">₹{d.netAmount.toFixed(2)}</div>
-                                            <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{d.items.length} Units</div>
+                                    <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+                                        <div style={{ textAlign: 'right' }}>
+                                            <div style={{ fontSize: '16px', fontWeight: 700, color: '#10B981' }}>₹{d.netAmount.toFixed(2)}</div>
+                                            <div style={{ fontSize: '10px', color: '#94A3B8', fontWeight: 600, textTransform: 'uppercase' }}>{d.items.length} Positions</div>
                                         </div>
-                                        <div className="flex gap-2">
-                                            <button onClick={() => setPrintBill(d)} className="h-10 px-6 rounded-xl bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest">Audit Bill</button>
-                                            <button onClick={() => setPrintThermal(d)} className="w-10 h-10 flex items-center justify-center rounded-xl bg-cyan-50 text-cyan-600 shadow-sm"><IndianRupee size={18} /></button>
+                                        <div style={{ display: 'flex', gap: '8px' }}>
+                                            <button onClick={() => setPrintBill(d)} className="btn-executive" style={{ background: 'var(--color-navy)', color: '#fff', border: 'none', height: '32px', fontSize: '11px' }}>Audit</button>
+                                            <button onClick={() => setPrintThermal(d)} className="btn-executive" style={{ background: '#F1F5F9', color: '#0F172A', border: 'none', height: '32px', width: '32px', padding: 0 }}><IndianRupee size={14} /></button>
                                         </div>
                                     </div>
                                 </div>

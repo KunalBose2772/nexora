@@ -156,78 +156,132 @@ export default function DashboardPage() {
                     70% { transform: scale(1); }
                 }
                 .heartbeat-icon { animation: heartbeat 2s infinite ease-in-out; }
-                .qa-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; background: #fff; border: 1px solid var(--color-border-light); border-radius: 16px; padding: 18px 10px; text-decoration: none; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); text-align: center; }
-                .qa-btn:hover { box-shadow: var(--shadow-card-hover); transform: translateY(-4px); border-color: var(--color-cyan); }
-                .kpi-card { background: #fff; border: 1px solid var(--color-border-light); border-radius: 20px; padding: 24px; text-decoration: none; display: block; transition: all 0.2s; position: relative; overflow: hidden; }
-                .kpi-card:hover { box-shadow: var(--shadow-card-hover); transform: translateY(-3px); border-color: var(--color-border); }
-                .kpi-card::after { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--color-icon); opacity: 0; transition: opacity 0.2s; }
+                .qa-btn { 
+                    display: flex; 
+                    flex-direction: column; 
+                    align-items: center; 
+                    justify-content: center; 
+                    gap: 8px; 
+                    background: #fff; 
+                    border: 1px solid #E2E8F0; 
+                    border-radius: 12px; 
+                    padding: 16px 12px; 
+                    text-decoration: none; 
+                    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); 
+                    text-align: center; 
+                }
+                .qa-btn:hover { 
+                    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); 
+                    transform: translateY(-2px); 
+                    border-color: #CBD5E1; 
+                }
+                .kpi-card { 
+                    background: #fff; 
+                    border: 1px solid #E2E8F0; 
+                    border-radius: 12px; 
+                    padding: 20px; 
+                    text-decoration: none; 
+                    display: block; 
+                    transition: all 0.2s; 
+                    position: relative; 
+                    overflow: hidden; 
+                }
+                .kpi-card:hover { 
+                    box-shadow: 0 12px 24px rgba(0,0,0,0.05); 
+                    transform: translateY(-2px); 
+                    border-color: #CBD5E1; 
+                }
+                .kpi-card::after { 
+                    content: ''; 
+                    position: absolute; 
+                    top: 0; 
+                    left: 0; 
+                    width: 3px; 
+                    height: 100%; 
+                    background: var(--color-icon); 
+                    opacity: 0; 
+                    transition: opacity 0.2s; 
+                }
                 .kpi-card:hover::after { opacity: 1; }
-                .bot-kpi-card { background: #fff; border: 1px solid var(--color-border-light); border-radius: 14px; padding: 16px; text-decoration: none; display: flex; alignItems: center; gap: 14px; transition: all 0.15s; }
-                .bot-kpi-card:hover { box-shadow: var(--shadow-card-hover); transform: translateY(-2px); border-color: var(--color-border); }
+                .bot-kpi-card { 
+                    background: #fff; 
+                    border: 1px solid #E2E8F0; 
+                    border-radius: 10px; 
+                    padding: 14px; 
+                    text-decoration: none; 
+                    display: flex; 
+                    alignItems: center; 
+                    gap: 12px; 
+                    transition: all 0.15s; 
+                }
+                .bot-kpi-card:hover { 
+                    box-shadow: 0 5px 10px rgba(0,0,0,0.03); 
+                    transform: translateY(-1px); 
+                    border-color: #CBD5E1; 
+                }
             `}</style>
 
             {/* Header */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '36px', flexWrap: 'wrap', gap: '24px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', flexWrap: 'wrap', gap: '24px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                    <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: 'rgba(239, 68, 68, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <HeartPulse className="heartbeat-icon" size={28} style={{ color: '#EF4444' }} />
+                    <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(239, 68, 68, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <HeartPulse className="heartbeat-icon" size={24} style={{ color: '#EF4444' }} />
                     </div>
                     <div>
-                        <h1 className="responsive-h1" style={{ margin: 0, fontWeight: 600 }}>
+                        <h1 className="responsive-h1" style={{ margin: 0, fontWeight: 600, color: '#0F172A' }}>
                             {greeting}, {data?.tenant?.name || 'Administrator'}
                         </h1>
-                        <p style={{ fontSize: '14px', color: 'var(--color-text-secondary)', margin: '4px 0 0 0', fontWeight: 500 }}>
-                            {dateStr} <span style={{ opacity: 0.5, margin: '0 8px' }}>•</span> Status: <span style={{ color: 'var(--color-success)', fontWeight: 600 }}>System Secure • Node Active</span>
+                        <p style={{ fontSize: '14px', color: '#64748B', margin: '4px 0 0 0', fontWeight: 500 }}>
+                            {dateStr} <span style={{ opacity: 0.5, margin: '0 8px' }}>•</span> Status: <span style={{ color: '#16A34A', fontWeight: 600 }}>System Secure • Node Active</span>
                         </p>
                     </div>
                 </div>
                 <div style={{ display: 'flex', gap: '12px' }}>
-                    <button className="btn btn-secondary shadow-sm" onClick={load} disabled={loading} style={{ background: '#fff', height: '44px', padding: '0 20px', borderRadius: '12px', border: '1px solid var(--color-border-light)' }}>
-                        <RefreshCw size={16} className={loading ? 'animate-spin' : ''} style={{ marginRight: '8px' }} />
+                    <button className="btn-executive" onClick={load} disabled={loading} style={{ background: '#fff', border: '1px solid #E2E8F0', color: '#445566' }}>
+                        <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
                         {loading ? 'Polling…' : 'Sync Telemetry'}
                     </button>
-                    <Link href="/command-center" className="btn btn-primary shadow-premium" style={{ textDecoration: 'none', height: '44px', padding: '0 24px', background: 'var(--color-navy)', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <Activity size={18} /> Mission Control
+                    <Link href="/command-center" className="btn-executive" style={{ textDecoration: 'none', background: '#0F172A', color: '#fff' }}>
+                        <Activity size={16} /> Mission Control
                     </Link>
                 </div>
             </div>
 
             {/* Top KPIs — 4 premium cards */}
-            <div className="kpi-grid" style={{ marginBottom: '24px' }}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" style={{ marginBottom: '24px' }}>
                 {KPI_TOP.map(card => {
                     const Icon = card.icon;
                     return (
                         <Link key={card.id} id={`tour-kpi-${card.id}`} href={card.href} className="kpi-card" style={{ '--color-icon': card.color }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
-                                <div style={{ width: '44px', height: '44px', borderRadius: '14px', background: `${card.color}12`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    <Icon size={22} style={{ color: card.color }} strokeWidth={2} />
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                                <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: `${card.color}12`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <Icon size={20} style={{ color: card.color }} />
                                 </div>
-                                <span style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{card.label}</span>
+                                <span style={{ fontSize: '10px', color: '#94A3B8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{card.label}</span>
                             </div>
-                            <div style={{ fontSize: '32px', fontWeight: 600, color: 'var(--color-navy)', lineHeight: 1, marginBottom: '8px', letterSpacing: '-0.02em' }}>
-                                {loading ? <Loader2 size={24} style={{ animation: 'spin 1s linear infinite', color: '#CBD5E1' }} /> : card.value}
+                            <div style={{ fontSize: '28px', fontWeight: 600, color: '#0F172A', lineHeight: 1, marginBottom: '6px', letterSpacing: '-0.02em' }}>
+                                {loading ? <Loader2 size={24} className="animate-spin text-slate-200" /> : card.value}
                             </div>
-                            <div style={{ fontSize: '12px', color: '#64748B', fontWeight: 400 }}>{card.sub}</div>
+                            <div style={{ fontSize: '12px', color: '#64748B', fontWeight: 500 }}>{card.sub}</div>
                         </Link>
                     );
                 })}
             </div>
 
             {/* Bottom KPIs — 4 compact cards */}
-            <div className="kpi-grid" style={{ marginBottom: '32px' }}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" style={{ marginBottom: '32px' }}>
                 {KPI_BOT.map(card => {
                     const Icon = card.icon;
                     return (
                         <Link key={card.id} id={`tour-kpi-${card.id}`} href={card.href} className="bot-kpi-card">
-                            <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: `${card.color}10`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                <Icon size={20} style={{ color: card.color }} strokeWidth={1.5} />
+                            <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: `${card.color}08`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                <Icon size={18} style={{ color: card.color }} />
                             </div>
                             <div style={{ minWidth: 0 }}>
-                                <div style={{ fontSize: '19px', fontWeight: 600, color: 'var(--color-navy)', lineHeight: 1.1 }}>
+                                <div style={{ fontSize: '17px', fontWeight: 600, color: '#0F172A', lineHeight: 1.1 }}>
                                     {loading ? '—' : card.value}
                                 </div>
                                 <div style={{ fontSize: '11px', color: '#64748B', fontWeight: 500, marginTop: '2px' }}>{card.label}</div>
-                                <div style={{ fontSize: '10px', color: '#94A3B8', marginTop: '1px' }}>{card.sub}</div>
                             </div>
                         </Link>
                     );
@@ -236,19 +290,19 @@ export default function DashboardPage() {
 
             {/* Quick Actions */}
             <div id="tour-quick-actions" style={{ marginBottom: '36px' }}>
-                <div style={{ fontSize: '12px', fontWeight: 600, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '18px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <div style={{ width: '3px', height: '14px', background: 'var(--color-cyan)', borderRadius: '2px' }} />
+                <div style={{ fontSize: '11px', fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ width: '3px', height: '12px', background: '#0EA5E9', borderRadius: '2px' }} />
                     Quick Operations
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '14px' }}>
                     {QUICK_ACTIONS.map((action) => {
                         const Icon = action.icon;
                         return (
-                            <Link key={action.label} href={action.href} className="qa-btn" style={{ height: '100px' }}>
-                                <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: action.bg, color: action.color, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '4px' }}>
-                                    <Icon size={22} strokeWidth={1.5} />
+                            <Link key={action.label} href={action.href} className="qa-btn">
+                                <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: action.bg, color: action.color, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '6px' }}>
+                                    <Icon size={20} />
                                 </div>
-                                <span style={{ fontSize: '12px', color: 'var(--color-navy)', fontWeight: 500, lineHeight: 1.2 }}>{action.label}</span>
+                                <span style={{ fontSize: '12px', color: '#0F172A', fontWeight: 500, lineHeight: 1.2 }}>{action.label}</span>
                             </Link>
                         );
                     })}
@@ -256,55 +310,55 @@ export default function DashboardPage() {
             </div>
 
             {/* Charts Section */}
-            <div className="grid-balanced" style={{ marginBottom: '32px' }}>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6" style={{ marginBottom: '32px' }}>
                 {/* Financial Pulse */}
-                <div style={{ flex: 1, minWidth: '320px', background: '#fff', border: '1px solid var(--color-border-light)', borderRadius: '24px', padding: '24px', boxShadow: '0 4px 6px rgba(0,0,0,0.02)' }}>
+                <div className="card shadow-premium" style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '24px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
                         <div>
-                            <h3 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--color-navy)', margin: 0 }}>Financial Pulse</h3>
-                            <p style={{ fontSize: '12px', color: '#94A3B8', margin: '2px 0 0 0', fontWeight: 500 }}>Global Revenue (Current Fiscal)</p>
+                            <h3 style={{ fontSize: '15px', fontWeight: 600, color: '#0F172A', margin: 0 }}>Financial Pulse</h3>
+                            <p style={{ fontSize: '12px', color: '#64748B', margin: '2px 0 0 0', fontWeight: 500 }}>Global Revenue (Current Fiscal)</p>
                         </div>
                         <div style={{ textAlign: 'right' }}>
-                            <div style={{ fontSize: '20px', fontWeight: 600, color: 'var(--color-navy)' }}>{fmtCurr(s.totalRevenue)}</div>
-                            <div style={{ fontSize: '11px', color: '#10B981', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px', justifyContent: 'flex-end' }}>
+                            <div style={{ fontSize: '20px', fontWeight: 600, color: '#0F172A' }}>{fmtCurr(s.totalRevenue)}</div>
+                            <div style={{ fontSize: '11px', color: '#16A34A', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px', justifyContent: 'flex-end' }}>
                                 <TrendingUp size={12} /> Positive Trend
                             </div>
                         </div>
                     </div>
                     {loading
-                        ? <div style={{ height: '180px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#CBD5E1' }}><Loader2 size={24} style={{ animation: 'spin 1s linear infinite' }} /></div>
+                        ? <div style={{ height: '180px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#CBD5E1' }}><Loader2 size={24} className="animate-spin" /></div>
                         : !data?.revenueByMonth?.some(m => m.revenue > 0)
                             ? <div style={{ height: '180px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '12px', color: '#94A3B8' }}>
-                                <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#F1F5F9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    <IndianRupee size={24} strokeWidth={1.5} />
+                                <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: '#F8FAFC', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #E2E8F0' }}>
+                                    <IndianRupee size={20} strokeWidth={1.5} />
                                 </div>
-                                <span style={{ fontSize: '14px', fontWeight: 500 }}>Waiting for first paid invoice...</span>
+                                <span style={{ fontSize: '13px', fontWeight: 500 }}>Waiting for first paid invoice...</span>
                             </div>
                             : <BarChart data={data.revenueByMonth} height={180} />
                     }
                 </div>
 
                 {/* Service Breakdown */}
-                <div className="card" style={{ padding: '28px', border: '1px solid var(--color-border-light)', borderRadius: '24px' }}>
-                    <div style={{ marginBottom: '24px' }}>
-                        <div style={{ fontSize: '16px', fontWeight: 600, color: 'var(--color-navy)' }}>Service Contribution</div>
-                        <div style={{ fontSize: '12px', color: '#94A3B8', marginTop: '4px', fontWeight: 500 }}>High-volume clinical service split</div>
+                <div className="card shadow-premium" style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '24px' }}>
+                    <div style={{ marginBottom: '20px' }}>
+                        <div style={{ fontSize: '15px', fontWeight: 600, color: '#0F172A' }}>Service Contribution</div>
+                        <div style={{ fontSize: '12px', color: '#64748B', marginTop: '4px', fontWeight: 500 }}>High-volume clinical service split</div>
                     </div>
                     {loading
-                        ? <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '140px', color: '#CBD5E1' }}><Loader2 size={24} style={{ animation: 'spin 1s linear infinite' }} /></div>
+                        ? <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '140px', color: '#CBD5E1' }}><Loader2 size={24} className="animate-spin" /></div>
                         : <ServiceBar data={data?.revenueByService} />
                     }
                 </div>
             </div>
 
             {/* Recent Appointments Table */}
-            <div style={{ background: '#fff', border: '1px solid var(--color-border-light)', borderRadius: '24px', overflow: 'hidden', marginBottom: '32px', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '24px 32px', borderBottom: '1px solid var(--color-border-light)' }}>
+            <div className="card shadow-premium" style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: '12px', overflow: 'hidden', marginBottom: '32px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 24px', borderBottom: '1px solid #F1F5F9' }}>
                     <div>
-                        <div style={{ fontSize: '16px', fontWeight: 600, color: 'var(--color-navy)' }}>Recent Triage & Admissions</div>
-                        <div style={{ fontSize: '12px', color: '#94A3B8', marginTop: '4px', fontWeight: 500 }}>Latest clinical workflow records</div>
+                        <div style={{ fontSize: '15px', fontWeight: 600, color: '#0F172A' }}>Recent Triage & Admissions</div>
+                        <div style={{ fontSize: '12px', color: '#64748B', marginTop: '4px', fontWeight: 500 }}>Latest clinical workflow records</div>
                     </div>
-                    <Link href="/appointments" className="btn btn-secondary btn-sm" style={{ fontWeight: 600, borderRadius: '10px' }}>View Full Registry</Link>
+                    <Link href="/appointments" className="btn-executive" style={{ background: '#fff', border: '1px solid #E2E8F0', color: '#64748B', textDecoration: 'none' }}>View Registry</Link>
                 </div>
 
                 {loading ? (
@@ -320,33 +374,33 @@ export default function DashboardPage() {
                     <div style={{ width: '100%', overflowX: 'auto' }}>
                         <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '950px' }}>
                             <thead>
-                                <tr>
+                                <tr style={{ borderBottom: '1px solid #F1F5F9' }}>
                                     {['Patient & Token', 'Primary Clinician', 'Operational State', 'Action'].map((h, i) => (
-                                        <th key={h} style={{ textAlign: i === 3 ? 'right' : 'left', fontSize: '10px', fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', padding: '12px 16px', borderBottom: '1px solid #F1F5F9' }}>{h}</th>
+                                        <th key={h} style={{ textAlign: i === 3 ? 'right' : 'left', fontSize: '10px', fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.1em', padding: '12px 24px' }}>{h}</th>
                                     ))}
                                 </tr>
                             </thead>
                             <tbody>
                                 {data.appointments.map(apt => {
                                     return (
-                                        <tr key={apt.id} className="interactive-row">
-                                            <td style={{ padding: '20px 32px', fontFamily: 'monospace', fontSize: '12px', color: 'var(--color-navy)', fontWeight: 600 }}>{apt.apptCode || apt.id.slice(-6).toUpperCase()}</td>
-                                            <td style={{ padding: '20px 32px' }}>
-                                                <div style={{ fontWeight: 600, fontSize: '14px', color: 'var(--color-navy)' }}>{apt.patientDisplayName || apt.patientName || 'Anonymous'}</div>
-                                                <div style={{ fontSize: '11px', color: '#94A3B8', marginTop: '2px', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{apt.type || 'OPD'} REGISTRY</div>
+                                        <tr key={apt.id} className="interactive-row" style={{ borderBottom: '1px solid #F8FAFC' }}>
+                                            <td style={{ padding: '16px 24px', fontFamily: 'monospace', fontSize: '12px', color: '#0F172A', fontWeight: 600 }}>{apt.apptCode || apt.id.slice(-6).toUpperCase()}</td>
+                                            <td style={{ padding: '16px 24px' }}>
+                                                <div style={{ fontWeight: 600, fontSize: '14px', color: '#0F172A' }}>{apt.patientDisplayName || apt.patientName || 'Anonymous'}</div>
+                                                <div style={{ fontSize: '11px', color: '#64748B', marginTop: '2px', fontWeight: 500, textTransform: 'uppercase' }}>{apt.type || 'OPD'} REGISTRY</div>
                                             </td>
-                                            <td style={{ padding: '20px 32px' }}>
-                                                <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-navy)' }}>{apt.doctorName || 'General Triage'}</div>
-                                                <div style={{ fontSize: '11px', color: '#94A3B8', marginTop: '2px', fontWeight: 500 }}>{apt.department || 'Clinical Unit'}</div>
+                                            <td style={{ padding: '16px 24px' }}>
+                                                <div style={{ fontSize: '14px', fontWeight: 600, color: '#0F172A' }}>{apt.doctorName || 'General Triage'}</div>
+                                                <div style={{ fontSize: '11px', color: '#64748B', marginTop: '2px', fontWeight: 500 }}>{apt.department || 'Clinical Unit'}</div>
                                             </td>
-                                            <td style={{ padding: '20px 32px', fontSize: '13px', color: 'var(--color-text-secondary)', fontWeight: 500 }}>
+                                            <td style={{ padding: '16px 24px', fontSize: '13px', color: '#445566', fontWeight: 500 }}>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                                     <Clock size={14} style={{ color: '#94A3B8' }} />
                                                     {apt.date || '—'}
                                                 </div>
                                             </td>
-                                            <td style={{ padding: '20px 32px' }}>
-                                                <span className={`status-badge ${apt.status === 'Completed' ? 'badge-completed' : apt.status === 'In Progress' ? 'badge-in-progress' : apt.status === 'Scheduled' ? 'badge-scheduled' : apt.status === 'Waiting' ? 'badge-pending' : apt.status === 'Cancelled' ? 'badge-cancelled' : 'badge-grey'}`} style={{ fontWeight: 600 }}>{apt.status}</span>
+                                            <td style={{ padding: '16px 24px', textAlign: 'right' }}>
+                                                <span className={`status-badge ${apt.status === 'Completed' ? 'badge-completed' : apt.status === 'In Progress' ? 'badge-in-progress' : apt.status === 'Scheduled' ? 'badge-scheduled' : apt.status === 'Waiting' ? 'badge-pending' : apt.status === 'Cancelled' ? 'badge-cancelled' : 'badge-grey'}`} style={{ fontWeight: 600, fontSize: '11px' }}>{apt.status}</span>
                                             </td>
                                         </tr>
                                     );

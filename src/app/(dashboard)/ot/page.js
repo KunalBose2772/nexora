@@ -74,42 +74,70 @@ export default function OTDashboard() {
         <div className="fade-in">
             <style>{`
                 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-                .kpi-card { background: #fff; border: 1px solid var(--color-border-light); border-radius: 16px; padding: 20px; text-decoration: none; display: block; transition: all 0.18s; }
-                .kpi-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+                .kpi-card { 
+                    background: #fff; 
+                    border: 1px solid rgba(0,0,0,0.05); 
+                    border-radius: 12px; 
+                    padding: 24px; 
+                    text-decoration: none; 
+                    display: block; 
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                }
+                .kpi-card:hover { 
+                    transform: translateY(-4px); 
+                    box-shadow: 0 12px 24px rgba(0,0,0,0.05); 
+                }
+                .surgery-card {
+                    background: #fff;
+                    border-radius: 12px;
+                    border: 1px solid rgba(0,0,0,0.05);
+                    overflow: hidden;
+                    transition: all 0.3s ease;
+                }
+                .surgery-card:hover {
+                    border-color: #00C2FF60;
+                    box-shadow: 0 12px 24px rgba(0,0,0,0.05);
+                }
             `}</style>
 
-            <div className="dashboard-header-row" style={{ marginBottom: '28px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
                 <div>
-                    <h1 className="page-header__title" style={{ marginBottom: '4px' }}>Operating Theatre (OT) Command</h1>
-                    <p className="page-header__subtitle">{dateStr} — Precision surgical coordination and perioperative oversight.</p>
+                    <h1 className="responsive-h1" style={{ margin: 0, color: '#0F172A', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '14px' }}>
+                        <Scissors size={32} style={{ color: '#00C2FF' }} />
+                        Operating Theatre (OT) Command
+                    </h1>
+                    <p style={{ margin: '4px 0 0', color: '#64748B', fontWeight: 500, fontSize: '15px' }}>{dateStr} — Precision surgical coordination and perioperative oversight.</p>
                 </div>
-                <div className="dashboard-header-buttons">
-                    <button className="btn btn-secondary btn-sm" style={{ background: '#fff' }} onClick={loadData} disabled={loading}>
+                <div style={{ display: 'flex', gap: '12px' }}>
+                    <button className="btn btn-secondary btn-sm" style={{ background: '#fff', borderRadius: '8px' }} onClick={loadData} disabled={loading}>
                         <RefreshCw size={14} style={{ animation: loading ? 'spin 1s linear infinite' : 'none' }} />
                         {loading ? 'Refreshing…' : 'Refresh Roster'}
                     </button>
-                    <Link href="/ot/schedule" className="btn btn-primary btn-sm">
+                    <Link href="/ot/schedule" className="btn btn-primary btn-sm flex items-center gap-2" style={{ textDecoration: 'none', borderRadius: '8px' }}>
                         <Plus size={15} /> Schedule Surgery
                     </Link>
                 </div>
             </div>
 
             {/* Strategic KPI Strip — 4 Big Cards matching dashboard style */}
-            <div className="kpi-grid" style={{ marginBottom: '32px' }}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
                 {KPI_CARDS.map(card => {
                     const Icon = card.icon;
                     return (
                         <Link href="/ot/analytics" key={card.id} className="kpi-card">
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
-                                <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: `${card.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    <Icon size={20} style={{ color: card.color }} strokeWidth={1.5} />
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                                <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: `${card.color}10`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <Icon size={20} style={{ color: card.color }} />
                                 </div>
-                                <span style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{card.label}</span>
+                                <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{card.label}</div>
                             </div>
-                            <div style={{ fontSize: '32px', fontWeight: 800, color: 'var(--color-navy)', lineHeight: 1, marginBottom: '6px' }}>
-                                {loading && card.id === 'ongoing' ? <Loader2 size={22} className="animate-spin text-muted" /> : card.value}
+                            <div style={{ fontSize: '28px', fontWeight: 700, color: '#0F172A', lineHeight: 1, marginBottom: '8px' }}>
+                                {loading && card.id === 'ongoing' ? <Loader2 size={24} className="animate-spin text-muted" /> : card.value}
                             </div>
-                            <div style={{ fontSize: '12px', color: '#94A3B8' }}>{card.sub}</div>
+                            <div style={{ fontSize: '12px', color: '#64748B', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 500 }}>
+                                <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: card.color }} />
+                                {card.sub}
+                            </div>
                         </Link>
                     );
                 })}
@@ -138,31 +166,43 @@ export default function OTDashboard() {
                 ) : (
                     <div className="kpi-grid" style={{ gap: '24px' }}>
                         {filteredSurgeries.map(s => (
-                            <div key={s.id} className="card shadow-premium" style={{ padding: '0', overflow: 'hidden' }}>
-                                <div style={{ padding: '20px', borderBottom: '1px solid var(--color-border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                            <div key={s.id} className="surgery-card">
+                                <div style={{ padding: '24px', borderBottom: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                     <div>
-                                        <div style={{ fontSize: '10px', fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase', marginBottom: '4px' }}>{s.otRoom} — {s.startTime ? new Date(s.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'ASAP'}</div>
-                                        <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-navy)', margin: 0 }}>{s.patient ? `${s.patient.firstName} ${s.patient.lastName}` : 'Unregistered Patient'}</h3>
-                                        <div style={{ fontSize: '12px', color: '#64748B', marginTop: '2px', fontWeight: 500 }}>{s.procedureName}</div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                                            <div style={{ padding: '4px 10px', background: '#F0F9FF', color: '#00C2FF', borderRadius: '8px', fontSize: '10px', fontWeight: 800, textTransform: 'uppercase' }}>{s.otRoom}</div>
+                                            <div style={{ fontSize: '11px', fontWeight: 700, color: '#94A3B8' }}>{s.startTime ? new Date(s.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'ASAP'}</div>
+                                        </div>
+                                        <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0F172A', margin: 0 }}>{s.patient ? `${s.patient.firstName} ${s.patient.lastName}` : 'Unregistered Patient'}</h3>
+                                        <div style={{ fontSize: '13px', color: '#64748B', marginTop: '4px', fontWeight: 500 }}>{s.procedureName}</div>
                                     </div>
-                                    <span style={{ fontSize: '10px', fontWeight: 700, padding: '4px 10px', borderRadius: '12px', background: s.status === 'Ongoing' || s.status === 'In Progress' ? '#FFFBEB' : s.status === 'Scheduled' ? '#F1F5F9' : '#DCFCE7', color: s.status === 'Ongoing' || s.status === 'In Progress' ? '#B45309' : s.status === 'Scheduled' ? '#475569' : '#15803D' }}>{s.status}</span>
+                                    <div style={{ 
+                                        padding: '6px 14px', 
+                                        borderRadius: '20px', 
+                                        fontSize: '11px', 
+                                        fontWeight: 800, 
+                                        background: s.status === 'Ongoing' || s.status === 'In Progress' ? '#FFFBEB' : s.status === 'Scheduled' ? '#F8FAFC' : '#F0FDF4', 
+                                        color: s.status === 'Ongoing' || s.status === 'In Progress' ? '#B45309' : s.status === 'Scheduled' ? '#64748B' : '#16A34A',
+                                        border: '1px solid',
+                                        borderColor: s.status === 'Ongoing' || s.status === 'In Progress' ? '#FDE68A' : s.status === 'Scheduled' ? '#E2E8F0' : '#BBF7D0'
+                                    }}>{s.status.toUpperCase()}</div>
                                 </div>
-                                <div style={{ padding: '20px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                    <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#F8FAFC', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #F1F5F9' }}>
-                                        <User size={18} style={{ color: '#94A3B8' }} />
+                                <div style={{ padding: '24px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+                                    <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: '#F8FAFC', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #F1F5F9' }}>
+                                        <User size={20} style={{ color: '#0F172A' }} />
                                     </div>
-                                    <div>
-                                        <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500 }}>Primary Surgeon</div>
-                                        <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--color-navy)' }}>{s.surgeonName}</div>
+                                    <div style={{ flex: 1 }}>
+                                        <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 700, textTransform: 'uppercase' }}>Surgeon</div>
+                                        <div style={{ fontSize: '15px', fontWeight: 800, color: '#0F172A' }}>{s.surgeonName}</div>
                                     </div>
-                                    <div style={{ marginLeft: 'auto', textAlign: 'right' }}>
-                                        <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500 }}>Case ID</div>
-                                        <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-navy)', fontFamily: 'monospace' }}>{s.surgeryCode}</div>
+                                    <div style={{ textAlign: 'right' }}>
+                                        <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 700, textTransform: 'uppercase' }}>Case ID</div>
+                                        <div style={{ fontSize: '14px', fontWeight: 800, color: '#0F172A', fontFamily: 'JetBrains Mono, monospace' }}>{s.surgeryCode}</div>
                                     </div>
                                 </div>
-                                <div style={{ padding: '12px 20px', borderTop: '1px solid var(--color-border-light)', background: '#FAFCFF', display: 'flex', gap: '10px' }}>
-                                    <Link href={`/ot/${s.id}`} className="btn btn-secondary btn-sm" style={{ flex: 1, background: '#fff', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Surgical Note</Link>
-                                    <Link href={`/ot/theater/${s.otRoom}/telemetry`} className="btn btn-primary btn-sm" style={{ flex: 1, textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Theater Telemetry</Link>
+                                <div style={{ padding: '16px 24px', background: '#F8FAFC', display: 'flex', gap: '12px', borderTop: '1px solid #F1F5F9' }}>
+                                    <Link href={`/ot/${s.id}`} className="btn btn-secondary btn-sm" style={{ flex: 1, background: '#fff' }}>Surgical Note</Link>
+                                    <Link href={`/ot/theater/${s.otRoom}/telemetry`} className="btn btn-primary btn-sm" style={{ flex: 1 }}>Theater Telemetry</Link>
                                 </div>
                             </div>
                         ))}

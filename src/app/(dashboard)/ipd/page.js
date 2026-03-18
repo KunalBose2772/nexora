@@ -76,7 +76,7 @@ export default function IPDPage() {
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    border-radius: 10px;
+                    border-radius: 8px;
                     background: #F8FAFC;
                     color: #94A3B8;
                     transition: all 0.2s;
@@ -89,37 +89,37 @@ export default function IPDPage() {
                 .referral-card {
                     background: #fff;
                     border: 1px solid #F1F5F9;
-                    border-radius: 20px;
-                    padding: 24px;
+                    border-radius: 12px;
+                    padding: 20px;
                     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                 }
                 .referral-card:hover {
                     transform: translateY(-4px);
-                    box-shadow: 0 12px 24px -10px rgba(0,0,0,0.1);
+                    box-shadow: 0 12px 24px rgba(0,0,0,0.05);
                 }
             `}</style>
 
-            <div className="dashboard-header-row mb-10">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                    <div style={{ width: '52px', height: '52px', background: 'var(--color-navy)', color: '#fff', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 16px rgba(0,0,0,0.1)' }}>
-                        <BedDouble size={24} />
+                    <div style={{ width: '48px', height: '48px', background: '#0F172A', color: '#fff', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <BedDouble size={22} />
                     </div>
                     <div>
-                        <h1 className="responsive-h1" style={{ margin: 0 }}>Inpatient Hub (IPD)</h1>
-                        <p style={{ fontSize: '14px', color: 'var(--color-text-secondary)', margin: '4px 0 0 0', fontWeight: 500 }}>Ward occupancy monitoring, clinical logistics, and discharge governance.</p>
+                        <h1 className="responsive-h1" style={{ margin: 0, color: '#0F172A', fontWeight: 600 }}>Inpatient Hub (IPD)</h1>
+                        <p style={{ fontSize: '14px', color: '#64748B', margin: '2px 0 0 0', fontWeight: 500 }}>Ward occupancy monitoring, clinical logistics, and discharge governance.</p>
                     </div>
                 </div>
-                <div className="dashboard-header-buttons" style={{ display: 'flex', gap: '12px' }}>
-                    <button onClick={fetchData} className="btn btn-secondary" style={{ background: '#fff', color: 'var(--color-navy)', borderRadius: '12px', height: '44px', padding: '0 20px' }}>
-                        <RefreshCw size={16} className={loading ? 'animate-spin' : ''} style={{ marginRight: '8px' }} /> Sync Roster
+                <div style={{ display: 'flex', gap: '12px' }}>
+                    <button onClick={fetchData} className="btn-executive" style={{ background: '#fff', border: '1px solid #E2E8F0', color: '#475569' }}>
+                        <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Sync Roster
                     </button>
-                    <Link href="/ipd/admit" className="btn btn-primary" style={{ background: 'var(--color-navy)', borderRadius: '12px', height: '44px', padding: '0 24px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <Plus size={18} /> New Admission
+                    <Link href="/ipd/admit" className="btn-executive" style={{ background: '#0F172A', color: '#fff', textDecoration: 'none' }}>
+                        <Plus size={16} /> New Admission
                     </Link>
                 </div>
             </div>
 
-            <div className="kpi-grid mb-10">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
                 {[
                     { label: 'Ward Load', value: ipdPatients.length, sub: 'Active Inpatients', icon: Users, color: '#0EA5E9' },
                     { label: 'Critical Care', value: ipdPatients.filter(p => p.status === 'Critical').length, sub: 'High Alert Cases', icon: Siren, color: '#EF4444' },
@@ -128,17 +128,17 @@ export default function IPDPage() {
                 ].map((card, i) => {
                     const Icon = card.icon;
                     return (
-                        <div key={i} className="kpi-card shadow-premium" style={{ border: '1px solid #F1F5F9' }}>
+                        <div key={i} className="kpi-card shadow-premium" style={{ border: '1px solid rgba(0,0,0,0.05)', borderRadius: '12px', padding: '24px' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
-                                <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: `${card.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    <Icon size={20} style={{ color: card.color }} strokeWidth={2} />
+                                <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: `${card.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <Icon size={20} style={{ color: card.color }} />
                                 </div>
-                                <span style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{card.label}</span>
+                                <span style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{card.label}</span>
                             </div>
-                            <div style={{ fontSize: '32px', fontWeight: 600, color: 'var(--color-navy)', lineHeight: 1, marginBottom: '6px' }}>
+                            <div style={{ fontSize: '28px', fontWeight: 600, color: '#0F172A', lineHeight: 1, marginBottom: '6px' }}>
                                 {loading ? <Loader2 size={24} className="animate-spin text-slate-200" /> : card.value}
                             </div>
-                            <div style={{ fontSize: '12px', color: '#94A3B8', fontWeight: 500 }}>{card.sub}</div>
+                            <div style={{ fontSize: '12px', color: '#64748B', fontWeight: 500 }}>{card.sub}</div>
                         </div>
                     );
                 })}
@@ -153,21 +153,21 @@ export default function IPDPage() {
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '24px' }}>
                         {ipdReferrals.map(ref => (
                             <div key={ref.id} className="referral-card shadow-premium">
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
                                     <div>
-                                        <div style={{ fontSize: '16px', fontWeight: 600, color: 'var(--color-navy)', marginBottom: '4px' }}>{ref.patientName}</div>
-                                        <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                            <Stethoscope size={12} /> Ref by Dr. {ref.doctorName}
+                                        <div style={{ fontSize: '15px', fontWeight: 600, color: '#0F172A', marginBottom: '2px' }}>{ref.patientName}</div>
+                                        <div style={{ fontSize: '12px', color: '#64748B', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                            <Stethoscope size={12} style={{ color: '#F59E0B' }} /> Dr. {ref.doctorName}
                                         </div>
                                     </div>
-                                    <span style={{ fontSize: '9px', fontWeight: 900, textTransform: 'uppercase', padding: '4px 8px', borderRadius: '6px', background: ref.referralUrgency === 'Emergency' ? '#FEE2E2' : '#FEF3C7', color: ref.referralUrgency === 'Emergency' ? '#EF4444' : '#B45309' }}>
+                                    <span style={{ fontSize: '10px', fontWeight: 600, padding: '3px 8px', borderRadius: '4px', background: ref.referralUrgency === 'Emergency' ? '#FEF2F2' : '#FEF3C7', color: ref.referralUrgency === 'Emergency' ? '#EF4444' : '#B45309', border: '1px solid currentColor', borderOpacity: 0.1 }}>
                                         {ref.referralUrgency}
                                     </span>
                                 </div>
-                                <div style={{ marginBottom: '20px', padding: '12px', background: '#F8FAFC', borderRadius: '12px', fontSize: '12px', color: '#64748B', fontWeight: 500, fontStyle: 'italic' }}>
+                                <div style={{ marginBottom: '16px', padding: '10px', background: '#F8FAFC', borderRadius: '8px', fontSize: '12px', color: '#475569', fontWeight: 500, linePadding: 1.4 }}>
                                     "{ref.remarks || 'Standard referral for IPD evaluation'}"
                                 </div>
-                                <Link href={`/ipd/admit?refId=${ref.id}&patientId=${ref.patientId || ''}&patient=${encodeURIComponent(ref.patientName)}&doctor=${encodeURIComponent(ref.doctorName)}`} className="btn btn-primary" style={{ width: '100%', height: '42px', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '10px', background: 'var(--color-navy)', fontSize: '12px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                                <Link href={`/ipd/admit?refId=${ref.id}&patientId=${ref.patientId || ''}&patient=${encodeURIComponent(ref.patientName)}&doctor=${encodeURIComponent(ref.doctorName)}`} className="btn-executive" style={{ width: '100%', textDecoration: 'none', background: '#0F172A', color: '#fff' }}>
                                     Process Admission
                                 </Link>
                             </div>
@@ -177,33 +177,33 @@ export default function IPDPage() {
             )}
 
             <div className="card shadow-premium" style={{ padding: '0', overflow: 'hidden', border: '1px solid #F1F5F9' }}>
-                <div style={{ padding: '24px', background: '#fff', borderBottom: '1px solid #F1F5F9', display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
+                <div style={{ padding: '20px', background: '#fff', borderBottom: '1px solid #F1F5F9', display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
                     <div style={{ flex: 1, minWidth: '300px', position: 'relative' }}>
-                        <Search size={18} color="#94A3B8" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
+                        <Search size={16} color="#94A3B8" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }} />
                         <input 
                             type="text" 
                             value={search} 
                             onChange={(e) => setSearch(e.target.value)} 
                             placeholder="Find inpatients by Token, Patient Name, or Ward Wing..." 
-                            style={{ width: '100%', padding: '12px 16px 12px 48px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', outline: 'none', fontSize: '14px', fontWeight: 600, color: 'var(--color-navy)' }} 
+                            style={{ width: '100%', padding: '10px 14px 10px 40px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', outline: 'none', fontSize: '13px', fontWeight: 500, color: '#0F172A' }} 
                         />
                     </div>
-                    <Link href="/ipd/clearance" className="btn btn-secondary" style={{ background: '#fff', color: '#F97316', border: '1px solid #FFEDD5', borderRadius: '12px', height: '44px', padding: '0 20px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: 700 }}>
-                        <ShieldAlert size={18} /> ClearanceHQ
+                    <Link href="/ipd/clearance" className="btn-executive" style={{ background: '#fff', color: '#F97316', border: '1px solid #FFEDD5', textDecoration: 'none' }}>
+                        <ShieldAlert size={16} /> ClearanceHQ
                     </Link>
                 </div>
 
                 <div className="responsive-table-container">
                     <table className="data-table">
                         <thead>
-                            <tr>
-                                <th style={{ padding: '16px', fontWeight: 600, color: 'var(--color-text-secondary)', fontSize: '12px', textTransform: 'uppercase' }}>IPD No.</th>
-                                <th style={{ padding: '16px', fontWeight: 600, color: 'var(--color-text-secondary)', fontSize: '12px', textTransform: 'uppercase' }}>Patient Demographics</th>
-                                <th style={{ padding: '16px', fontWeight: 600, color: 'var(--color-text-secondary)', fontSize: '12px', textTransform: 'uppercase' }}>Ward/Bed Unit</th>
-                                <th style={{ padding: '16px', fontWeight: 600, color: 'var(--color-text-secondary)', fontSize: '12px', textTransform: 'uppercase' }}>Admitting Lead</th>
-                                <th style={{ padding: '16px', fontWeight: 600, color: 'var(--color-text-secondary)', fontSize: '12px', textTransform: 'uppercase' }}>Admission Status</th>
-                                <th style={{ padding: '16px', fontWeight: 600, color: 'var(--color-text-secondary)', fontSize: '12px', textTransform: 'uppercase' }}>Ledger</th>
-                                <th style={{ padding: '16px', fontWeight: 600, color: 'var(--color-text-secondary)', fontSize: '12px', textTransform: 'uppercase', textAlign: 'right' }}>Actions</th>
+                            <tr style={{ borderBottom: '1px solid #F1F5F9' }}>
+                                <th style={{ padding: '14px 16px', fontWeight: 600, color: '#64748B', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>IPD No.</th>
+                                <th style={{ padding: '14px 16px', fontWeight: 600, color: '#64748B', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Patient Demographics</th>
+                                <th style={{ padding: '14px 16px', fontWeight: 600, color: '#64748B', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Ward/Bed Unit</th>
+                                <th style={{ padding: '14px 16px', fontWeight: 600, color: '#64748B', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Admitting Lead</th>
+                                <th style={{ padding: '14px 16px', fontWeight: 600, color: '#64748B', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Admission Status</th>
+                                <th style={{ padding: '14px 16px', fontWeight: 600, color: '#64748B', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Ledger</th>
+                                <th style={{ padding: '14px 16px', fontWeight: 600, color: '#64748B', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em', textAlign: 'right' }}>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -252,13 +252,13 @@ export default function IPDPage() {
                                                     {pt.paymentStatus || 'Pending'}
                                                 </span>
                                             </td>
-                                            <td style={{ padding: '16px', textAlign: 'right' }}>
+                                            <td style={{ padding: '12px 16px', textAlign: 'right' }}>
                                                 <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', alignItems: 'center', position: 'relative' }} onClick={e => e.stopPropagation()}>
-                                                    <button onClick={() => setSelectedPatientForTransfer(pt)} className="btn btn-secondary btn-sm" style={{ padding: '6px', minWidth: '32px', height: '32px', borderRadius: '6px', border: '1px solid #E2E8F0', background: '#fff' }} title="Transfer">
+                                                    <button onClick={() => setSelectedPatientForTransfer(pt)} className="btn-executive" style={{ padding: 0, width: '30px', height: '30px', background: '#fff', border: '1px solid #E2E8F0', color: '#64748B' }} title="Transfer">
                                                         <ArrowRightLeft size={14} />
                                                     </button>
-                                                    <Link href={`/billing/ipd-ledger?ipdId=${pt.id}`} className="btn btn-secondary btn-sm" style={{ padding: '6px', minWidth: '32px', height: '32px', borderRadius: '6px', border: '1px solid #E2E8F0', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }} title="Ledger">
-                                                        <IndianRupee size={14} />
+                                                    <Link href={`/billing/ipd-ledger?ipdId=${pt.id}`} className="btn-executive" style={{ padding: 0, width: '30px', height: '30px', background: '#fff', border: '1px solid #E2E8F0', color: '#64748B', textDecoration: 'none' }} title="Ledger">
+                                                        <IndianRupee size={12} />
                                                     </Link>
                                                     
                                                     <div style={{ position: 'relative' }}>
@@ -268,8 +268,8 @@ export default function IPDPage() {
                                                                 e.stopPropagation();
                                                                 setOpenMenuId(openMenuId === pt.id ? null : pt.id);
                                                             }}
-                                                            className="btn btn-secondary btn-sm" 
-                                                            style={{ width: '32px', height: '32px', padding: 0, background: openMenuId === pt.id ? '#F1F5F9' : '#fff', borderRadius: '6px', border: '1px solid #E2E8F0' }}
+                                                            className="btn-executive" 
+                                                            style={{ width: '30px', height: '30px', padding: 0, background: openMenuId === pt.id ? '#F1F5F9' : '#fff', border: '1px solid #E2E8F0' }}
                                                         >
                                                             <MoreVertical size={14} color="#64748B" />
                                                         </button>

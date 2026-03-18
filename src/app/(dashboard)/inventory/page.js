@@ -61,7 +61,7 @@ export default function InventoryDashboard() {
                 .kpi-card {
                     background: #fff;
                     border: 1px solid var(--color-border-light);
-                    border-radius: 16px;
+                    border-radius: 12px;
                     padding: 24px;
                     transition: all 0.2s ease;
                 }
@@ -86,24 +86,24 @@ export default function InventoryDashboard() {
                 .side-card {
                     background: #fff;
                     border: 1px solid var(--color-border-light);
-                    border-radius: 24px;
+                    border-radius: 12px;
                     padding: 24px;
                 }
             `}</style>
 
-            <div className="dashboard-header-row mb-8">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
                 <div>
-                    <h1 className="page-header__title" style={{ marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <Warehouse size={32} className="text-cyan-500" />
+                     <h1 className="responsive-h1" style={{ margin: 0, color: '#0F172A', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '14px' }}>
+                        <Warehouse size={32} style={{ color: '#0EA5E9' }} />
                         Supply Chain Command
                     </h1>
-                    <p className="page-header__subtitle">Real-time inventory orchestration, SKU tracking, and procurement pipeline management.</p>
+                    <p style={{ margin: '4px 0 0', color: '#64748B', fontWeight: 500, fontSize: '15px' }}>Real-time inventory orchestration, SKU tracking, and procurement pipeline management.</p>
                 </div>
-                <div className="dashboard-header-buttons">
-                    <button className="btn btn-secondary btn-sm" style={{ background: '#fff' }} onClick={fetchData}>
+                <div style={{ display: 'flex', gap: '12px' }}>
+                    <button className="btn btn-secondary btn-sm" style={{ background: '#fff', borderRadius: '8px' }} onClick={fetchData}>
                         <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Sync Stores
                     </button>
-                    <Link href="/pharmacy/procurement" className="btn btn-primary btn-sm flex items-center gap-2" style={{ textDecoration: 'none' }}>
+                    <Link href="/pharmacy/procurement" className="btn btn-primary btn-sm flex items-center gap-2" style={{ textDecoration: 'none', borderRadius: '8px' }}>
                         <ShoppingCart size={15} strokeWidth={1.5} /> Procurement Hub
                     </Link>
                 </div>
@@ -111,31 +111,31 @@ export default function InventoryDashboard() {
 
             {/* KPI Strip */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <div className="stat-card shadow-premium" style={{ borderLeft: '4px solid #0EA5E9' }}>
-                    <p className="text-[12px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 text-sky-600/70">Stock Volume</p>
+                <div className="stat-card shadow-premium" style={{ borderLeft: '4px solid #0EA5E9', borderRadius: '12px' }}>
+                    <p className="text-[12px] font-semibold text-sky-600/70 uppercase tracking-widest mb-1.5 ">Stock Volume</p>
                     <div className="flex items-baseline gap-2">
-                        {loading ? <Skeleton width="60px" height="32px" /> : <h2 className="text-3xl font-black text-navy-900 leading-none">{stats.total}</h2>}
+                        {loading ? <Skeleton width="60px" height="32px" /> : <h2 className="text-3xl font-bold text-navy-900 leading-none">{stats.total}</h2>}
                         <span className="text-xs font-semibold text-slate-400">SKUs</span>
                     </div>
                 </div>
-                <div className="stat-card shadow-premium" style={{ borderLeft: '4px solid #EF4444' }}>
-                    <p className="text-[12px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 text-red-600/70">Critical Replenish</p>
+                <div className="stat-card shadow-premium" style={{ borderLeft: '4px solid #EF4444', borderRadius: '12px' }}>
+                    <p className="text-[12px] font-semibold text-red-600/70 uppercase tracking-widest mb-1.5">Critical Replenish</p>
                     <div className="flex items-baseline gap-2">
-                        {loading ? <Skeleton width="60px" height="32px" /> : <h2 className="text-3xl font-black text-red-600 leading-none">{stats.low}</h2>}
+                        {loading ? <Skeleton width="60px" height="32px" /> : <h2 className="text-3xl font-bold text-red-600 leading-none">{stats.low}</h2>}
                         <span className="text-xs font-semibold text-red-500 animate-pulse">Required</span>
                     </div>
                 </div>
-                <div className="stat-card shadow-premium" style={{ borderLeft: '4px solid #F59E0B' }}>
-                    <p className="text-[12px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 text-amber-600/70">Active Procurement</p>
+                <div className="stat-card shadow-premium" style={{ borderLeft: '4px solid #F59E0B', borderRadius: '12px' }}>
+                    <p className="text-[12px] font-semibold text-amber-600/70 uppercase tracking-widest mb-1.5">Active Procurement</p>
                     <div className="flex items-baseline gap-2">
-                        {loading ? <Skeleton width="60px" height="32px" /> : <h2 className="text-3xl font-black text-amber-600 leading-none">{stats.pos}</h2>}
+                        {loading ? <Skeleton width="60px" height="32px" /> : <h2 className="text-3xl font-bold text-amber-600 leading-none">{stats.pos}</h2>}
                         <span className="text-xs font-semibold text-slate-400">Open POs</span>
                     </div>
                 </div>
-                <div className="stat-card shadow-premium" style={{ borderLeft: '4px solid #10B981' }}>
-                    <p className="text-[12px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 text-emerald-600/70">Supply Network</p>
+                <div className="stat-card shadow-premium" style={{ borderLeft: '4px solid #10B981', borderRadius: '12px' }}>
+                    <p className="text-[12px] font-semibold text-emerald-600/70 uppercase tracking-widest mb-1.5">Supply Network</p>
                     <div className="flex items-baseline gap-2">
-                        {loading ? <Skeleton width="60px" height="32px" /> : <h2 className="text-3xl font-black text-emerald-600 leading-none">{stats.suppliers}</h2>}
+                        {loading ? <Skeleton width="60px" height="32px" /> : <h2 className="text-3xl font-bold text-emerald-600 leading-none">{stats.suppliers}</h2>}
                         <span className="text-xs font-semibold text-slate-400">Vendors</span>
                     </div>
                 </div>

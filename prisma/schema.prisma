@@ -71,6 +71,9 @@ model Tenant {
   surgeries       Surgery[]
   bloodStock      BloodStock[]
   bloodRequests   BloodRequest[]
+  bloodDonors     BloodDonor[]
+  bloodDonations  BloodDonation[]
+  bloodIssuances  BloodIssuance[]
   tpaCompanies    TpaCompany[]
   preAuths        InsurancePreAuth[]
   radiologyOrders RadiologyOrder[]
@@ -887,6 +890,9 @@ model BloodStock {
   
   status          String   @default("Available") // Available, Reserved, Expired, Issued
   
+  donationId      String?  @unique
+  donation        BloodDonation? @relation(fields: [donationId], references: [id])
+
   tenantId        String
   tenant          Tenant   @relation(fields: [tenantId], references: [id])
 
@@ -910,11 +916,97 @@ model BloodRequest {
   issuedAt        DateTime?
   issuedBy        String?
 
+  issuance        BloodIssuance?
+
   tenantId        String
   tenant          Tenant   @relation(fields: [tenantId], references: [id])
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+}
+
+model BloodDonor {
+  id              String   @id @default(cuid())
+  donorCode       String   @unique
+  firstName       String
+  lastName        String
+  gender          String
+  dob             String?
+  bloodGroup      String
+  phone           String?
+  email           String?
+  address         String?
+  lastDonationAt  DateTime?
+  status          String   @default("Active") // Active, Blacklisted
+
+  donations       BloodDonation[]
+
+  tenantId        String
+  tenant          Tenant   @relation(fields: [tenantId], references: [id])
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model BloodDonation {
+  id              String   @id @default(cuid())
+  donationCode    String   @unique
+  donorId         String
+  donor           BloodDonor @relation(fields: [donorId], references: [id])
+  
+  collectionDate  DateTime @default(now())
+  bloodGroup      String
+  unitsCollected  Int      @default(1)
+  
+  // Screening / Procedures
+  hivStatus       String?  @default("Pending") // Pending, Non-Reactive, Reactive
+  hbvStatus       String?  @default("Pending")
+  hcvStatus       String?  @default("Pending")
+  syphilisStatus  String?  @default("Pending")
+  malariaStatus   String?  @default("Pending")
+  haemoglobin     Float?
+  weight          Float?
+  bp              String?
+  pulse           Int?
+  temp            Float?
+  
+  fitForDonation  Boolean  @default(true)
+  remarks         String?
+  
+  certificateIssued Boolean @default(false)
+  
+  stock           BloodStock?
+
+  tenantId        String
+  tenant          Tenant   @relation(fields: [tenantId], references: [id])
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model BloodIssuance {
+  id              String   @id @default(cuid())
+  issuanceCode    String   @unique
+  
+  requestId       String?  @unique
+  request         BloodRequest? @relation(fields: [requestId], references: [id])
+  
+  type            String   @default("Internal") // Internal, External
+  destination     String?  // Ward Name or External Hospital Name
+  issuedBy        String
+  receivedBy      String?
+  issuedAt        DateTime @default(now())
+  
+  units           Int
+  bloodGroup      String
+  component       String
+  
+  crossMatchNotes String?
+  
+  tenantId        String
+  tenant          Tenant   @relation(fields: [tenantId], references: [id])
+
+  createdAt       DateTime @default(now())
 }
 
 // ── INSURANCE & TPA ──────────────────────────────────────────────────────────

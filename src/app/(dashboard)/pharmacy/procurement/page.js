@@ -274,53 +274,118 @@ export default function ProcurementPage() {
 
             {/* Vendor Registration Modal */}
             {showSupplierModal && (
-                <div className="modal-overlay">
-                    <div className="modal max-w-lg relative p-0 overflow-hidden bg-slate-50 border-none shadow-2xl">
-                        <div className="bg-navy-900 p-8 text-white relative">
-                            <button
-                                onClick={() => setShowSupplierModal(false)}
-                                className="absolute top-6 right-6 p-2 text-navy-400 hover:text-white transition-colors"
-                            >
-                                <X size={20} />
-                            </button>
-                            <div className="w-12 h-12 bg-cyan-500 rounded-2xl flex items-center justify-center mb-6">
-                                <Building2 size={24} className="text-navy-900" />
-                            </div>
-                            <h2 className="text-2xl font-black tracking-tight mb-1">Strategic Vendor Intel</h2>
-                            <p className="text-navy-300 font-medium text-xs uppercase tracking-widest">Onboard a new medical procurement partner</p>
+                <div className="modal-overlay-executive">
+                    <style jsx>{`
+                        .modal-overlay-executive {
+                            position: fixed;
+                            inset: 0;
+                            background: rgba(15, 23, 42, 0.6);
+                            backdrop-filter: blur(4px);
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            z-index: 1000;
+                            padding: 20px;
+                        }
+                        .modal-card-executive {
+                            background: #fff;
+                            border-radius: 12px;
+                            width: 100%;
+                            max-width: 460px;
+                            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+                            overflow: hidden;
+                            animation: slideUp 0.2s ease-out;
+                        }
+                        .modal-header-executive {
+                            padding: 14px 20px;
+                            border-bottom: 1px solid #E2E8F0;
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            background: #F8FAFC;
+                        }
+                        .modal-title-executive {
+                            font-size: 15px;
+                            font-weight: 600;
+                            color: #0F172A;
+                            margin: 0;
+                            display: flex;
+                            align-items: center;
+                            gap: 8px;
+                        }
+                        .label-executive { 
+                            display: block; 
+                            font-size: 12px; 
+                            font-weight: 500; 
+                            color: #64748B; 
+                            margin-bottom: 6px; 
+                        }
+                        .form-control-executive { 
+                            width: 100%; 
+                            border-radius: 6px; 
+                            border: 1px solid #CBD5E1; 
+                            padding: 8px 12px; 
+                            font-size: 13px; 
+                            font-weight: 400;
+                            color: #0F172A;
+                            outline: none; 
+                            height: 38px;
+                            background: #fff;
+                        }
+                        .btn-executive {
+                            height: 36px;
+                            padding: 0 16px;
+                            font-size: 13px;
+                            font-weight: 600;
+                            border-radius: 6px;
+                            display: inline-flex;
+                            align-items: center;
+                            justify-content: center;
+                            gap: 8px;
+                            cursor: pointer;
+                            transition: all 0.2s;
+                            border: none;
+                        }
+                        @keyframes slideUp { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+                    `}</style>
+
+                    <div className="modal-card-executive">
+                        <div className="modal-header-executive">
+                            <h3 className="modal-title-executive"><Building2 size={16} className="text-blue-500" /> Register Strategic Vendor</h3>
+                            <button onClick={() => setShowSupplierModal(false)} style={{ border: 'none', background: 'none', color: '#94A3B8', cursor: 'pointer', fontSize: '20px' }}>×</button>
                         </div>
 
-                        <form onSubmit={handleAddSupplier} className="p-8 space-y-6">
-                            <div className="form-group">
-                                <label className="form-label text-slate-400 text-[10px] font-black uppercase tracking-[0.15em] mb-2">Corporate Entity Name *</label>
-                                <input required type="text" value={newSupplier.name} onChange={e => setNewSupplier({ ...newSupplier, name: e.target.value })} className="form-input border-slate-200 focus:border-cyan-500 h-12 text-sm font-bold h-12" placeholder="e.g. Nexora LifeCare Ltd." />
+                        <form onSubmit={handleAddSupplier} style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                            <div>
+                                <label className="label-executive">Corporate Entity Name *</label>
+                                <input required type="text" value={newSupplier.name} onChange={e => setNewSupplier({ ...newSupplier, name: e.target.value })} className="form-control-executive" placeholder="e.g. Nexora LifeCare Ltd." />
                             </div>
 
-                            <div className="grid grid-cols-2 gap-6">
-                                <div className="form-group">
-                                    <label className="form-label text-slate-400 text-[10px] font-black uppercase tracking-[0.15em] mb-2">Contact Officer</label>
-                                    <input type="text" value={newSupplier.contactPerson} onChange={e => setNewSupplier({ ...newSupplier, contactPerson: e.target.value })} className="form-input border-slate-200 focus:border-cyan-500 text-sm font-bold h-12" placeholder="Primary Liaison" />
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                                <div>
+                                    <label className="label-executive">Contact Officer</label>
+                                    <input type="text" value={newSupplier.contactPerson} onChange={e => setNewSupplier({ ...newSupplier, contactPerson: e.target.value })} className="form-control-executive" placeholder="Primary Liaison" />
                                 </div>
-                                <div className="form-group">
-                                    <label className="form-label text-slate-400 text-[10px] font-black uppercase tracking-[0.15em] mb-2">Primary Helpline</label>
-                                    <input type="text" value={newSupplier.phone} onChange={e => setNewSupplier({ ...newSupplier, phone: e.target.value })} className="form-input border-slate-200 focus:border-cyan-500 text-sm font-bold h-12" placeholder="+91 XXXXX XXXXX" />
+                                <div>
+                                    <label className="label-executive">Primary Helpline</label>
+                                    <input type="text" value={newSupplier.phone} onChange={e => setNewSupplier({ ...newSupplier, phone: e.target.value })} className="form-control-executive" placeholder="+91 XXXXX XXXXX" />
                                 </div>
                             </div>
 
-                            <div className="form-group">
-                                <label className="form-label text-slate-400 text-[10px] font-black uppercase tracking-[0.15em] mb-2">Procurement Channel (Email)</label>
-                                <input type="email" value={newSupplier.email} onChange={e => setNewSupplier({ ...newSupplier, email: e.target.value })} className="form-input border-slate-200 focus:border-cyan-500 text-sm font-bold h-12" placeholder="orders@vendor.com" />
+                            <div>
+                                <label className="label-executive">Procurement Channel (Email)</label>
+                                <input type="email" value={newSupplier.email} onChange={e => setNewSupplier({ ...newSupplier, email: e.target.value })} className="form-control-executive" placeholder="orders@vendor.com" />
                             </div>
 
-                            <div className="form-group">
-                                <label className="form-label text-slate-400 text-[10px] font-black uppercase tracking-[0.15em] mb-2">GST Compliant ID</label>
-                                <input type="text" value={newSupplier.gstNumber} onChange={e => setNewSupplier({ ...newSupplier, gstNumber: e.target.value })} className="form-input border-slate-200 focus:border-cyan-500 text-sm font-bold font-mono h-12" placeholder="XXAAAAA0000A1Z5" />
+                            <div>
+                                <label className="label-executive">GST Compliant ID</label>
+                                <input type="text" value={newSupplier.gstNumber} onChange={e => setNewSupplier({ ...newSupplier, gstNumber: e.target.value })} className="form-control-executive" style={{ fontFamily: 'monospace' }} placeholder="XXAAAAA0000A1Z5" />
                             </div>
 
-                            <div className="flex gap-4 pt-4">
-                                <button type="button" onClick={() => setShowSupplierModal(false)} className="btn btn-secondary flex-1 h-12 uppercase tracking-widest text-[11px] font-black">Hold Action</button>
-                                <button type="submit" disabled={submitting} className="btn btn-primary flex-1 h-12 uppercase tracking-widest text-[11px] font-black">
-                                    {submitting ? 'Processing...' : 'Secure Vendor'}
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '12px', marginTop: '8px' }}>
+                                <button type="button" onClick={() => setShowSupplierModal(false)} className="btn-executive" style={{ background: '#fff', border: '1px solid #E2E8F0', color: '#64748B' }}>Hold Action</button>
+                                <button type="submit" disabled={submitting} className="btn-executive" style={{ background: 'var(--color-navy)', color: '#fff' }}>
+                                    {submitting ? 'Processing...' : 'Secure Vendor Registration'}
                                 </button>
                             </div>
                         </form>

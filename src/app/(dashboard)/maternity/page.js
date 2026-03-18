@@ -3,7 +3,7 @@ import {
     Heart, Baby, Activity, Plus, Search,
     Filter, Clock, CheckCircle2, ChevronRight,
     Loader2, Users, LineChart, FileText,
-    Calendar, Syringe, Clipboard, RefreshCw, LayoutDashboard, Database, Siren
+    Calendar, Syringe, Clipboard, RefreshCw, LayoutDashboard, Database, Siren, MoveRight
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -26,6 +26,9 @@ export default function MaternityDashboard() {
         abortion: 0
     });
 
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
     const fetchData = async () => {
         setLoading(true);
         try {
@@ -35,7 +38,7 @@ export default function MaternityDashboard() {
             ]);
             const lData = await lRes.json();
             const pData = await pRes.json();
-            if (lRes.ok) setCases(lData.cases);
+            if (lRes.ok) setCases(lData.cases || []);
             if (pRes.ok) setPatients(pData.patients || []);
         } catch (err) {
             console.error(err);
@@ -48,297 +51,388 @@ export default function MaternityDashboard() {
         fetchData();
     }, []);
 
+    const KPI_CARDS = [
+        { id: 'active', label: 'Labor Active', value: cases.length, sub: 'Cases in monitoring', icon: Activity, color: '#EC4899' },
+        { id: 'births', label: 'Neonatal Pulse', value: '4', sub: 'Births Today', icon: Baby, color: '#6366F1' },
+        { id: 'discharge', label: 'Discharges', value: '12', sub: 'Mothers Home Today', icon: CheckCircle2, color: '#10B981' },
+        { id: 'anc', label: 'ANC Continuum', value: '28', sub: 'OPD Active Visits', icon: Users, color: '#F59E0B' },
+    ];
+
     return (
-        <div className="fade-in pb-12">
+        <div className="fade-in">
             <style jsx>{`
-                .mch-card {
-                    background: #fff;
-                    border: 1px solid var(--color-border-light);
-                    border-radius: 20px;
-                    padding: 24px;
-                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                .kpi-card { 
+                    background: #fff; 
+                    border: 1px solid rgba(0,0,0,0.05); 
+                    border-radius: 12px; 
+                    padding: 24px; 
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.03); 
+                    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
                 }
-                .mch-card:hover {
-                    border-color: #EC4899;
-                    box-shadow: 0 10px 20px rgba(0,0,0,0.04);
-                }
-                .kpi-card {
+                .kpi-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.06); }
+
+                .mch-case-card {
                     background: #fff;
-                    border: 1px solid var(--color-border-light);
+                    border: 1px solid #F1F5F9;
                     border-radius: 16px;
                     padding: 24px;
-                    transition: all 0.2s ease;
+                    transition: all 0.3s ease;
                 }
-                .vital-box {
+                .mch-case-card:hover {
+                    border-color: #EC489940;
+                    box-shadow: 0 20px 40px rgba(236, 72, 153, 0.05);
+                }
+
+                .vital-indicator {
                     background: #F8FAFC;
-                    border: 1px solid #F1F5F9;
-                    border-radius: 12px;
                     padding: 12px;
-                    display: flex;
-                    flex-direction: column;
-                    gap: 4px;
-                    flex: 1;
+                    border-radius: 10px;
+                    border: 1px solid #F1F5F9;
+                    text-align: center;
                 }
+
+                .modal-overlay-executive {
+                    position: fixed;
+                    inset: 0;
+                    background: rgba(15, 23, 42, 0.6);
+                    backdrop-filter: blur(4px);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 1000;
+                    padding: 20px;
+                    animation: fadeIn 0.2s ease-out;
+                }
+                .modal-card-executive {
+                    background: #fff;
+                    border-radius: 12px;
+                    width: 100%;
+                    max-width: 500px;
+                    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+                    animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+                    overflow: hidden;
+                }
+                @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+                @keyframes slideUp { from { transform: translateY(12px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+                .modal-header-executive {
+                    padding: 16px 24px;
+                    border-bottom: 1px solid #E2E8F0;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    background: #F8FAFC;
+                }
+                .modal-title-executive {
+                    font-size: 15px;
+                    font-weight: 600;
+                    color: #0F172A;
+                    margin: 0;
+                }
+
+                .label-executive { 
+                    display: block; 
+                    font-size: 12px; 
+                    font-weight: 500; 
+                    color: #475569; 
+                    margin-bottom: 6px; 
+                }
+                .form-control-executive { 
+                    width: 100%; 
+                    border-radius: 6px; 
+                    border: 1px solid #CBD5E1; 
+                    padding: 8px 12px; 
+                    font-size: 13px; 
+                    font-weight: 400;
+                    color: #0F172A;
+                    outline: none; 
+                    transition: border-color 0.2s;
+                    background: #fff; 
+                    height: 38px;
+                }
+                .form-control-executive:focus { 
+                    border-color: #EC4899; 
+                    box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.1); 
+                }
+
+                .btn-executive {
+                    height: 38px;
+                    padding: 0 20px;
+                    font-size: 13px;
+                    font-weight: 600;
+                    border-radius: 6px;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 8px;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                }
+
+                .search-result-item {
+                    padding: 10px 14px;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                    border-bottom: 1px solid #F1F5F9;
+                }
+                .search-result-item:hover { background: #FDF2F8; }
             `}</style>
 
-            <div className="dashboard-header-row mb-8">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
                 <div>
-                    <h1 className="page-header__title" style={{ marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <HandHeart size={32} className="text-pink-500" />
-                        Maternity & Perinatal Hub
+                    <h1 className="responsive-h1" style={{ margin: 0, color: '#0F172A', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '14px' }}>
+                        <HandHeart size={32} style={{ color: '#EC4899' }} />
+                        Maternity Command Hub
                     </h1>
-                    <p className="page-header__subtitle">Precision Obstetric care, Partograph tracking, and Maternal-Neonatal orchestration.</p>
+                    <p style={{ margin: '4px 0 0', color: '#64748B', fontWeight: 500, fontSize: '15px' }}>{dateStr} • Strategic Perinatal & Obstetric Management</p>
                 </div>
-                <div className="dashboard-header-buttons">
-                    <button className="btn btn-secondary btn-sm" style={{ background: '#fff' }} onClick={fetchData}>
-                        <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Sync Records
+                <div style={{ display: 'flex', gap: '12px' }}>
+                    <button className="btn btn-secondary shadow-sm" style={{ background: '#fff', borderRadius: '12px' }} onClick={fetchData}>
+                        <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
                     </button>
-                    <button className="btn btn-primary btn-sm" style={{ background: '#EC4899', borderColor: '#EC4899' }} onClick={() => setShowAdmitModal(true)}>
-                        <Plus size={15} strokeWidth={1.5} /> Admit to Labor
+                    <button className="btn btn-primary shadow-premium" style={{ background: '#EC4899', borderColor: '#EC4899', borderRadius: '12px', padding: '0 24px' }} onClick={() => setShowAdmitModal(true)}>
+                        <Plus size={18} /> ADMIT TO LABOR
                     </button>
                 </div>
             </div>
 
             {/* KPI Strip */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <div className="kpi-card" style={{ borderLeft: '4px solid #EC4899' }}>
-                    <p className="text-[12px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 text-pink-600/70">Labor Active</p>
-                    <div className="flex items-baseline gap-2">
-                        {loading ? <Skeleton width="60px" height="32px" /> : <h2 className="text-3xl font-black text-pink-600 leading-none">{cases.length}</h2>}
-                        <span className="text-xs font-semibold text-slate-400">Cases</span>
-                    </div>
-                </div>
-                <div className="kpi-card" style={{ borderLeft: '4px solid #6366F1' }}>
-                    <p className="text-[12px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 text-indigo-600/70">Neonatal Pulse</p>
-                    <div className="flex items-baseline gap-2">
-                        {loading ? <Skeleton width="60px" height="32px" /> : <h2 className="text-3xl font-black text-indigo-600 leading-none">4</h2>}
-                        <span className="text-xs font-semibold text-slate-400">Births Today</span>
-                    </div>
-                </div>
-                <div className="kpi-card" style={{ borderLeft: '4px solid #10B981' }}>
-                    <p className="text-[12px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 text-emerald-600/70">Successful Discharges</p>
-                    <div className="flex items-baseline gap-2">
-                        {loading ? <Skeleton width="60px" height="32px" /> : <h2 className="text-3xl font-black text-emerald-600 leading-none">12</h2>}
-                        <span className="text-xs font-semibold text-slate-400">Mothers Home</span>
-                    </div>
-                </div>
-                <div className="kpi-card" style={{ borderLeft: '4px solid #F59E0B' }}>
-                    <p className="text-[12px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 text-amber-600/70">ANC Continuum</p>
-                    <div className="flex items-baseline gap-2">
-                        {loading ? <Skeleton width="60px" height="32px" /> : <h2 className="text-3xl font-black text-amber-600 leading-none">28</h2>}
-                        <span className="text-xs font-semibold text-slate-400">OPD Visits</span>
-                    </div>
-                </div>
+                {KPI_CARDS.map(card => {
+                    const Icon = card.icon;
+                    return (
+                        <div key={card.id} className="kpi-card">
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+                                <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: `${card.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <Icon size={20} style={{ color: card.color }} />
+                                </div>
+                                <span style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{card.label}</span>
+                            </div>
+                            <div style={{ fontSize: '28px', fontWeight: 700, color: '#0F172A', lineHeight: 1, marginBottom: '6px' }}>
+                                {loading ? <Loader2 size={20} className="animate-spin text-muted" /> : card.value}
+                            </div>
+                            <div style={{ fontSize: '12px', color: '#94A3B8', fontWeight: 500 }}>{card.sub}</div>
+                        </div>
+                    );
+                })}
             </div>
 
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
                 <div className="xl:col-span-2 flex flex-col gap-6">
-                    <div className="flex justify-between items-center bg-white p-6 rounded-[24px] border border-slate-100 shadow-sm">
-                        <h2 className="text-lg font-black text-navy-900 tracking-tight flex items-center gap-3">
-                            <Activity size={20} className="text-pink-500" />
-                            Active Labor Registry
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff', padding: '16px 24px', borderRadius: '12px', border: '1px solid #F1F5F9' }}>
+                    <h2 style={{ fontSize: '14px', fontWeight: 600, color: '#0F172A', margin: 0, display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <Activity size={18} style={{ color: '#EC4899' }} />
+                            Active Clinical Labor Registry
                         </h2>
-                        <div className="relative w-72">
-                            <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                            <input type="text" placeholder="Filter by patient name..." className="w-full pl-11 pr-4 py-2 bg-slate-50 border border-slate-100 rounded-xl text-xs font-bold focus:border-pink-300 outline-none transition-all" />
+                        <div style={{ position: 'relative', width: '280px' }}>
+                            <Search size={14} style={{ position: 'absolute', left: '14px', top: '10px', color: '#94A3B8' }} />
+                            <input type="text" placeholder="Filter cases by name..." style={{ width: '100%', padding: '8px 16px 8px 40px', background: '#F8FAFC', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 500, outline: 'none' }} />
                         </div>
                     </div>
 
-                    <div className="flex flex-col gap-5">
-                        {loading ? [1, 2].map(i => <Skeleton key={i} height="240px" radius="20px" />) : cases.map(c => (
-                            <div key={c.id} className="mch-card group">
-                                <div className="flex justify-between items-start">
-                                    <div className="flex gap-4">
-                                        <div className="w-12 h-12 rounded-2xl bg-pink-50 text-pink-600 flex items-center justify-center font-black text-lg border border-pink-100">{c.patient?.firstName?.[0]}</div>
-                                        <div>
-                                            <div className="flex items-center gap-3">
-                                                <h3 className="text-[17px] font-black text-navy-900 group-hover:text-pink-600 transition-colors">{c.patient?.firstName} {c.patient?.lastName}</h3>
-                                                <span className="px-2 py-0.5 bg-slate-100 text-slate-500 text-[10px] font-bold rounded-lg uppercase tracking-wider">{c.patient?.patientCode}</span>
-                                            </div>
-                                            <div className="flex items-center gap-4 mt-1.5">
-                                                <div className="text-[11px] font-black text-pink-500 uppercase tracking-widest">Gravida {c.gravida} Para {c.para}</div>
-                                                <div className="w-1.5 h-1.5 rounded-full bg-slate-200" />
-                                                <div className="text-[11px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
-                                                    <Clock size={12} /> Induction: {new Date(c.admissionDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                        {loading ? [1, 2].map(i => <Skeleton key={i} height="200px" radius="24px" />) : (
+                            cases.length === 0 ? (
+                                <div style={{ background: '#fff', padding: '60px', borderRadius: '24px', textAlign: 'center', border: '1px dashed #E2E8F0' }}>
+                                    <Activity size={48} style={{ color: '#E2E8F0', marginBottom: '16px' }} />
+                                    <p style={{ margin: 0, color: '#94A3B8', fontSize: '14px', fontWeight: 500 }}>No active labor cases currently identified.</p>
+                                </div>
+                            ) : cases.map(c => (
+                                <div key={c.id} className="mch-case-card">
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
+                                        <div style={{ display: 'flex', gap: '20px' }}>
+                                            <div style={{ width: '56px', height: '56px', borderRadius: '18px', background: '#FDF2F8', color: '#EC4899', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '20px', border: '1px solid #FBCFE8' }}>{c.patient?.firstName?.[0]}</div>
+                                            <div>
+                                                <h3 style={{ fontSize: '17px', fontWeight: 600, color: '#0F172A', margin: 0 }}>{c.patient?.firstName} {c.patient?.lastName}</h3>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '6px' }}>
+                                                    <span style={{ fontSize: '10px', fontWeight: 700, background: '#F1F5F9', color: '#64748B', padding: '4px 10px', borderRadius: '8px', textTransform: 'uppercase' }}>{c.patient?.patientCode}</span>
+                                                    <span style={{ fontSize: '11px', fontWeight: 700, color: '#EC4899', textTransform: 'uppercase', letterSpacing: '0.05em' }}>G{c.gravida} P{c.para} L{c.living} A{c.abortion}</span>
                                                 </div>
                                             </div>
                                         </div>
+                                        <div style={{ textAlign: 'right' }}>
+                                            <span style={{ fontSize: '10px', fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase', display: 'block', marginBottom: '4px' }}>Expected Delivery</span>
+                                            <span style={{ fontSize: '15px', fontWeight: 700, color: '#0F172A' }}>{new Date(c.edd).toLocaleDateString()}</span>
+                                        </div>
                                     </div>
-                                    <div className="text-right">
-                                        <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Estimated EDD</div>
-                                        <div className="text-[15px] font-black text-navy-900">{new Date(c.edd).toLocaleDateString()}</div>
-                                    </div>
-                                </div>
 
-                                <div className="flex gap-4 mt-6">
-                                    <div className="vital-box">
-                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Cervical Dilation</span>
-                                        <div className="text-xl font-black text-pink-600">6 <span className="text-[10px] opacity-60">cm</span></div>
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                        <div className="vital-indicator">
+                                            <div style={{ fontSize: '9px', fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase', marginBottom: '6px' }}>Cervical Dilation</div>
+                                            <div style={{ fontSize: '20px', fontWeight: 700, color: '#EC4899' }}>6 <span style={{ fontSize: '11px', opacity: 0.5 }}>cm</span></div>
+                                        </div>
+                                        <div className="vital-indicator">
+                                            <div style={{ fontSize: '9px', fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase', marginBottom: '6px' }}>Fetal Heart Rate</div>
+                                            <div style={{ fontSize: '20px', fontWeight: 700, color: '#0F172A' }}>142 <span style={{ fontSize: '11px', opacity: 0.5 }}>bpm</span></div>
+                                        </div>
+                                        <div className="vital-indicator">
+                                            <div style={{ fontSize: '9px', fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase', marginBottom: '6px' }}>Contractions</div>
+                                            <div style={{ fontSize: '20px', fontWeight: 700, color: '#0F172A' }}>3 <span style={{ fontSize: '11px', opacity: 0.5 }}>/ 10m</span></div>
+                                        </div>
+                                        <div className="vital-indicator">
+                                            <div style={{ fontSize: '9px', fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase', marginBottom: '6px' }}>Current Phase</div>
+                                            <div style={{ fontSize: '18px', fontWeight: 700, color: '#10B981' }}>Active</div>
+                                        </div>
                                     </div>
-                                    <div className="vital-box">
-                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Fetal Heart Rate</span>
-                                        <div className="text-xl font-black text-navy-900">142 <span className="text-[10px] opacity-60">BPM</span></div>
-                                    </div>
-                                    <div className="vital-box">
-                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Contractions</span>
-                                        <div className="text-xl font-black text-navy-900">3 <span className="text-[10px] opacity-60">/ 10m</span></div>
-                                    </div>
-                                    <div className="vital-box">
-                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Clinical Phase</span>
-                                        <div className="text-xl font-black text-emerald-600">Active</div>
-                                    </div>
-                                </div>
 
-                                <div className="flex justify-end gap-3 mt-6">
-                                    <Link href={`/maternity/partograph/${c.id}`} className="h-10 px-6 bg-slate-50 border border-slate-100 rounded-xl text-[11px] font-black text-slate-500 hover:bg-slate-100 transition-all flex items-center gap-2">
-                                        <LineChart size={14} /> Partograph Stream
-                                    </Link>
-                                    <Link href={`/maternity/labor/${c.id}`} className="h-10 px-6 bg-navy-900 text-white rounded-xl text-[11px] font-black text-white hover:bg-slate-800 transition-all flex items-center gap-2 group">
-                                        Open Labor Monitor <ChevronRight size={14} className="group-hover:translate-x-0.5 transition-all" />
-                                    </Link>
+                                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+                                        <Link href={`/maternity/partograph/${c.id}`} className="btn btn-secondary shadow-sm" style={{ borderRadius: '12px', fontSize: '12px', fontWeight: 600, background: '#fff' }}>
+                                            <LineChart size={14} /> Partograph Stream
+                                        </Link>
+                                        <Link href={`/maternity/labor/${c.id}`} className="btn btn-primary shadow-premium" style={{ borderRadius: '12px', fontSize: '12px', fontWeight: 600, background: '#0F172A', border: 'none' }}>
+                                            Labor Command <ChevronRight size={14} />
+                                        </Link>
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))
+                        )}
                     </div>
                 </div>
 
                 <div className="flex flex-col gap-6">
-                    <div className="mch-card bg-navy-900 text-white border-none shadow-xl shadow-navy-900/10">
-                        <h3 className="text-sm font-black uppercase tracking-widest mb-6 flex items-center gap-3">
-                            <Clipboard size={18} className="text-pink-500" /> Statistical Pulse
+                    <div style={{ background: '#0F172A', color: '#fff', padding: '24px', borderRadius: '16px', boxShadow: '0 20px 40px rgba(15, 23, 42, 0.1)' }}>
+                        <h3 style={{ fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <Clipboard size={18} style={{ color: '#EC4899' }} /> Statistical Pulse
                         </h3>
-                        <div className="space-y-4">
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                             {[
-                                { label: 'Natural Vaginal (NVD)', value: '82%', color: 'bg-emerald-500' },
-                                { label: 'Lower Segment CS', value: '15%', color: 'bg-amber-500' },
-                                { label: 'Instrumental Aid', value: '3%', color: 'bg-pink-500' }
+                                { label: 'Natural Vaginal (NVD)', value: '82%', color: '#10B981' },
+                                { label: 'Lower Segment CS', value: '15%', color: '#F59E0B' },
+                                { label: 'Instrumental Aid', value: '3%', color: '#EC4899' }
                             ].map(stat => (
                                 <div key={stat.label}>
-                                    <div className="flex justify-between text-[11px] font-bold mb-1.5">
-                                        <span className="text-slate-400">{stat.label}</span>
-                                        <span>{stat.value}</span>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', fontWeight: 600, marginBottom: '6px', color: '#94A3B8' }}>
+                                        <span>{stat.label}</span>
+                                        <span style={{ color: '#fff' }}>{stat.value}</span>
                                     </div>
-                                    <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                                        <div className={`h-full ${stat.color}`} style={{ width: stat.value }} />
+                                    <div style={{ height: '5px', width: '100%', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', overflow: 'hidden' }}>
+                                        <div style={{ height: '100%', background: stat.color, width: stat.value, borderRadius: '10px' }} />
                                     </div>
                                 </div>
                             ))}
                         </div>
                     </div>
 
-                    <div className="mch-card">
-                        <h3 className="text-sm font-black uppercase tracking-widest mb-6 flex items-center gap-3 text-navy-900">
-                            <Baby size={18} className="text-pink-500" /> Recent Arrivals
+                    <div className="kpi-card" style={{ padding: '24px' }}>
+                        <h3 style={{ fontSize: '12px', fontWeight: 700, color: '#0F172A', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <Baby size={18} style={{ color: '#EC4899' }} /> Recent Arrivals
                         </h3>
-                        <div className="space-y-3">
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                             {[1, 2, 3].map(i => (
-                                <div key={i} className="flex items-center gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-100 hover:border-pink-200 transition-all">
-                                    <div className="w-10 h-10 rounded-xl bg-pink-100 flex items-center justify-center text-pink-600 shadow-sm"><Baby size={20} /></div>
-                                    <div className="flex-1">
-                                        <div className="text-[13px] font-black text-navy-900">{i % 2 === 0 ? 'Girl' : 'Boy'} • 3.4 Kg</div>
-                                        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Mrs. Sharma • 02:40 PM</div>
+                                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '16px', borderRadius: '20px', background: '#F8FAFC', border: '1px solid #F1F5F9' }}>
+                                    <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: '#FDF2F8', color: '#EC4899', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Baby size={20} /></div>
+                                    <div style={{ flex: 1 }}>
+                                        <div style={{ fontSize: '14px', fontWeight: 700, color: '#0F172A' }}>{i % 2 === 0 ? 'Female' : 'Male'} • 3.4 Kg</div>
+                                        <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 500 }}>Born: {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                                     </div>
-                                    <Link href="#" className="w-8 h-8 rounded-lg text-slate-300 hover:text-navy-900 transition-all"><ChevronRight size={18} /></Link>
+                                    <ChevronRight size={16} color="#CBD5E1" />
                                 </div>
                             ))}
                         </div>
                     </div>
 
-                    <div className="mch-card bg-pink-50 border-pink-100 border-dashed border-2">
-                        <h3 className="text-[11px] font-black text-pink-700 uppercase tracking-widest mb-2 flex items-center gap-2"><Siren size={14} /> Institutional Alert</h3>
-                        <p className="text-xs font-bold text-pink-600 leading-relaxed italic">Bi-monthly Perinatal Audit report is due in 48 hours. Ensure all birth registries are synchronized.</p>
+                    <div style={{ background: '#FDF2F8', padding: '16px', borderRadius: '12px', border: '1px dashed #FBCFE8' }}>
+                        <h3 style={{ fontSize: '11px', fontWeight: 700, color: '#BE185D', textTransform: 'uppercase', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}><Siren size={14} /> Institutional Alert</h3>
+                        <p style={{ margin: 0, fontSize: '12px', fontWeight: 500, color: '#DB2777', lineHeight: 1.6 }}>Bi-monthly Perinatal Audit report is due in 48 hours. Ensure all birth registries are synchronized with central records.</p>
                     </div>
                 </div>
             </div>
 
             {/* Admit Modal */}
             {showAdmitModal && (
-                <div className="modal-overlay" style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-                    <div className="card fade-in" style={{ width: '500px', padding: '32px', borderRadius: '24px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                            <h2 style={{ fontSize: '20px', fontWeight: 900, color: 'var(--color-navy)', margin: 0 }}>Clinical Labor Ingress</h2>
-                            <button onClick={() => setShowAdmitModal(false)} style={{ background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer' }}><Plus size={24} style={{ transform: 'rotate(45deg)' }} /></button>
+                <div className="modal-overlay-executive">
+                    <div className="modal-card-executive">
+                        <div className="modal-header-executive">
+                            <h2 className="modal-title-executive">Labor Ingress Protocol</h2>
+                            <button onClick={() => setShowAdmitModal(false)} className="modal-close-btn" style={{ width: '30px', height: '30px', borderRadius: '6px', border: '1px solid #E2E8F0', background: '#fff', color: '#94A3B8', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <Plus size={18} style={{ transform: 'rotate(45deg)' }} />
+                            </button>
                         </div>
 
-                        {!selectedPT ? (
-                            <div className="mb-6">
-                                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest block mb-2">Search Patient Registry</label>
-                                <div className="relative">
-                                    <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                                    <input 
-                                        type="text" 
-                                        className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold outline-none" 
-                                        placeholder="Name or UHID..."
-                                        value={searchPT}
-                                        onChange={e => setSearchPT(e.target.value)}
-                                    />
-                                    {searchPT && (
-                                        <div className="absolute top-full left-0 right-0 bg-white border border-slate-100 rounded-xl mt-2 shadow-xl z-10 max-h-48 overflow-y-auto">
-                                            {patients.filter(p => `${p.firstName} ${p.lastName}`.toLowerCase().includes(searchPT.toLowerCase())).map(p => (
-                                                <div key={p.id} className="p-3 hover:bg-pink-50 cursor-pointer border-bottom border-slate-50" onClick={() => setSelectedPT(p)}>
-                                                    <div className="text-sm font-bold text-navy-900">{p.firstName} {p.lastName}</div>
-                                                    <div className="text-[10px] text-slate-400 font-bold uppercase">{p.patientCode}</div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
+                        <div style={{ padding: '24px' }}>
+                            {!selectedPT ? (
+                                <div style={{ marginBottom: '16px' }}>
+                                    <label className="label-executive">Search Patient Registry</label>
+                                    <div style={{ position: 'relative' }}>
+                                        <Search size={14} style={{ position: 'absolute', left: '12px', top: '12px', color: '#94A3B8' }} />
+                                        <input 
+                                            className="form-control-executive" 
+                                            style={{ paddingLeft: '36px' }}
+                                            placeholder="Enter Patient Name or UHID..."
+                                            value={searchPT}
+                                            onChange={e => setSearchPT(e.target.value)}
+                                        />
+                                        {searchPT && (
+                                            <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: '#fff', border: '1px solid #E2E8F0', borderRadius: '8px', marginTop: '4px', boxShadow: '0 10px 30px rgba(0,0,0,0.1)', zIndex: 10, maxHeight: '180px', overflowY: 'auto' }}>
+                                                {patients.filter(p => `${p.firstName} ${p.lastName}`.toLowerCase().includes(searchPT.toLowerCase())).map(p => (
+                                                    <div key={p.id} className="search-result-item" onClick={() => setSelectedPT(p)}>
+                                                        <div style={{ fontSize: '13px', fontWeight: 600, color: '#0F172A' }}>{p.firstName} {p.lastName}</div>
+                                                        <div style={{ fontSize: '10px', color: '#94A3B8', fontWeight: 500 }}>{p.patientCode}</div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
-                        ) : (
-                            <div className="mb-6 p-4 bg-pink-50 rounded-2xl border border-pink-100 flex justify-between items-center">
-                                <div>
-                                    <div className="text-sm font-black text-pink-600">{selectedPT.firstName} {selectedPT.lastName}</div>
-                                    <div className="text-[10px] text-pink-400 font-bold uppercase tracking-widest">{selectedPT.patientCode}</div>
+                            ) : (
+                                <div style={{ background: '#FDF2F8', padding: '14px', borderRadius: '8px', border: '1px solid #FBCFE8', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                                    <div>
+                                        <div style={{ fontSize: '13px', fontWeight: 600, color: '#BE185D' }}>{selectedPT.firstName} {selectedPT.lastName}</div>
+                                        <div style={{ fontSize: '10px', color: '#EC4899', fontWeight: 500 }}>{selectedPT.patientCode}</div>
+                                    </div>
+                                    <button style={{ background: 'none', border: 'none', color: '#BE185D', fontSize: '10px', fontWeight: 600, textTransform: 'uppercase', cursor: 'pointer', borderBottom: '1px solid' }} onClick={() => setSelectedPT(null)}>Reset Search</button>
                                 </div>
-                                <button className="text-[10px] font-black text-pink-600 uppercase border-b border-pink-600" onClick={() => setSelectedPT(null)}>Change</button>
-                            </div>
-                        )}
+                            )}
 
-                        <div className="grid grid-cols-2 gap-4 mb-6">
-                            <div>
-                                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest block mb-2">Estimated EDD</label>
-                                <input type="date" className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold outline-none" value={form.edd} onChange={e => setForm({...form, edd: e.target.value})} />
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+                                <div style={{ margin: 0 }}>
+                                    <label className="label-executive">Estimated EDD</label>
+                                    <input type="date" className="form-control-executive" value={form.edd} onChange={e => setForm({...form, edd: e.target.value})} />
+                                </div>
+                                <div style={{ margin: 0 }}>
+                                    <label className="label-executive">Gravida (G)</label>
+                                    <input type="number" className="form-control-executive" value={form.gravida} onChange={e => setForm({...form, gravida: e.target.value})} />
+                                </div>
                             </div>
-                            <div>
-                                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest block mb-2">Gravida</label>
-                                <input type="number" className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold outline-none" value={form.gravida} onChange={e => setForm({...form, gravida: e.target.value})} />
+
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '24px' }}>
+                                {['Para', 'Living', 'Abortion'].map(f => (
+                                    <div key={f} style={{ margin: 0 }}>
+                                        <label className="label-executive">{f}</label>
+                                        <input type="number" className="form-control-executive" value={form[f.toLowerCase()]} onChange={e => setForm({...form, [f.toLowerCase()]: e.target.value})} />
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div style={{ display: 'flex', gap: '12px' }}>
+                                <button className="btn-executive" style={{ flex: 1, background: '#fff', border: '1px solid #E2E8F0', color: '#64748B' }} onClick={() => setShowAdmitModal(false)}>Cancel</button>
+                                <button 
+                                    className="btn-executive" 
+                                    style={{ flex: 2, background: '#EC4899', border: 'none', color: '#fff' }}
+                                    disabled={saving || !selectedPT}
+                                    onClick={async () => {
+                                        setSaving(true);
+                                        try {
+                                            const res = await fetch('/api/maternity/labor', {
+                                                method: 'POST',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify({ patientId: selectedPT.id, ...form })
+                                            });
+                                            if (res.ok) {
+                                                setShowAdmitModal(false);
+                                                fetchData();
+                                            }
+                                        } catch (e) {
+                                            console.error(e);
+                                        } finally {
+                                            setSaving(false);
+                                        }
+                                    }}
+                                >
+                                    {saving ? <Loader2 size={16} className="animate-spin" /> : 'Confirm Admission'}
+                                </button>
                             </div>
                         </div>
-
-                        <div className="grid grid-cols-3 gap-4 mb-8">
-                            {['Para', 'Living', 'Abortion'].map(f => (
-                                <div key={f}>
-                                    <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest block mb-1.5">{f}</label>
-                                    <input type="number" className="w-full p-2.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold outline-none" value={form[f.toLowerCase()]} onChange={e => setForm({...form, [f.toLowerCase()]: e.target.value})} />
-                                </div>
-                            ))}
-                        </div>
-
-                        <button 
-                            className="btn btn-primary w-full h-14" 
-                            style={{ background: '#EC4899', borderColor: '#EC4899', borderRadius: '16px', fontSize: '14px' }}
-                            disabled={saving || !selectedPT}
-                            onClick={async () => {
-                                setSaving(true);
-                                try {
-                                    const res = await fetch('/api/maternity/labor', {
-                                        method: 'POST',
-                                        headers: { 'Content-Type': 'application/json' },
-                                        body: JSON.stringify({ patientId: selectedPT.id, ...form })
-                                    });
-                                    if (res.ok) {
-                                        setShowAdmitModal(false);
-                                        fetchData();
-                                    }
-                                } catch (e) {
-                                    console.error(e);
-                                } finally {
-                                    setSaving(false);
-                                }
-                            }}
-                        >
-                            {saving ? <Loader2 className="animate-spin" size={20} /> : 'CONFIRM LABOR ADMISSION'}
-                        </button>
                     </div>
                 </div>
             )}

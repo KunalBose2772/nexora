@@ -104,26 +104,61 @@ export default function ScheduleSurgeryPage() {
     return (
         <div className="fade-in max-w-5xl mx-auto pb-20">
             <style>{`
-                .form-group { margin-bottom: 24px; }
-                .form-label { display: block; font-size: 13px; font-weight: 700; color: #1E293B; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
-                .form-input { width: 100%; padding: 12px 16px; border: 1px solid #E2E8F0; border-radius: 12px; font-size: 14px; outline: none; transition: all 0.2s; background: #fff; }
-                .form-input:focus { border-color: #00C2FF; box-shadow: 0 0 0 4px rgba(0, 194, 255, 0.1); }
-                .card-section { background: #fff; border-radius: 20px; border: 1px solid rgba(0,0,0,0.05); padding: 32px; margin-bottom: 24px; }
-                .section-title { font-size: 16px; font-weight: 800; color: var(--color-navy); margin-bottom: 24px; display: flex; align-items: center; gap: 10px; }
+                .form-group { margin-bottom: 20px; }
+                .form-label { 
+                    display: block; 
+                    font-size: 12px; 
+                    font-weight: 500; 
+                    color: #475569; 
+                    margin-bottom: 6px; 
+                }
+                .form-input { 
+                    width: 100%; 
+                    height: 38px;
+                    padding: 8px 12px; 
+                    border: 1px solid #CBD5E1; 
+                    border-radius: 6px; 
+                    font-size: 13px; 
+                    outline: none; 
+                    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); 
+                    background: #fff; 
+                    color: #0F172A;
+                    font-weight: 400;
+                }
+                .form-input:focus { 
+                    border-color: #00C2FF; 
+                    box-shadow: 0 0 0 3px rgba(0, 194, 255, 0.1); 
+                }
+                .card-section { 
+                    background: #fff; 
+                    border-radius: 12px; 
+                    border: 1px solid rgba(0,0,0,0.05); 
+                    padding: 24px; 
+                    margin-bottom: 24px; 
+                }
+                .section-title { 
+                    font-size: 15px; 
+                    font-weight: 600; 
+                    color: #0F172A; 
+                    margin-bottom: 24px; 
+                    display: flex; 
+                    align-items: center; 
+                    gap: 12px; 
+                }
             `}</style>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                    <Link href="/ot" className="btn btn-secondary shadow-sm" style={{ width: '44px', height: '44px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '12px' }}>
-                        <ArrowLeft size={20} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                    <Link href="/ot" className="btn btn-secondary shadow-sm" style={{ width: '40px', height: '40px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', background: '#fff' }}>
+                        <ArrowLeft size={18} color="#1E293B" />
                     </Link>
                     <div>
-                        <h1 className="responsive-h1" style={{ margin: 0 }}>Surgical Scheduling</h1>
-                        <p style={{ fontSize: '14px', color: '#64748B', margin: '4px 0 0 0', fontWeight: 500 }}>Orchestrating precision perioperative care pathways.</p>
+                        <h1 className="responsive-h1" style={{ margin: 0, color: '#0F172A', fontWeight: 600 }}>Surgical Scheduling</h1>
+                        <p style={{ fontSize: '14px', color: '#64748B', margin: '2px 0 0', fontWeight: 500 }}>Orchestrating precision perioperative care pathways.</p>
                     </div>
                 </div>
-                <button onClick={handleSubmit} className="btn btn-primary" style={{ padding: '0 24px', height: '48px', borderRadius: '12px', background: 'var(--color-navy)', fontSize: '14px', fontWeight: 800 }} disabled={loading}>
-                    {loading ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
+                <button onClick={handleSubmit} className="btn-executive" style={{ background: '#0F172A', color: '#fff', border: 'none', padding: '0 24px' }} disabled={loading}>
+                    {loading ? <Loader2 className="animate-spin" size={16} /> : <Save size={16} />}
                     COMMIT SCHEDULE
                 </button>
             </div>
@@ -165,12 +200,12 @@ export default function ScheduleSurgeryPage() {
                                 )}
                             </div>
                         ) : (
-                            <div style={{ background: '#F0F9FF', border: '1px solid #B9E6FE', padding: '20px', borderRadius: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div style={{ background: '#F0F9FF', border: '1px solid #B9E6FE', padding: '16px', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <div>
-                                    <div style={{ fontSize: '18px', fontWeight: 800, color: 'var(--color-navy)' }}>{selectedPatient.firstName} {selectedPatient.lastName}</div>
-                                    <div style={{ fontSize: '13px', color: '#0369A1', fontWeight: 600 }}>{selectedPatient.patientCode} • Age: {selectedPatient.dob ? (new Date().getFullYear() - new Date(selectedPatient.dob).getFullYear()) : 'N/A'}</div>
+                                    <div style={{ fontSize: '15px', fontWeight: 600, color: 'var(--color-navy)' }}>{selectedPatient.firstName} {selectedPatient.lastName}</div>
+                                    <div style={{ fontSize: '12px', color: '#0369A1', fontWeight: 500 }}>{selectedPatient.patientCode} • Age: {selectedPatient.dob ? (new Date().getFullYear() - new Date(selectedPatient.dob).getFullYear()) : 'N/A'}</div>
                                 </div>
-                                <button className="btn btn-secondary btn-sm" onClick={() => setSelectedPatient(null)} style={{ background: '#fff' }}>Change Patient</button>
+                                <button className="btn btn-secondary btn-sm" onClick={() => setSelectedPatient(null)} style={{ background: '#fff', fontSize: '11px' }}>Change Patient</button>
                             </div>
                         )}
                     </div>
@@ -263,22 +298,22 @@ export default function ScheduleSurgeryPage() {
                         </div>
                     </div>
 
-                    <div style={{ background: '#FFF7ED', border: '1px solid #FFEDD5', padding: '24px', borderRadius: '20px' }}>
-                        <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
-                            <AlertTriangle size={20} color="#F97316" />
-                            <div style={{ fontSize: '14px', fontWeight: 800, color: '#9A3412' }}>Risk Governance</div>
+                    <div style={{ background: '#FFF7ED', border: '1px solid #FFEDD5', padding: '20px', borderRadius: '12px' }}>
+                        <div style={{ display: 'flex', gap: '10px', marginBottom: '12px' }}>
+                            <AlertTriangle size={18} color="#F97316" />
+                            <div style={{ fontSize: '13px', fontWeight: 600, color: '#9A3412' }}>Risk Governance</div>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                             <input 
                                 type="checkbox" 
                                 id="mlc" 
-                                style={{ width: '18px', height: '18px' }} 
+                                style={{ width: '16px', height: '16px' }} 
                                 checked={formData.isMlc}
                                 onChange={(e) => setFormData({...formData, isMlc: e.target.checked})}
                             />
-                            <label htmlFor="mlc" style={{ fontSize: '13px', fontWeight: 700, color: '#9A3412' }}>Flag as Medico-Legal Case (MLC)</label>
+                            <label htmlFor="mlc" style={{ fontSize: '13px', fontWeight: 600, color: '#9A3412' }}>Flag as Medico-Legal Case (MLC)</label>
                         </div>
-                        <p style={{ fontSize: '11px', color: '#C2410C', marginTop: '12px', lineHeight: 1.5 }}>
+                        <p style={{ fontSize: '11px', color: '#C2410C', marginTop: '10px', lineHeight: 1.5, fontWeight: 500 }}>
                             Checking this box will trigger mandatory registry protocols and notify the legal department upon ingress.
                         </p>
                     </div>
