@@ -23,6 +23,7 @@ export default async function PatientPortalPage() {
     const patientData = await prisma.patient.findUnique({
         where: { id: session.id },
         include: {
+            tenant: true, // Fetch hospital data
             appointments: { orderBy: { date: 'desc' }, take: 5 },
             prescriptions: { orderBy: { createdAt: 'desc' }, take: 5 },
             labRequests: { orderBy: { createdAt: 'desc' }, take: 5 },
@@ -41,7 +42,11 @@ export default async function PatientPortalPage() {
     return (
         <div style={{ minHeight: '100vh', background: '#F8FAFC', fontFamily: "'Inter', sans-serif" }}>
             <main>
-                <PortalDashboardClient patient={patientData}>
+                <PortalDashboardClient 
+                    patient={patientData} 
+                    hospitalName={patientData.tenant.name}
+                    hospitalLogo={patientData.tenant.logoUrl}
+                >
                     {/* Appointments Component */}
                     <div id="appointments-card" key="appointments" style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: '24px', padding: '32px', boxShadow: '0 4px 20px rgba(0,0,0,0.02)', display: 'flex', flexDirection: 'column' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
@@ -62,13 +67,13 @@ export default async function PatientPortalPage() {
                                 {patientData.appointments.map(a => (
                                     <div key={a.id} className="interactive-row" style={{ padding: '16px', border: '1px solid #F1F5F9', borderRadius: '16px', background: '#F8FAFC', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                                             <div style={{ width: '40px', height: '40px', background: '#fff', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #E2E8F0' }}>
-                                                 <User size={18} color="#64748B" />
-                                             </div>
-                                             <div>
+                                            <div style={{ width: '40px', height: '40px', background: '#fff', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #E2E8F0' }}>
+                                                <UserIcon size={18} color="#64748B" />
+                                            </div>
+                                            <div>
                                                 <div style={{ fontSize: '14px', fontWeight: 800, color: '#1E293B' }}>Dr. {a.doctorName}</div>
                                                 <div style={{ fontSize: '12px', color: '#64748B', fontWeight: 500 }}>{new Date(a.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })} at {a.time}</div>
-                                             </div>
+                                            </div>
                                         </div>
                                         <span style={{ fontSize: '10px', background: a.status === 'Completed' ? '#F0FDF4' : '#FFF7ED', color: a.status === 'Completed' ? '#16A34A' : '#D97706', fontWeight: 800, padding: '4px 10px', borderRadius: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{a.status}</span>
                                     </div>

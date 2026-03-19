@@ -21,88 +21,81 @@ import {
 import AppointmentBooking from '@/components/portal/AppointmentBooking';
 import ProfileSettings from '@/components/portal/ProfileSettings';
 
-export default function PortalDashboardClient({ patient, children }) {
+export default function PortalDashboardClient({ patient, children, hospitalName, hospitalLogo }) {
     const [isBookingOpen, setIsBookingOpen] = useState(false);
     const [activeTab, setActiveTab] = useState('overview');
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     const MENU_ITEMS = [
-        { id: 'overview', label: 'Health Snapshot', icon: LayoutDashboard },
+        { id: 'overview', label: 'Dashboard', icon: LayoutDashboard },
         { id: 'appointments', label: 'My Sessions', icon: Calendar },
-        { id: 'reports', label: 'Medical Records', icon: FileText },
-        { id: 'billing', label: 'Payments & Bills', icon: CreditCard },
-        { id: 'profile', label: 'Personal Identity', icon: Settings },
+        { id: 'reports', label: 'Records', icon: FileText },
+        { id: 'billing', label: 'Billing', icon: CreditCard },
+        { id: 'profile', label: 'My Profile', icon: Settings },
     ];
 
     const childrenArray = React.Children.toArray(children);
 
     const renderHeader = () => (
-        <div style={{ marginBottom: '40px' }}>
+        <div style={{ marginBottom: '32px' }}>
             <div style={{ 
-                background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)', 
-                borderRadius: '24px', 
-                padding: '40px',
+                background: '#FFFFFF', 
+                borderRadius: '16px', 
+                padding: '32px',
                 position: 'relative',
                 overflow: 'hidden',
-                boxShadow: '0 20px 40px rgba(15, 23, 42, 0.15)',
-                color: 'white',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+                border: '1px solid #E2E8F0',
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 flexWrap: 'wrap',
-                gap: '30px'
+                gap: '24px'
             }}>
-                {/* Decorative Elements */}
-                <div style={{ position: 'absolute', top: '-10%', right: '-5%', width: '300px', height: '300px', background: 'radial-gradient(circle, rgba(0, 194, 255, 0.15) 0%, transparent 70%)', pointerEvents: 'none' }} />
-                <div style={{ position: 'absolute', bottom: '-20%', left: '10%', width: '200px', height: '200px', background: 'radial-gradient(circle, rgba(0, 194, 255, 0.1) 0%, transparent 70%)', pointerEvents: 'none' }} />
-
                 <div style={{ position: 'relative', zIndex: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-                        <span style={{ background: 'rgba(0, 194, 255, 0.2)', color: '#00C2FF', padding: '6px 14px', borderRadius: '100px', fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                            Patient Portfolio
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#00C2FF' }} />
+                        <span style={{ color: '#64748B', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                            Authenticated Patient Hub
                         </span>
-                        <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', fontWeight: 600 }}>ID: NXR-{patient.patientCode}</span>
+                        <span style={{ color: '#CBD5E1', margin: '0 4px' }}>|</span>
+                        <span style={{ color: '#94A3B8', fontSize: '11px', fontWeight: 600 }}>Ref: {patient.patientCode}</span>
                     </div>
-                    <h1 style={{ fontSize: '36px', fontWeight: 900, color: '#fff', letterSpacing: '-0.03em', margin: '0 0 8px 0', lineHeight: 1 }}>
-                        Welcome back, {patient.firstName}
+                    <h1 style={{ fontSize: '28px', fontWeight: 600, color: '#0F172A', letterSpacing: '-0.02em', margin: '0 0 4px 0', lineHeight: 1.2 }}>
+                        Welcome, {patient.firstName}
                     </h1>
-                    <p style={{ margin: 0, color: 'rgba(255,255,255,0.7)', fontWeight: 500, fontSize: '16px', maxWidth: '500px' }}>
-                        Monitor your recovery, manage sessions, and access your digital medical history with ease.
+                    <p style={{ margin: 0, color: '#64748B', fontWeight: 400, fontSize: '14px', maxWidth: '600px' }}>
+                        Access your clinical records, manage appointments, and track your healthcare journey.
                     </p>
                 </div>
 
-                <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDir: 'column', gap: '12px' }}>
+                <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDir: 'column', gap: '8px' }}>
                     <button 
                         onClick={() => setIsBookingOpen(true)}
                         style={{ 
-                            padding: '14px 28px', 
-                            background: '#00C2FF', 
-                            color: '#000', 
+                            padding: '12px 24px', 
+                            background: '#0A2E4D', 
+                            color: '#fff', 
                             border: 'none', 
-                            borderRadius: '16px', 
-                            fontSize: '15px', 
-                            fontWeight: 800, 
+                            borderRadius: '10px', 
+                            fontSize: '14px', 
+                            fontWeight: 600, 
                             cursor: 'pointer', 
                             display: 'flex', 
                             alignItems: 'center', 
-                            gap: '10px',
-                            boxShadow: '0 10px 25px rgba(0, 194, 255, 0.3)',
-                            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
+                            gap: '8px',
+                            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                            boxShadow: '0 4px 12px rgba(10, 46, 77, 0.1)'
                         }}
-                        onMouseOver={e => e.currentTarget.style.transform = 'translateY(-3px)'}
-                        onMouseOut={e => e.currentTarget.style.transform = 'translateY(0)'}
+                        onMouseOver={e => { e.currentTarget.style.background = '#00C2FF'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                        onMouseOut={e => { e.currentTarget.style.background = '#0A2E4D'; e.currentTarget.style.transform = 'translateY(0)'; }}
                     >
-                        <Calendar size={18} strokeWidth={2.5} /> Schedule New Consult
+                        <Calendar size={18} /> Book Session
                     </button>
-                    <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
-                        {[
-                            { icon: ShieldCheck, label: 'Verified Profile' },
-                            { icon: Activity, label: 'Active Care Plan' },
-                        ].map((badge, idx) => (
-                            <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(255,255,255,0.06)', padding: '6px 12px', borderRadius: '10px', fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.8)' }}>
-                                <badge.icon size={12} color="#00C2FF" /> {badge.label}
-                            </div>
-                        ))}
+                    <div style={{ display: 'flex', gap: '6px', marginTop: '12px' }}>
+                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#F0F9FF', padding: '4px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, color: '#00C2FF', border: '1px solid #E0F2FE' }}>
+                            <ShieldCheck size={12} /> VERIFIED ACCOUNT
+                        </div>
                     </div>
                 </div>
             </div>
@@ -127,85 +120,96 @@ export default function PortalDashboardClient({ patient, children }) {
                     text-decoration: none;
                 }
                 .sidebar-item:hover {
-                    background: #fff;
-                    color: #0F172A;
-                    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+                    background: rgba(255, 255, 255, 0.05);
+                    color: #FFFFFF !important;
                     transform: translateX(4px);
                 }
                 .sidebar-item-active {
-                    background: #fff;
-                    color: #0F172A;
-                    box-shadow: 0 10px 20px rgba(15, 23, 42, 0.08);
+                    background: rgba(0, 194, 255, 0.08);
+                    color: #00C2FF !important;
                     position: relative;
-                }
-                .sidebar-item-active::before {
-                    content: '';
-                    position: absolute;
-                    left: -8px;
-                    top: 25%;
-                    bottom: 25%;
-                    width: 4px;
-                    background: #00C2FF;
+                    border-left: 3px solid #00C2FF;
                     border-radius: 0 4px 4px 0;
                 }
                 .portal-content-grid {
                     display: grid;
                     grid-template-columns: repeat(2, 1fr);
-                    gap: 32px;
+                    gap: 24px;
+                    align-items: start;
                 }
                 @media (max-width: 1024px) {
                     .portal-content-grid { grid-template-columns: 1fr; }
                     .portal-sidebar { 
                         position: fixed;
                         top: 0;
-                        left: ${isSidebarOpen ? '0' : '-320px'};
+                        left: ${isSidebarOpen ? '0' : '-260px'};
                         bottom: 0;
+                        width: 260px !important;
                         z-index: 2000;
-                        background: #F8FAFC;
-                        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-                        box-shadow: 20px 0 60px rgba(0,0,0,0.15) !important;
+                        background: #071220;
+                        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                        box-shadow: 10px 0 40px rgba(0,0,0,0.2) !important;
                     }
+                    .portal-sidebar .sidebar-logo-text { color: #fff !important; }
+                    .portal-sidebar .sidebar-item { color: rgba(255,255,255,0.6) !important; }
+                    .portal-sidebar .sidebar-item-active { color: #00C2FF !important; background: rgba(0,194,255,0.12) !important; }
                 }
             `}</style>
 
-            {/* Notification & Desktop Actions Header (Fixed) */}
-            <div style={{ 
+            {/* Header (Nexora Standard) */}
+            <header style={{ 
                 position: 'fixed', 
                 top: 0, 
                 right: 0, 
-                left: '300px', 
-                height: '80px', 
-                background: 'rgba(248, 250, 252, 0.8)', 
-                backdropFilter: 'blur(12px)',
+                left: '260px', 
+                height: '60px', 
+                background: '#FFFFFF', 
                 zIndex: 100,
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'flex-end',
-                padding: '0 40px',
-                borderBottom: '1px solid rgba(226, 232, 240, 0.6)'
-            }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-                    <div style={{ position: 'relative', cursor: 'pointer', color: '#64748B' }}>
-                        <Bell size={20} />
-                        <span style={{ position: 'absolute', top: '-4px', right: '-4px', width: '8px', height: '8px', background: '#EF4444', borderRadius: '50%', border: '2px solid #F8FAFC' }} />
+                justifyContent: 'space-between',
+                padding: '0 24px',
+                borderBottom: '1px solid #E2E8F0'
+            }} className="hms-header">
+                <div>
+                    <div style={{ fontSize: '15px', fontWeight: 600, color: '#0F172A', lineHeight: 1.2 }}>{MENU_ITEMS.find(m => m.id === activeTab)?.label}</div>
+                    <div style={{ fontSize: '12px', color: '#64748B', display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
+                        <span>{hospitalName || 'Health Center'}</span> <span style={{ color: '#CBD5E1' }}>/</span> <span style={{ color: '#0F172A', fontWeight: 500 }}>{MENU_ITEMS.find(m => m.id === activeTab)?.label}</span>
                     </div>
                 </div>
-            </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <div style={{ position: 'relative', cursor: 'pointer', color: '#64748B', width: '36px', height: '36px', borderRadius: '8px', border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Bell size={18} strokeWidth={1.5} />
+                        <span style={{ position: 'absolute', top: '8px', right: '8px', width: '6px', height: '6px', background: '#00C2FF', borderRadius: '50%', border: '1.5px solid #FFF' }} />
+                    </div>
+                    <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'linear-gradient(135deg, #0A2E4D, #00C2FF)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '12px', fontWeight: 700 }}>
+                        {patient.firstName[0]}
+                    </div>
+                </div>
+            </header>
 
             {/* Sidebar Overlay */}
             {isSidebarOpen && <div onClick={() => setIsSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.3)', backdropFilter: 'blur(8px)', zIndex: 1999 }} />}
 
             {/* Sidebar */}
-            <aside className="portal-sidebar" style={{ width: '300px', borderRight: '1px solid #E2E8F0', padding: '40px 24px', display: 'flex', flexDirection: 'column', height: '100vh', position: 'sticky', top: 0, flexShrink: 0 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '48px', padding: '0 8px' }}>
-                    <div style={{ width: '40px', height: '40px', background: '#0F172A', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                         <Stethoscope color="#00C2FF" size={22} />
+            <aside className="portal-sidebar" style={{ width: '260px', background: '#071220', padding: '18px 0', display: 'flex', flexDirection: 'column', height: '100vh', position: 'fixed', top: 0, left: 0, zIndex: 101, borderRight: '1px solid rgba(255,255,255,0.06)' }}>
+                <div style={{ padding: '0 20px 24px 20px', borderBottom: '1px solid rgba(255,255,255,0.06)', marginBottom: '20px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <div style={{ width: '32px', height: '32px', background: '#fff', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                             {hospitalLogo ? (
+                                 <img src={hospitalLogo} alt={hospitalName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                             ) : (
+                                 <Stethoscope color="#0A2E4D" size={20} />
+                             )}
+                        </div>
+                        <span className="sidebar-logo-text" style={{ fontSize: '16px', fontWeight: 700, color: '#fff', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
+                            {hospitalName || 'Patient Portal'}
+                        </span>
                     </div>
-                    <span style={{ fontSize: '18px', fontWeight: 900, color: '#0F172A', letterSpacing: '-0.02em' }}>Nexora Portfolio</span>
                 </div>
                 
-                <div style={{ flex: 1 }}>
-                     <div style={{ fontSize: '11px', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '16px', paddingLeft: '8px' }}>Personal Hub</div>
+                <nav style={{ flex: 1, padding: '0 8px' }}>
+                     <div style={{ fontSize: '9px', fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '12px', paddingLeft: '16px' }}>Main Navigation</div>
                     {MENU_ITEMS.map((item) => (
                         <div 
                             key={item.id} 
@@ -215,38 +219,38 @@ export default function PortalDashboardClient({ patient, children }) {
                             }}
                             className={`sidebar-item ${activeTab === item.id ? 'sidebar-item-active' : ''}`}
                         >
-                            <item.icon size={20} strokeWidth={activeTab === item.id ? 2.5 : 2} color={activeTab === item.id ? '#00C2FF' : 'currentColor'} />
+                            <item.icon size={18} strokeWidth={activeTab === item.id ? 2 : 1.5} />
                             {item.label}
                         </div>
                     ))}
 
-                    <div style={{ marginTop: '32px', fontSize: '11px', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '16px', paddingLeft: '8px' }}>Support & Help</div>
-                    <div className="sidebar-item"><HelpCircle size={20} /> Help Center</div>
-                </div>
+                    <div style={{ marginTop: '24px', fontSize: '9px', fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '12px', paddingLeft: '16px' }}>Support</div>
+                    <div className="sidebar-item" style={{ color: 'rgba(255,255,255,0.6)' }}><HelpCircle size={18} strokeWidth={1.5} /> Help Center</div>
+                </nav>
 
-                <div style={{ marginTop: 'auto', padding: '24px', background: '#fff', borderRadius: '24px', border: '1px solid #E2E8F0', boxShadow: '0 10px 25px rgba(0,0,0,0.03)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-                        <div style={{ width: '48px', height: '48px', background: 'linear-gradient(135deg, #0F172A 0%, #334155 100%)', color: '#fff', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '16px', boxShadow: '0 4px 12px rgba(15, 23, 42, 0.2)' }}>
-                            {patient.firstName[0]}{patient.lastName[0]}
+                <div style={{ marginTop: 'auto', padding: '16px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
+                        <div style={{ width: '32px', height: '32px', background: 'linear-gradient(135deg, #0A2E4D 0%, #00C2FF 100%)', color: '#fff', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '13px' }}>
+                            {patient.firstName[0]}
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ fontSize: '14px', fontWeight: 800, color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{patient.firstName} {patient.lastName}</div>
-                            <div style={{ fontSize: '11px', color: '#00C2FF', fontWeight: 700 }}>VERIFIED ACCT</div>
+                            <div style={{ fontSize: '13px', fontWeight: 600, color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{patient.firstName}</div>
+                            <div style={{ fontSize: '10px', color: '#00C2FF', fontWeight: 700, letterSpacing: '0.05em' }}>PATIENT</div>
                         </div>
                     </div>
                     <form action="/api/auth/logout" method="POST" style={{ margin: 0 }}>
-                        <button type="submit" style={{ width: '100%', background: '#F8FAFC', border: '1px solid #E2E8F0', padding: '12px', borderRadius: '14px', fontSize: '13px', fontWeight: 700, color: '#64748B', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', transition: 'all 0.2s' }} onMouseOver={e => { e.currentTarget.style.color = '#EF4444'; e.currentTarget.style.borderColor = '#FEE2E2'; }}>
-                            <LogOut size={16} /> Secure Exit
+                        <button type="submit" style={{ width: '100%', background: 'rgba(255,255,255,0.05)', border: 'none', padding: '10px', borderRadius: '8px', fontSize: '12px', fontWeight: 600, color: 'rgba(255,255,255,0.4)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', transition: 'all 0.2s' }} onMouseOver={e => { e.currentTarget.style.color = '#EF4444'; e.currentTarget.style.background = 'rgba(239,68,68,0.1)'; }}>
+                            <LogOut size={14} /> Sign Out
                         </button>
                     </form>
                 </div>
             </aside>
 
             {/* Mobile Header */}
-            <div style={{ display: 'none', position: 'fixed', top: 0, left: 0, right: 0, background: '#fff', padding: '16px 20px', zIndex: 1000, borderBottom: '1px solid #E2E8F0' }} className="mobile-only-header">
-                <button onClick={() => setIsSidebarOpen(true)} style={{ background: 'none', border: 'none', color: '#0F172A' }}><Menu size={24} /></button>
-                <div style={{ fontWeight: 900, fontSize: '16px', color: '#0F172A' }}>Nexora Portfolio</div>
-                <div style={{ width: '32px', height: '32px', background: '#0F172A', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '12px', fontWeight: 700 }}>{patient.firstName[0]}</div>
+            <div style={{ display: 'none', position: 'fixed', top: 0, left: 0, right: 0, background: '#071220', padding: '0 20px', height: '60px', zIndex: 1000, color: '#fff' }} className="mobile-only-header">
+                <button onClick={() => setIsSidebarOpen(true)} style={{ background: 'none', border: 'none', color: '#fff' }}><Menu size={24} /></button>
+                <div style={{ fontWeight: 700, fontSize: '15px', color: '#fff' }}>Patient Portal</div>
+                <div style={{ width: '32px', height: '32px', background: 'linear-gradient(135deg, #0A2E4D, #00C2FF)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '12px', fontWeight: 700 }}>{patient.firstName[0]}</div>
             </div>
             <style jsx>{`
                 @media (max-width: 1024px) {
@@ -256,15 +260,15 @@ export default function PortalDashboardClient({ patient, children }) {
             `}</style>
 
             {/* Main Content Area */}
-            <main className="main-container" style={{ flex: 1, padding: '120px 40px 40px', maxWidth: '1400px', margin: '0 auto' }}>
+            <main className="main-container" style={{ flex: 1, padding: '84px 32px 32px', maxWidth: '1400px', margin: '0 0 0 260px' }}>
                 {activeTab === 'overview' && (
                     <div className="fade-in">
                         {renderHeader()}
-                        <div style={{ marginBottom: '32px', padding: '0 8px' }}>
-                             <h3 style={{ fontSize: '18px', fontWeight: 900, color: '#0F172A', margin: 0 }}>Clinical Oversight</h3>
-                             <p style={{ margin: '4px 0 0', color: '#64748B', fontSize: '14px', fontWeight: 500 }}>Global status of your medical records and appointments.</p>
+                        <div style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                             <div style={{ width: '3px', height: '16px', background: '#00C2FF', borderRadius: '2px' }} />
+                             <h3 style={{ fontSize: '15px', fontWeight: 600, color: '#0F172A', margin: 0 }}>Quick Summary</h3>
                         </div>
-                        <div className="portal-content-grid">
+                        <div className="portal-content-grid" style={{ gap: '24px' }}>
                             {children}
                         </div>
                     </div>
@@ -272,9 +276,9 @@ export default function PortalDashboardClient({ patient, children }) {
 
                 {activeTab === 'appointments' && (
                     <div className="fade-in">
-                        <div style={{ marginBottom: '40px' }}>
-                            <h2 style={{ fontSize: '32px', fontWeight: 900, color: '#0F172A', margin: '0 0 8px', letterSpacing: '-0.02em' }}>Schedules & Bookings</h2>
-                            <p style={{ margin: 0, color: '#64748B', fontWeight: 500, fontSize: '16px' }}>Manage your verified sessions with health specialists.</p>
+                        <div style={{ marginBottom: '32px' }}>
+                            <h2 style={{ fontSize: '24px', fontWeight: 600, color: '#0F172A', margin: '0 0 4px', letterSpacing: '-0.02em' }}>Schedules & Bookings</h2>
+                            <p style={{ margin: 0, color: '#64748B', fontWeight: 400, fontSize: '14px' }}>Manage and track your upcoming health specialist sessions.</p>
                         </div>
                         <div style={{ maxWidth: '800px' }}>
                             {childrenArray.filter(child => child.props?.id === 'appointments-card')}
@@ -284,11 +288,11 @@ export default function PortalDashboardClient({ patient, children }) {
 
                 {activeTab === 'reports' && (
                     <div className="fade-in">
-                        <div style={{ marginBottom: '40px' }}>
-                            <h2 style={{ fontSize: '32px', fontWeight: 900, color: '#0F172A', margin: '0 0 8px', letterSpacing: '-0.02em' }}>Digital Health Records</h2>
-                            <p style={{ margin: 0, color: '#64748B', fontWeight: 500, fontSize: '16px' }}>Encrypted access to your lab diagnostics, prescriptions, and digital imaging.</p>
+                        <div style={{ marginBottom: '32px' }}>
+                            <h2 style={{ fontSize: '24px', fontWeight: 600, color: '#0F172A', margin: '0 0 4px', letterSpacing: '-0.02em' }}>Medical Records</h2>
+                            <p style={{ margin: 0, color: '#64748B', fontWeight: 400, fontSize: '14px' }}>Secure access to your lab diagnostics, prescriptions, and digital imaging.</p>
                         </div>
-                        <div className="portal-content-grid">
+                        <div className="portal-content-grid" style={{ gap: '24px' }}>
                             {childrenArray.filter(child => child.props?.id === 'prescriptions-card' || child.props?.id === 'reports-card')}
                         </div>
                     </div>
@@ -296,9 +300,9 @@ export default function PortalDashboardClient({ patient, children }) {
 
                 {activeTab === 'billing' && (
                     <div className="fade-in">
-                        <div style={{ marginBottom: '40px' }}>
-                            <h2 style={{ fontSize: '32px', fontWeight: 900, color: '#0F172A', margin: '0 0 8px', letterSpacing: '-0.02em' }}>Financial Ledger</h2>
-                            <p style={{ margin: 0, color: '#64748B', fontWeight: 500, fontSize: '16px' }}>Verified invoices and transparent billing records for all treatments.</p>
+                        <div style={{ marginBottom: '32px' }}>
+                            <h2 style={{ fontSize: '24px', fontWeight: 600, color: '#0F172A', margin: '0 0 4px', letterSpacing: '-0.02em' }}>Financial Records</h2>
+                            <p style={{ margin: 0, color: '#64748B', fontWeight: 400, fontSize: '14px' }}>Verified invoices and transparent billing records for all treatments.</p>
                         </div>
                         <div style={{ maxWidth: '900px' }}>
                             {childrenArray.filter(child => child.props?.id === 'billing-card')}
@@ -308,24 +312,51 @@ export default function PortalDashboardClient({ patient, children }) {
 
                 {activeTab === 'profile' && (
                     <div className="fade-in">
-                        <div style={{ marginBottom: '40px' }}>
-                            <h2 style={{ fontSize: '32px', fontWeight: 900, color: '#0F172A', margin: '0 0 8px', letterSpacing: '-0.02em' }}>Privacy & Governance</h2>
-                            <p style={{ margin: 0, color: '#64748B', fontWeight: 500, fontSize: '16px' }}>Manage your secure digital identity and access credentials.</p>
+                        <div style={{ marginBottom: '32px' }}>
+                            <h2 style={{ fontSize: '24px', fontWeight: 600, color: '#0F172A', margin: '0 0 4px', letterSpacing: '-0.02em' }}>Personal Profile</h2>
+                            <p style={{ margin: 0, color: '#64748B', fontWeight: 400, fontSize: '14px' }}>Update your digital identity and contact preferences.</p>
                         </div>
                         <ProfileSettings patient={patient} />
                     </div>
                 )}
                 
                 {activeTab === 'overview' && (
-                    <div style={{ marginTop: '48px', padding: '40px', background: '#F1F5F9', borderRadius: '32px', border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', gap: '40px', flexWrap: 'wrap' }}>
+                    <div style={{ marginTop: '48px', padding: '32px', background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', gap: '40px', flexWrap: 'wrap', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
                         <div style={{ flex: 1, minWidth: '300px' }}>
-                            <h4 style={{ fontSize: '20px', fontWeight: 900, color: '#0F172A', margin: '0 0 12px 0' }}>Need medical assistance?</h4>
-                            <p style={{ margin: 0, color: '#64748B', fontSize: '15px', lineHeight: 1.6 }}>Our 24/7 digital care team is available to help with portal navigation, report explanations, or technical support. No query is too small.</p>
+                            <h4 style={{ fontSize: '18px', fontWeight: 600, color: '#0F172A', margin: '0 0 8px 0' }}>Need Support?</h4>
+                            <p style={{ margin: 0, color: '#64748B', fontSize: '14px', lineHeight: 1.6 }}>Our medical care team is available to help with portal navigation, report explanations, or technical support.</p>
                         </div>
-                        <button style={{ padding: '16px 32px', background: '#0F172A', color: '#fff', border: 'none', borderRadius: '18px', fontSize: '14px', fontWeight: 800, cursor: 'pointer', boxShadow: '0 10px 20px rgba(0,0,0,0.1)' }}>Contact Care Team</button>
+                        <button style={{ padding: '12px 24px', background: '#0A2E4D', color: '#fff', border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' }} onMouseOver={e => e.currentTarget.style.background = '#00C2FF'} onMouseOut={e => e.currentTarget.style.background = '#0A2E4D'}>Contact Care Team</button>
                     </div>
                 )}
             </main>
+
+            <footer style={{
+                position: 'fixed',
+                bottom: 0,
+                right: 0,
+                left: '260px',
+                height: '40px',
+                borderTop: '1px solid #E2E8F0',
+                background: '#FFFFFF',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                zIndex: 90
+            }} className="portal-footer">
+                <span style={{ fontSize: '10px', color: '#94A3B8', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Nexora Portfolio</span>
+                <span style={{ color: '#CBD5E1', fontSize: '10px' }}>|</span>
+                <span style={{ fontSize: '10px', color: '#94A3B8', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Powered by Global Webify</span>
+            </footer>
+
+            <style jsx>{`
+                @media (max-width: 1024px) {
+                    .main-container { margin-left: 0 !important; padding-top: 80px !important; }
+                    .hms-header { left: 0 !important; }
+                    .portal-footer { left: 0 !important; }
+                }
+            `}</style>
 
             <AppointmentBooking 
                 isOpen={isBookingOpen}
