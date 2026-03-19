@@ -67,47 +67,77 @@ export default function PortalInvoices({ invoices }) {
     };
 
     return (
-        <div style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: '16px', padding: '24px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)' }}>
+        <div style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: '24px', padding: '32px', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
             <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
             
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
-                <div style={{ background: '#F0FDF4', padding: '10px', borderRadius: '10px', color: '#15803D' }}><IndianRupee size={20} /></div>
-                <h2 style={{ fontSize: '18px', fontWeight: 700, margin: 0, color: '#0F172A' }}>Invoices & Billing</h2>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '24px' }}>
+                <div style={{ background: '#F0FDF4', padding: '12px', borderRadius: '14px', color: '#15803D' }}><IndianRupee size={22} /></div>
+                <div>
+                    <h2 style={{ fontSize: '18px', fontWeight: 900, margin: 0, color: '#0F172A' }}>Billing Snapshot</h2>
+                    <p style={{ margin: 0, fontSize: '12px', color: '#64748B', fontWeight: 600 }}>TREATMENT INVOICES</p>
+                </div>
             </div>
 
             {invoices.length === 0 ? (
-                <p style={{ color: '#94A3B8', fontSize: '14px', margin: 0 }}>No billing history found.</p>
+                <div style={{ textAlign: 'center', padding: '40px 0', border: '2px dashed #F1F5F9', borderRadius: '16px' }}>
+                    <p style={{ color: '#94A3B8', fontSize: '14px', margin: 0, fontWeight: 500 }}>No financial records found.</p>
+                </div>
             ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                     {invoices.map(inv => (
-                        <div key={inv.id} style={{ padding: '12px', border: '1px solid #F1F5F9', borderRadius: '10px', background: '#F8FAFC' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                                <strong style={{ fontSize: '14px', color: '#1E293B', fontFamily: 'monospace' }}>{inv.invoiceCode}</strong>
-                                <span style={{ fontSize: '12px', color: inv.status === 'Paid' ? '#10B981' : '#F59E0B', fontWeight: 600 }}>{inv.status}</span>
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px' }}>
+                        <div key={inv.id} className="interactive-row" style={{ padding: '20px', border: '1px solid #F1F5F9', borderRadius: '20px', background: '#F8FAFC' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px', alignItems: 'flex-start' }}>
                                 <div>
-                                    <div style={{ fontSize: '15px', fontWeight: 700, color: '#0F172A' }}>₹{inv.netAmount.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</div>
-                                    <div style={{ fontSize: '12px', color: '#64748B' }}>{new Date(inv.createdAt).toLocaleDateString()}</div>
+                                    <div style={{ fontSize: '14px', fontWeight: 800, color: '#1E293B', fontFamily: 'monospace', letterSpacing: '0.05em' }}>{inv.invoiceCode}</div>
+                                    <div style={{ fontSize: '12px', color: '#94A3B8', fontWeight: 600 }}>{new Date(inv.createdAt).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' })}</div>
                                 </div>
-                                <div style={{ display: 'flex', gap: '8px' }}>
+                                <span style={{ fontSize: '10px', background: inv.status === 'Paid' ? '#F0FDF4' : '#FFF7ED', color: inv.status === 'Paid' ? '#10B981' : '#F59E0B', fontWeight: 900, padding: '4px 10px', borderRadius: '8px', textTransform: 'uppercase' }}>{inv.status}</span>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div>
+                                    <div style={{ fontSize: '24px', fontWeight: 900, color: '#0F172A', letterSpacing: '-0.02em' }}>₹{inv.netAmount.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</div>
+                                </div>
+                                <div style={{ display: 'flex', gap: '10px' }}>
                                     {inv.status !== 'Paid' && (
                                         <button
                                             onClick={() => handlePayment(inv)}
                                             disabled={payingId === inv.id}
-                                            className="btn btn-primary btn-sm"
-                                            style={{ padding: '6px 10px', fontSize: '12px', display: 'flex', gap: '4px', alignItems: 'center', background: '#2563EB', borderColor: '#2563EB' }}
+                                            style={{ 
+                                                padding: '10px 20px', 
+                                                fontSize: '13px', 
+                                                fontWeight: 800, 
+                                                display: 'flex', 
+                                                gap: '8px', 
+                                                alignItems: 'center', 
+                                                background: '#0F172A', 
+                                                color: '#fff', 
+                                                border: 'none', 
+                                                borderRadius: '12px', 
+                                                cursor: 'pointer',
+                                                boxShadow: '0 4px 12px rgba(15, 23, 42, 0.2)'
+                                            }}
                                         >
-                                            {payingId === inv.id ? <Loader2 size={14} className="animate-spin" /> : <CreditCard size={14} />} 
-                                            Pay Now
+                                            {payingId === inv.id ? <Loader2 size={16} className="animate-spin" /> : <CreditCard size={16} />} 
+                                            Checkout
                                         </button>
                                     )}
                                     <button
                                         onClick={() => setPrintInvoice(inv)}
-                                        className="btn btn-secondary btn-sm"
-                                        style={{ padding: '6px 10px', fontSize: '12px', display: 'flex', gap: '4px', alignItems: 'center' }}
+                                        style={{ 
+                                            padding: '10px 20px', 
+                                            fontSize: '13px', 
+                                            fontWeight: 800, 
+                                            display: 'flex', 
+                                            gap: '8px', 
+                                            alignItems: 'center', 
+                                            background: '#fff', 
+                                            color: '#0F172A', 
+                                            border: '1px solid #E2E8F0', 
+                                            borderRadius: '12px', 
+                                            cursor: 'pointer' 
+                                        }}
                                     >
-                                        <Receipt size={14} /> Receipt
+                                        <Receipt size={16} /> Receipt
                                     </button>
                                 </div>
                             </div>

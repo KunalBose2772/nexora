@@ -18,9 +18,11 @@ import {
 const NAV = [
   { href: '/super-admin', label: 'Overview', icon: LayoutDashboard },
   { href: '/super-admin/tenants', label: 'Tenants', icon: Users },
+  { href: '/super-admin/resellers', label: 'Resellers', icon: Users }, // Using Users icon as a placeholder, can be changed
   { href: '/super-admin/subscriptions', label: 'Subscriptions', icon: CreditCard },
   { href: '/super-admin/plans', label: 'Plans', icon: FileText },
   { href: '/super-admin/support', label: 'Support', icon: LifeBuoy },
+  { href: '/super-admin/logs', label: 'System Logs', icon: FileText },
   { href: '/super-admin/settings', label: 'Settings', icon: Settings },
 ];
 

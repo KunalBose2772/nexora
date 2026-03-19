@@ -56,42 +56,53 @@ export default function PortalGrievance() {
     };
 
     return (
-        <div style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: '16px', padding: '24px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyBetween: 'space-between', marginBottom: '20px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <div style={{ background: '#FEF3F2', padding: '10px', borderRadius: '10px', color: '#DC2626' }}><MessageSquare size={20} /></div>
-                    <h2 style={{ fontSize: '18px', fontWeight: 700, margin: 0, color: '#0F172A' }}>Feedback & Grievances</h2>
+        <div style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: '24px', padding: '32px', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                    <div style={{ background: '#FEF3F2', padding: '12px', borderRadius: '14px', color: '#DC2626' }}><MessageSquare size={22} /></div>
+                    <div>
+                        <h2 style={{ fontSize: '18px', fontWeight: 900, margin: 0, color: '#0F172A' }}>Support Desk</h2>
+                        <p style={{ margin: 0, fontSize: '12px', color: '#64748B', fontWeight: 600 }}>TICKETS & FEEDBACK</p>
+                    </div>
                 </div>
                 <button 
                     onClick={() => setIsFormOpen(true)}
-                    style={{ marginLeft: 'auto', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '6px 12px', fontSize: '12px', fontWeight: 600, color: '#475569', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
+                    style={{ background: '#0F172A', border: 'none', borderRadius: '12px', padding: '10px 18px', fontSize: '13px', fontWeight: 800, color: '#fff', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', boxShadow: '0 8px 16px rgba(15, 23, 42, 0.15)' }}
                 >
-                    <Plus size={14} /> New Ticket
+                    <Plus size={16} /> New Ticket
                 </button>
             </div>
 
             {loading ? (
-                <div style={{ py: '20px', textAlign: 'center', color: '#94A3B8' }}>Loading tickets...</div>
+                <div style={{ padding: '40px', textAlign: 'center', color: '#94A3B8' }}>
+                    <div className="animate-spin" style={{ marginBottom: '12px' }}><Clock size={24} /></div>
+                    <span style={{ fontSize: '14px', fontWeight: 600 }}>Syncing records...</span>
+                </div>
             ) : grievances.length === 0 ? (
-                <p style={{ color: '#94A3B8', fontSize: '14px', margin: 0, textAlign: 'center', py: '10px' }}>No grievances reported yet.</p>
+                <div style={{ textAlign: 'center', padding: '40px 0', border: '2px dashed #F1F5F9', borderRadius: '16px' }}>
+                    <p style={{ color: '#94A3B8', fontSize: '14px', margin: 0, fontWeight: 500 }}>No active support cases.</p>
+                </div>
             ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                     {grievances.map(g => (
-                        <div key={g.id} style={{ padding: '14px', border: '1px solid #F1F5F9', borderRadius: '12px', background: '#F8FAFC' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <span style={{ fontSize: '12px', fontWeight: 700, color: '#64748B', fontFamily: 'monospace' }}>{g.ticketId}</span>
-                                    <span style={{ fontSize: '10px', fontWeight: 700, background: g.status === 'Resolved' ? '#DCFCE7' : '#FEE2E2', color: g.status === 'Resolved' ? '#166534' : '#991B1B', padding: '2px 8px', borderRadius: '4px', textTransform: 'uppercase' }}>{g.status}</span>
+                        <div key={g.id} className="interactive-row" style={{ padding: '20px', border: '1px solid #F1F5F9', borderRadius: '20px', background: '#F8FAFC' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', alignItems: 'center' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                    <span style={{ fontSize: '12px', fontWeight: 800, color: '#64748B', fontFamily: 'monospace', background: '#fff', padding: '4px 8px', borderRadius: '6px', border: '1px solid #E2E8F0' }}>{g.ticketId}</span>
+                                    <span style={{ fontSize: '10px', fontWeight: 900, background: g.status === 'Resolved' ? '#F0FDF4' : '#FEF2F2', color: g.status === 'Resolved' ? '#166534' : '#991B1B', padding: '4px 10px', borderRadius: '8px', textTransform: 'uppercase' }}>{g.status}</span>
                                 </div>
-                                <span style={{ fontSize: '11px', color: '#94A3B8' }}>{new Date(g.createdAt).toLocaleDateString()}</span>
+                                <span style={{ fontSize: '11px', color: '#94A3B8', fontWeight: 600 }}>{new Date(g.createdAt).toLocaleDateString()}</span>
                             </div>
-                            <h4 style={{ fontSize: '14px', fontWeight: 700, color: '#1E293B', marginBottom: '4px' }}>{g.subject}</h4>
-                            <p style={{ fontSize: '13px', color: '#64748B', marginBottom: '8px', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{g.description}</p>
+                            <h4 style={{ fontSize: '15px', fontWeight: 800, color: '#1E293B', marginBottom: '6px' }}>{g.subject}</h4>
+                            <p style={{ fontSize: '13px', color: '#64748B', lineHeight: 1.5, marginBottom: '12px' }}>{g.description}</p>
                             
                             {g.adminReply && (
-                                <div style={{ marginTop: '10px', padding: '10px', background: 'white', borderLeft: '3px solid #0EA5E9', borderRadius: '6px' }}>
-                                    <div style={{ fontSize: '11px', fontWeight: 800, color: '#0EA5E9', marginBottom: '2px', textTransform: 'uppercase' }}>Admin Reply</div>
-                                    <p style={{ fontSize: '12px', color: '#334155', margin: 0 }}>{g.adminReply}</p>
+                                <div style={{ marginTop: '16px', padding: '16px', background: '#fff', borderLeft: '4px solid #00C2FF', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
+                                        <CheckCircle2 size={12} color="#00C2FF" />
+                                        <div style={{ fontSize: '10px', fontWeight: 900, color: '#00C2FF', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Official Response</div>
+                                    </div>
+                                    <p style={{ fontSize: '13px', color: '#334155', margin: 0, fontWeight: 500 }}>{g.adminReply}</p>
                                 </div>
                             )}
                         </div>

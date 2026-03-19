@@ -1,5 +1,3 @@
-// Prisma v5 schema — PostgreSQL for production (Neon / Supabase)
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,227 +7,197 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ── TENANT (Hospital / Clinic) ───────────────────────────────────────────────
 model Tenant {
-  id                String  @id @default(cuid())
-  tenantCode        String  @unique
-  slug              String  @unique
+  id                String               @id @default(cuid())
+  tenantCode        String               @unique
+  slug              String               @unique
   name              String
-  plan              String  @default("Starter Tier")
-  status            String  @default("Active")
+  plan              String               @default("Starter Tier")
+  status            String               @default("Active")
   adminEmail        String
   phone             String?
   address           String?
-  // Clinical Governance Settings
-  requireRxApproval Boolean @default(false)
-  enablePanicAlarms Boolean @default(true)
-
-  // Regulatory & Branding
-  tagline         String?
-  gstNumber       String?
-  hfrNumber       String? // Health Facility Registry
-  printTerms      String?  @default("Terms & Conditions apply.")
-  footerSignature String?  @default("Medical Superintendent")
-  description     String?
-  logoInitials    String?
-  primaryColor    String?  @default("#10B981")
-  logoUrl         String?
-  heroImage       String?
-  mapUrl          String?
-  metaTitle       String?
-  metaDescription String?
-  faviconUrl      String?
-  servicesContent String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  users           User[]
-  patients        Patient[]
-  appointments    Appointment[]
-  records         PatientRecord[]
-  wards           Ward[]
-  beds            Bed[]
-  labRequests     LabRequest[]
-  medicines       Medicine[]
-  dispensations   Dispensation[]
-  invoices        Invoice[]
-  advances        AdvanceDeposit[]
-  branches        Branch[]
-  prescriptions   Prescription[]
-  expenses        Expense[]
-  grievances      Grievance[]
-  suppliers       Supplier[]
-  purchaseOrders  PurchaseOrder[]
-  notifications   Notification[]
-  communications  CommunicationLog[]
-  attendance      StaffAttendance[]
-  shifts          Shift[]
-  StockAdjustment StockAdjustment[]
-  auditLogs       AuditLog[]
-  icuMonitoring   IcuMonitoring[]
-  icuScores       IcuScore[]
-  surgeries       Surgery[]
-  bloodStock      BloodStock[]
-  bloodRequests   BloodRequest[]
-  bloodDonors     BloodDonor[]
-  bloodDonations  BloodDonation[]
-  bloodIssuances  BloodIssuance[]
-  tpaCompanies    TpaCompany[]
-  preAuths        InsurancePreAuth[]
-  radiologyOrders RadiologyOrder[]
-  radiologyReports RadiologyReport[]
-  laborRecords     LaborRecord[]
-  partographEntries PartographEntry[]
+  requireRxApproval Boolean              @default(false)
+  enablePanicAlarms Boolean              @default(true)
+  tagline           String?
+  gstNumber         String?
+  hfrNumber         String?
+  printTerms        String?              @default("Terms & Conditions apply.")
+  footerSignature   String?              @default("Medical Superintendent")
+  description       String?
+  logoInitials      String?
+  primaryColor      String?              @default("#10B981")
+  logoUrl           String?
+  heroImage         String?
+  mapUrl            String?
+  metaTitle         String?
+  metaDescription   String?
+  faviconUrl        String?
+  servicesContent   String?
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  advances          AdvanceDeposit[]
+  appointments      Appointment[]
+  auditLogs         AuditLog[]
+  beds              Bed[]
   birthRecords      BirthRecord[]
-  organisms         Organism[]
+  bloodDonations    BloodDonation[]
+  bloodDonors       BloodDonor[]
+  bloodIssuances    BloodIssuance[]
+  bloodRequests     BloodRequest[]
+  bloodStock        BloodStock[]
+  branches          Branch[]
+  communications    CommunicationLog[]
   sensitivities     CultureSensitivity[]
+  dispensations     Dispensation[]
+  expenses          Expense[]
+  grievances        Grievance[]
+  icuMonitoring     IcuMonitoring[]
+  icuScores         IcuScore[]
+  preAuths          InsurancePreAuth[]
+  invoices          Invoice[]
+  labRequests       LabRequest[]
+  laborRecords      LaborRecord[]
+  medicines         Medicine[]
+  notifications     Notification[]
+  organisms         Organism[]
+  partographEntries PartographEntry[]
+  patients          Patient[]
+  records           PatientRecord[]
+  prescriptions     Prescription[]
+  purchaseOrders    PurchaseOrder[]
+  radiologyOrders   RadiologyOrder[]
+  radiologyReports  RadiologyReport[]
+  shifts            Shift[]
+  attendance        StaffAttendance[]
+  StockAdjustment   StockAdjustment[]
+  suppliers         Supplier[]
+  surgeries         Surgery[]
+  tpaCompanies      TpaCompany[]
+  users             User[]
+  wards             Ward[]
 }
 
-// ── USER ─────────────────────────────────────────────────────────────────────
 model User {
-  id             String  @id @default(cuid())
-  userId         String  @unique
+  id             String            @id @default(cuid())
+  userId         String            @unique
   name           String
-  email          String  @unique
+  email          String            @unique
   passwordHash   String
   role           String
-  status         String  @default("Active")
+  status         String            @default("Active")
   department     String?
   phone          String?
   joinDate       String?
   specialization String?
-
-  tenantId String?
-  tenant   Tenant? @relation(fields: [tenantId], references: [id])
-
-  // HRMS & Biometrics
-  rfidTag      String? @unique
-  biometricId  String? @unique
-  shiftStarted Boolean @default(false)
-
-  attendance StaffAttendance[]
-  shiftId    String?
-  shift      Shift? @relation(fields: [shiftId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  tenantId       String?
+  rfidTag        String?           @unique
+  biometricId    String?           @unique
+  shiftStarted   Boolean           @default(false)
+  shiftId        String?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  attendance     StaffAttendance[]
+  shift          Shift?            @relation(fields: [shiftId], references: [id])
+  tenant         Tenant?           @relation(fields: [tenantId], references: [id])
 }
 
 model StaffAttendance {
   id        String   @id @default(cuid())
-  type      String // ClockIn | ClockOut
-  method    String // RFID | Biometric | Manual
+  type      String
+  method    String
   timestamp DateTime @default(now())
-  location  String? // Entry Point / Device ID
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id])
-
-  tenantId String
-  tenant   Tenant @relation(fields: [tenantId], references: [id])
+  location  String?
+  userId    String
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 model Shift {
   id        String @id @default(cuid())
-  name      String // Day, Night, Emergency, On-Call
-  startTime String // HH:mm
-  endTime   String // HH:mm
-
+  name      String
+  startTime String
+  endTime   String
+  tenantId  String
+  tenant    Tenant @relation(fields: [tenantId], references: [id])
   users     User[]
-
-  tenantId String
-  tenant   Tenant @relation(fields: [tenantId], references: [id])
 }
 
-// ── PATIENT ──────────────────────────────────────────────────────────────────
 model Patient {
-  id           String  @id @default(cuid())
-  patientCode  String
-  firstName    String
-  lastName     String
-  dob          String?
-  gender       String?
-  phone        String?
-  email        String?
-  address      String?
-  bloodGroup   String?
-  allergies    String?
-  passwordHash String?
-  photo        String?
-  status       String  @default("Active")
-
-  tenantId String
-  tenant   Tenant @relation(fields: [tenantId], references: [id])
-
-  appointments  Appointment[]
-  records       PatientRecord[]
-  labRequests   LabRequest[]
-  prescriptions Prescription[]
-  grievances    Grievance[]
-  advances      AdvanceDeposit[]
-  invoices      Invoice[]
-  surgeries     Surgery[]
-  bloodRequests BloodRequest[]
-  preAuths      InsurancePreAuth[]
-  radiologyOrders RadiologyOrder[]
+  id              String             @id @default(cuid())
+  patientCode     String
+  firstName       String
+  lastName        String
+  dob             String?
+  gender          String?
+  phone           String?
+  email           String?
+  address         String?
+  bloodGroup      String?
+  allergies       String?
+  status          String             @default("Active")
+  tenantId        String
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  passwordHash    String?
+  photo           String?
+  advances        AdvanceDeposit[]
+  appointments    Appointment[]
+  bloodRequests   BloodRequest[]
+  grievances      Grievance[]
+  preAuths        InsurancePreAuth[]
+  invoices        Invoice[]
+  labRequests     LabRequest[]
   laborRecords    LaborRecord[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-// ── APPOINTMENT ───────────────────────────────────────────────────────────────
-model Appointment {
-  id            String  @id @default(cuid())
-  apptCode      String
-  patientName   String
-  doctorName    String
-  department    String?
-  date          String
-  time          String?
-  type          String  @default("OPD")
-  status        String  @default("Scheduled")
-  paymentStatus String  @default("Pending") // Added for payment tracking
-
-  ward       String?
-  bed        String?
-  admitNotes String?
-
-  // Emergency & Triage Fields
-  triageLevel    Int?      // ESI 1-5
-  triageColor    String?   // Red, Yellow, Green, Black
-  bystanderName  String?
-  bystanderPhone String?
-  traumaType     String?   // RTA, Fall, Assault, etc.
-  triageNotes    String?
-  triageVitals   String?   // JSON: { bp, hr, temp, spo2, rr }
-  triageAt       DateTime?
-
-  // Medico-Legal Case (MLC) Fields
-  isMLC         Boolean @default(false)
-  mlcNumber     String?
-  policeStation String?
-  firNumber     String?
-  mlcDetails    String?
-  isLocked      Boolean @default(false)
-
-  tenantId String
-  tenant   Tenant @relation(fields: [tenantId], references: [id])
-
-  patientId String?
-  patient   Patient? @relation(fields: [patientId], references: [id])
-
-  prescriptions Prescription[]
-  icuMonitoring IcuMonitoring[]
-  icuScores     IcuScore[]
-  surgeries     Surgery[]
+  tenant          Tenant             @relation(fields: [tenantId], references: [id])
+  records         PatientRecord[]
+  prescriptions   Prescription[]
   radiologyOrders RadiologyOrder[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  surgeries       Surgery[]
 }
 
-// ── DEMO REQUESTS ────────────────────────────────────────────────────────────
+model Appointment {
+  id              String           @id @default(cuid())
+  apptCode        String
+  patientName     String
+  doctorName      String
+  department      String?
+  date            String
+  time            String?
+  type            String           @default("OPD")
+  status          String           @default("Scheduled")
+  paymentStatus   String           @default("Pending")
+  ward            String?
+  bed             String?
+  admitNotes      String?
+  isMLC           Boolean          @default(false)
+  mlcNumber       String?
+  policeStation   String?
+  firNumber       String?
+  mlcDetails      String?
+  isLocked        Boolean          @default(false)
+  tenantId        String
+  patientId       String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  bystanderName   String?
+  bystanderPhone  String?
+  traumaType      String?
+  triageAt        DateTime?
+  triageColor     String?
+  triageLevel     Int?
+  triageNotes     String?
+  triageVitals    String?
+  patient         Patient?         @relation(fields: [patientId], references: [id])
+  tenant          Tenant           @relation(fields: [tenantId], references: [id])
+  icuMonitoring   IcuMonitoring[]
+  icuScores       IcuScore[]
+  prescriptions   Prescription[]
+  radiologyOrders RadiologyOrder[]
+  surgeries       Surgery[]
+}
+
 model DemoRequest {
   id           String   @id @default(cuid())
   hospitalName String
@@ -242,398 +210,329 @@ model DemoRequest {
   updatedAt    DateTime @updatedAt
 }
 
-// ── PRESCRIPTION ─────────────────────────────────────────────────────────────
 model Prescription {
-  id               String  @id @default(cuid())
-  rxCode           String
-  chiefComplaint   String?
-  diagnosis        String?
-  clinicalNotes    String?
-  followUpDate     String?
-  doctorName       String
-  patientName      String
-  patientUhId      String?
-  bp               String?
-  heartRate        String?
-  temperature      String?
-  weight           String?
-  status           String  @default("Active") // Active | Dispensed | Partial
-  validationStatus String  @default("Signed") // Draft | Awaiting Approval | Signed
-  locked           Boolean @default(false)
-
-  tenantId String
-  tenant   Tenant @relation(fields: [tenantId], references: [id])
-
-  patientId String?
-  patient   Patient? @relation(fields: [patientId], references: [id])
-
-  appointmentId String?
-  appointment   Appointment? @relation(fields: [appointmentId], references: [id])
-  
-  // IPD Referral
-  isIPDReferral     Boolean @default(false)
+  id                 String             @id @default(cuid())
+  rxCode             String
+  chiefComplaint     String?
+  diagnosis          String?
+  clinicalNotes      String?
+  followUpDate       String?
+  doctorName         String
+  patientName        String
+  patientUhId        String?
+  bp                 String?
+  heartRate          String?
+  temperature        String?
+  weight             String?
+  status             String             @default("Active")
+  validationStatus   String             @default("Signed")
+  locked             Boolean            @default(false)
+  tenantId           String
+  patientId          String?
+  appointmentId      String?
+  isIPDReferral      Boolean            @default(false)
   referralDepartment String?
-  referralUrgency    String? // Routine | Urgent | Emergency
-
-  items PrescriptionItem[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  referralUrgency    String?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  appointment        Appointment?       @relation(fields: [appointmentId], references: [id])
+  patient            Patient?           @relation(fields: [patientId], references: [id])
+  tenant             Tenant             @relation(fields: [tenantId], references: [id])
+  items              PrescriptionItem[]
 }
 
 model PrescriptionItem {
-  id           String  @id @default(cuid())
-  medicineName String
-  genericName  String?
-  dosage       String?
-  frequency    String?
-  duration     String?
-  quantity     Int     @default(0)
-  instructions String?
-
-  medicineId String?
-  medicine   Medicine? @relation(fields: [medicineId], references: [id])
-
+  id             String       @id @default(cuid())
+  medicineName   String
+  genericName    String?
+  dosage         String?
+  frequency      String?
+  duration       String?
+  quantity       Int          @default(0)
+  instructions   String?
+  medicineId     String?
   prescriptionId String
+  createdAt      DateTime     @default(now())
   prescription   Prescription @relation(fields: [prescriptionId], references: [id])
-
-  createdAt DateTime @default(now())
+  medicine       Medicine?    @relation(fields: [medicineId], references: [id])
 }
 
-// ── PATIENT RECORD ───────────────────────────────────────────────────────────
 model PatientRecord {
-  id          String @id @default(cuid())
+  id          String   @id @default(cuid())
   categoryTag String
   title       String
   date        String
   fileUrl     String
-
-  tenantId String
-  tenant   Tenant @relation(fields: [tenantId], references: [id])
-
-  patientId String
-  patient   Patient @relation(fields: [patientId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  tenantId    String
+  patientId   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  patient     Patient  @relation(fields: [patientId], references: [id])
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
 }
 
-// ── FACILITY MANAGEMENT ──────────────────────────────────────────────────────
 model Ward {
-  id          String  @id @default(cuid())
+  id          String   @id @default(cuid())
   name        String
   description String?
+  tenantId    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
   floorWing   String?
-
-  tenantId String
-  tenant   Tenant @relation(fields: [tenantId], references: [id])
-
-  beds Bed[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  beds        Bed[]
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
 }
 
 model Bed {
-  id        String @id @default(cuid())
+  id        String   @id @default(cuid())
   bedNumber String
-  status    String @default("Vacant")
-
-  wardId String
-  ward   Ward   @relation(fields: [wardId], references: [id])
-
-  tenantId String
-  tenant   Tenant @relation(fields: [tenantId], references: [id])
-
+  status    String   @default("Vacant")
+  wardId    String
+  tenantId  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  ward      Ward     @relation(fields: [wardId], references: [id])
 
   @@unique([wardId, bedNumber])
 }
 
-// ── LABORATORY ───────────────────────────────────────────────────────────────
 model LabRequest {
-  id              String  @id @default(cuid())
+  id              String               @id @default(cuid())
   trackingId      String
   patientName     String
   patientUhId     String?
   testName        String
   category        String
-  status          String  @default("Pending")
-  amount          Float   @default(0)
+  status          String               @default("Pending")
+  amount          Float                @default(0)
   referringDoctor String?
   collectionTime  String?
-  testResults     String? // JSON string: { "Hb": "14.2", "WBC": "8.5", "NormalRange": "13-17" }
-
-  tenantId String
-  tenant   Tenant @relation(fields: [tenantId], references: [id])
-
-  patientId String?
-  patient   Patient? @relation(fields: [patientId], references: [id])
-  
+  tenantId        String
+  patientId       String?
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  testResults     String?
   sensitivities   CultureSensitivity[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  patient         Patient?             @relation(fields: [patientId], references: [id])
+  tenant          Tenant               @relation(fields: [tenantId], references: [id])
 }
 
-// ── PHARMACY ─────────────────────────────────────────────────────────────────
 model Medicine {
-  id           String  @id @default(cuid())
-  drugCode     String
-  name         String
-  genericName  String?
-  manufacturer String?
-  category     String  @default("Tablet")
-  batchNumber  String?
-  expiryDate   String?
-  mrp          Float   @default(0)
-  costPrice    Float   @default(0)
-  stock        Int     @default(0)
-  minThreshold Int     @default(50)
-
-  tenantId String
-  tenant   Tenant @relation(fields: [tenantId], references: [id])
-
+  id                String              @id @default(cuid())
+  drugCode          String
+  name              String
+  genericName       String?
+  manufacturer      String?
+  category          String              @default("Tablet")
+  batchNumber       String?
+  expiryDate        String?
+  mrp               Float               @default(0)
+  costPrice         Float               @default(0)
+  stock             Int                 @default(0)
+  minThreshold      Int                 @default(50)
+  tenantId          String
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
   dispensationItems DispensationItem[]
+  tenant            Tenant              @relation(fields: [tenantId], references: [id])
   prescriptionItems PrescriptionItem[]
   poItems           PurchaseOrderItem[]
   stockAdjustments  StockAdjustment[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
 
 model StockAdjustment {
   id              String   @id @default(cuid())
   medicineId      String
-  medicine        Medicine @relation(fields: [medicineId], references: [id])
-  type            String // ReturnToVendor | Damaged | Expired | Rectification
+  type            String
   quantity        Int
   notes           String?
   adjustmentPrice Float    @default(0)
-
-  tenantId String
-  tenant   Tenant @relation(fields: [tenantId], references: [id])
-
-  createdAt DateTime @default(now())
+  tenantId        String
+  createdAt       DateTime @default(now())
+  tenant          Tenant   @relation(fields: [tenantId], references: [id])
+  medicine        Medicine @relation(fields: [medicineId], references: [id])
 }
 
 model AdvanceDeposit {
-  id            String  @id @default(cuid())
-  receiptCode   String  @unique // e.g., ADV-2024-001
+  id            String   @id @default(cuid())
+  receiptCode   String   @unique
   amount        Float
   paymentMethod String
-  status        String  @default("Available") // Available | Adjusted | Refunded
+  status        String   @default("Available")
   notes         String?
-
-  patientId String
-  patient   Patient @relation(fields: [patientId], references: [id])
-
-  tenantId String
-  tenant   Tenant @relation(fields: [tenantId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  patientId     String
+  tenantId      String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  tenant        Tenant   @relation(fields: [tenantId], references: [id])
+  patient       Patient  @relation(fields: [patientId], references: [id])
 }
 
 model Supplier {
-  id            String  @id @default(cuid())
-  name          String
-  contactPerson String?
-  email         String?
-  phone         String?
-  address       String?
-  gstNumber     String?
-  status        String  @default("Active") // Active | Inactive
-
-  tenantId String
-  tenant   Tenant @relation(fields: [tenantId], references: [id])
-
+  id             String          @id @default(cuid())
+  name           String
+  contactPerson  String?
+  email          String?
+  phone          String?
+  address        String?
+  gstNumber      String?
+  status         String          @default("Active")
+  tenantId       String
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
   purchaseOrders PurchaseOrder[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  tenant         Tenant          @relation(fields: [tenantId], references: [id])
 }
 
 model PurchaseOrder {
-  id          String  @id @default(cuid())
-  poNumber    String  @unique
-  status      String  @default("Draft") // Draft | Issued | Partially Received | Received | Cancelled
-  totalAmount Float   @default(0)
+  id          String              @id @default(cuid())
+  poNumber    String              @unique
+  status      String              @default("Draft")
+  totalAmount Float               @default(0)
   notes       String?
-
-  supplierId String
-  supplier   Supplier @relation(fields: [supplierId], references: [id])
-
-  tenantId String
-  tenant   Tenant @relation(fields: [tenantId], references: [id])
-
-  items PurchaseOrderItem[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  supplierId  String
+  tenantId    String
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  tenant      Tenant              @relation(fields: [tenantId], references: [id])
+  supplier    Supplier            @relation(fields: [supplierId], references: [id])
+  items       PurchaseOrderItem[]
 }
 
 model PurchaseOrderItem {
-  id               String @id @default(cuid())
+  id               String        @id @default(cuid())
   quantity         Int
   unitPrice        Float
   totalPrice       Float
-  receivedQuantity Int    @default(0)
-
-  purchaseOrderId String
-  purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id])
-
-  medicineId String
-  medicine   Medicine @relation(fields: [medicineId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  receivedQuantity Int           @default(0)
+  purchaseOrderId  String
+  medicineId       String
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  medicine         Medicine      @relation(fields: [medicineId], references: [id])
+  purchaseOrder    PurchaseOrder @relation(fields: [purchaseOrderId], references: [id])
 }
 
 model Dispensation {
-  id           String  @id @default(cuid())
+  id           String             @id @default(cuid())
   billCode     String
   patientName  String
   patientUhId  String?
   patientId    String?
   prescribedBy String?
-  discount     Float   @default(0)
-  subtotal     Float   @default(0)
-  totalCost    Float   @default(0)
-  tax          Float   @default(0)
-  netAmount    Float   @default(0)
-  status       String  @default("Completed")
-
-  tenantId String
-  tenant   Tenant @relation(fields: [tenantId], references: [id])
-
-  items DispensationItem[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  discount     Float              @default(0)
+  subtotal     Float              @default(0)
+  totalCost    Float              @default(0)
+  tax          Float              @default(0)
+  netAmount    Float              @default(0)
+  status       String             @default("Completed")
+  tenantId     String
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  tenant       Tenant             @relation(fields: [tenantId], references: [id])
+  items        DispensationItem[]
 }
 
 model DispensationItem {
-  id         String @id @default(cuid())
-  quantity   Int
-  unitPrice  Float
-  totalPrice Float
-
-  medicineId String
-  medicine   Medicine @relation(fields: [medicineId], references: [id])
-
+  id             String       @id @default(cuid())
+  quantity       Int
+  unitPrice      Float
+  totalPrice     Float
+  medicineId     String
   dispensationId String
+  createdAt      DateTime     @default(now())
   dispensation   Dispensation @relation(fields: [dispensationId], references: [id])
-
-  createdAt DateTime @default(now())
+  medicine       Medicine     @relation(fields: [medicineId], references: [id])
 }
 
-// -- BILLING INVOICES --------------------------------------------------------
 model Invoice {
-  id            String  @id @default(cuid())
-  invoiceCode   String
-  patientName   String
-  patientUhId   String?
-  patientId     String?
-  serviceType   String  @default("OPD Consult")
-  amount        Float   @default(0)
-  discount      Float   @default(0)
-  tax           Float   @default(0)
-  netAmount     Float   @default(0)
-  paymentMethod String  @default("Cash")
-  status        String  @default("Pending")
-  notes         String?
-
-  // Insurance / TPA
-  isTpa          Boolean @default(false)
+  id             String      @id @default(cuid())
+  invoiceCode    String
+  patientName    String
+  patientUhId    String?
+  patientId      String?
+  serviceType    String      @default("OPD Consult")
+  amount         Float       @default(0)
+  discount       Float       @default(0)
+  tax            Float       @default(0)
+  netAmount      Float       @default(0)
+  paymentMethod  String      @default("Cash")
+  status         String      @default("Pending")
+  notes          String?
+  isTpa          Boolean     @default(false)
   tpaId          String?
+  tpaReference   String?
+  approvedAmount Float       @default(0)
+  copayAmount    Float       @default(0)
+  tpaStatus      String      @default("None")
+  tenantId       String
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  Patient        Patient?    @relation(fields: [patientId], references: [id])
+  tenant         Tenant      @relation(fields: [tenantId], references: [id])
   tpa            TpaCompany? @relation(fields: [tpaId], references: [id])
-  tpaReference   String? // Pre-Auth Number / Claim ID
-  approvedAmount Float   @default(0)
-  copayAmount    Float   @default(0)
-  tpaStatus      String  @default("None") // None, Pending, Approved, Rejected
-
-  tenantId String
-  tenant   Tenant @relation(fields: [tenantId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  Patient   Patient? @relation(fields: [patientId], references: [id])
 }
 
-// -- BRANCHES ----------------------------------------------------------------
 model Branch {
-  id           String  @id @default(cuid())
+  id           String   @id @default(cuid())
   branchCode   String
   name         String
-  facilityType String  @default("Outpatient")
+  facilityType String   @default("Outpatient")
   city         String?
   state        String?
   address      String?
   phone        String?
   email        String?
-  status       String  @default("Operational")
+  status       String   @default("Operational")
   beds         String?
   notes        String?
-
-  tenantId String
-  tenant   Tenant @relation(fields: [tenantId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  tenantId     String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  tenant       Tenant   @relation(fields: [tenantId], references: [id])
 }
 
-// ── EXPENSES ─────────────────────────────────────────────────────────────────
 model Expense {
-  id        String @id @default(cuid())
-  voucherId String @unique
+  id        String   @id @default(cuid())
+  voucherId String   @unique
   date      String
   category  String
   vendor    String
-  status    String @default("Pending")
-  amount    Float  @default(0)
-
-  tenantId String
-  tenant   Tenant @relation(fields: [tenantId], references: [id])
-
+  status    String   @default("Pending")
+  amount    Float    @default(0)
+  tenantId  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
 }
 
-// ── SUPER ADMIN: RESELLERS ───────────────────────────────────────────────────
 model Reseller {
-  id        String @id @default(cuid())
+  id        String   @id @default(cuid())
   name      String
   contact   String
   email     String
-  hospitals Int    @default(0)
-  revShare  String @default("20%")
-  status    String @default("Active")
-
+  hospitals Int      @default(0)
+  revShare  String   @default("20%")
+  status    String   @default("Active")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-// ── SUPER ADMIN: PLATFORM SETTINGS ───────────────────────────────────────────
 model PlatformSetting {
   id        String   @id @default(cuid())
-  data      String // JSON string of settings
+  data      String
   updatedAt DateTime @updatedAt
 }
 
-// ── SUPER ADMIN: SYSTEM LOGS ─────────────────────────────────────────────────
 model SystemLog {
-  id          String @id @default(cuid())
+  id          String   @id @default(cuid())
   title       String
   description String
-  type        String @default("info")
-
-  createdAt DateTime @default(now())
+  type        String   @default("info")
+  createdAt   DateTime @default(now())
 }
 
-// ── SUPER ADMIN: SUBSCRIPTION PLANS ──────────────────────────────────────────
 model SubscriptionPlan {
   id          String   @id @default(cuid())
   planCode    String   @unique
@@ -647,554 +546,437 @@ model SubscriptionPlan {
   updatedAt   DateTime @updatedAt
 }
 
-// ── SUPER ADMIN: SUPPORT TICKETS ─────────────────────────────────────────────
 model SupportTicket {
   id        String   @id @default(cuid())
   ticketId  String   @unique
   hospital  String
   issue     String
   priority  String   @default("Medium")
-  status    String   @default("open") // open, progress, resolved
+  status    String   @default("open")
   reply     String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-// ── PATIENT FEEDBACK & GRIEVANCES ──────────────────────────────────────────
 model Grievance {
-  id          String @id @default(cuid())
-  ticketId    String @unique
+  id          String    @id @default(cuid())
+  ticketId    String    @unique
   subject     String
   description String
-  category    String // Cleanliness, Staff Behavior, Clinical, Billing, Others
-  priority    String @default("Normal") // Normal, High, Urgent
-  status      String @default("Open") // Open, Investigating, Resolved, Closed
-
+  category    String
+  priority    String    @default("Normal")
+  status      String    @default("Open")
   patientName String
   patientId   String?
-  patient     Patient? @relation(fields: [patientId], references: [id])
-
-  adminReply String?
-  resolvedAt DateTime?
-
-  tenantId String
-  tenant   Tenant @relation(fields: [tenantId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  adminReply  String?
+  resolvedAt  DateTime?
+  tenantId    String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  tenant      Tenant    @relation(fields: [tenantId], references: [id])
+  patient     Patient?  @relation(fields: [patientId], references: [id])
 }
 
-// ── NOTIFICATIONS & ALERTS ───────────────────────────────────────────────────
 model Notification {
-  id       String  @id @default(cuid())
-  text     String
-  type     String  @default("info") // info, warning, success, error
-  category String  @default("System") // Inventory, Clinical, Billing, Security
-  isRead   Boolean @default(false)
-
-  tenantId String
-  tenant   Tenant @relation(fields: [tenantId], references: [id])
-
+  id        String   @id @default(cuid())
+  text      String
+  type      String   @default("info")
+  category  String   @default("System")
+  isRead    Boolean  @default(false)
+  tenantId  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
 }
 
-// ── SMS / WHATSAPP / EMAIL LOGS ──────────────────────────────────────────────
 model CommunicationLog {
-  id             String  @id @default(cuid())
+  id             String   @id @default(cuid())
   recipientName  String
   recipientPhone String?
   recipientEmail String?
-  channel        String // SMS, WhatsApp, Email, Push
-  type           String // Appointment Reminders, Bill Paid, Lab Ready, Discharge
+  channel        String
+  type           String
   message        String
-  status         String  @default("Pending") // Pending, Sent, Delivered, Failed
-  providerId     String? // Reference id from service provider (Twilio/WhatsApp)
-
-  tenantId String
-  tenant   Tenant @relation(fields: [tenantId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  status         String   @default("Pending")
+  providerId     String?
+  tenantId       String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  tenant         Tenant   @relation(fields: [tenantId], references: [id])
 }
 
-// ── AUDIT TRAILS & RECORD HISTORY ───────────────────────────────────────────
 model AuditLog {
   id          String   @id @default(cuid())
-  action      String   // CREATE, UPDATE, DELETE, VIEW, SIGN
-  resource    String   // Prescription, Invoice, Patient, etc.
-  resourceId  String?  // The specific record ID
-  description String?  // Human readable summary
-  oldValue    String?  // JSON string of before state
-  newValue    String?  // JSON string of after state
-  
+  action      String
+  resource    String
+  resourceId  String?
+  description String?
+  oldValue    String?
+  newValue    String?
   userId      String?
   userName    String?
   userRole    String?
   ipAddress   String?
   userAgent   String?
-
   tenantId    String
-  tenant      Tenant   @relation(fields: [tenantId], references: [id])
-
   createdAt   DateTime @default(now())
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
 }
 
-// ── ICU MANAGEMENT ──────────────────────────────────────────────────────────
 model IcuMonitoring {
-  id               String  @id @default(cuid())
-  appointmentId    String
-  appointment      Appointment @relation(fields: [appointmentId], references: [id])
-  
-  recordedAt       DateTime @default(now())
-  recordedBy       String?
-
-  // Vitals
-  heartRate        Int?
-  systolicBP       Int?
-  diastolicBP      Int?
-  spo2             Int?
-  temp             Float?
-  respRate         Int?
-
-  // Ventilation
-  isVentilated     Boolean @default(false)
-  ventMode         String?
-  fiO2             Float?
-  peep             Float?
-  tidalVolume      Int?
-  pip              Float?
-
-  // Intake/Output
-  intakeTotal      Float?
-  outputTotal      Float?
-  balance          Float?
-
-  // Inotropes / Infusions (JSON payload)
-  infusions        String?
-
-  tenantId         String
-  tenant           Tenant  @relation(fields: [tenantId], references: [id])
-
-  createdAt        DateTime @default(now())
+  id            String      @id @default(cuid())
+  appointmentId String
+  recordedAt    DateTime    @default(now())
+  recordedBy    String?
+  heartRate     Int?
+  systolicBP    Int?
+  diastolicBP   Int?
+  spo2          Int?
+  temp          Float?
+  respRate      Int?
+  isVentilated  Boolean     @default(false)
+  ventMode      String?
+  fiO2          Float?
+  peep          Float?
+  tidalVolume   Int?
+  pip           Float?
+  intakeTotal   Float?
+  outputTotal   Float?
+  balance       Float?
+  infusions     String?
+  tenantId      String
+  createdAt     DateTime    @default(now())
+  tenant        Tenant      @relation(fields: [tenantId], references: [id])
+  appointment   Appointment @relation(fields: [appointmentId], references: [id])
 }
 
 model IcuScore {
-  id               String  @id @default(cuid())
-  appointmentId    String
-  appointment      Appointment @relation(fields: [appointmentId], references: [id])
-
-  scoreType        String  // APACHE-II, SOFA, GCS
-  scoreValue       Int
-  parameters       String? // JSON breakdown
-
-  recordedAt       DateTime @default(now())
-  
-  tenantId         String
-  tenant           Tenant  @relation(fields: [tenantId], references: [id])
+  id            String      @id @default(cuid())
+  appointmentId String
+  scoreType     String
+  scoreValue    Int
+  parameters    String?
+  recordedAt    DateTime    @default(now())
+  tenantId      String
+  tenant        Tenant      @relation(fields: [tenantId], references: [id])
+  appointment   Appointment @relation(fields: [appointmentId], references: [id])
 }
 
-// ── SURGERY & OT MANAGEMENT ──────────────────────────────────────────────────
 model Surgery {
-  id              String   @id @default(cuid())
-  surgeryCode     String   @unique
+  id              String            @id @default(cuid())
+  surgeryCode     String            @unique
   patientId       String
-  patient         Patient  @relation(fields: [patientId], references: [id])
-  
   appointmentId   String?
-  appointment     Appointment? @relation(fields: [appointmentId], references: [id])
-  
   procedureName   String
   otRoom          String?
   surgeonName     String
   assistantNames  String?
   anesthetistName String?
   scrubNurseName  String?
-  
   startTime       DateTime?
   endTime         DateTime?
-  status          String   @default("Scheduled") // Scheduled, In Progress, Completed, Cancelled
-  
+  status          String            @default("Scheduled")
   anesthesiaType  String?
   preOpDiagnosis  String?
   postOpDiagnosis String?
   findings        String?
   bloodLoss       Float?
-  isMlc           Boolean  @default(false)
-
-  checklist       SurgeryChecklist?
-  anesthesia      AnesthesiaRecord?
-
+  isMlc           Boolean           @default(false)
   tenantId        String
-  tenant          Tenant   @relation(fields: [tenantId], references: [id])
-
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  anesthesia      AnesthesiaRecord?
+  tenant          Tenant            @relation(fields: [tenantId], references: [id])
+  appointment     Appointment?      @relation(fields: [appointmentId], references: [id])
+  patient         Patient           @relation(fields: [patientId], references: [id])
+  checklist       SurgeryChecklist?
 }
 
 model SurgeryChecklist {
-  id              String   @id @default(cuid())
-  surgeryId       String   @unique
-  surgery         Surgery  @relation(fields: [surgeryId], references: [id])
-  
-  // Sign In (Before induction)
-  patientConfirmed Boolean @default(false)
-  siteMarked      Boolean @default(false)
-  anaesthesiaSafety Boolean @default(false)
-  pulseOximeter   Boolean @default(false)
-  allergyKnown    Boolean @default(false)
-  difficultAirway Boolean @default(false)
-  bloodLossRisk   Boolean @default(false)
-
-  // Time Out (Before incision)
-  teamIntroduced  Boolean @default(false)
-  patientIdentityConfirmed Boolean @default(false)
-  surgicalSiteConfirmed Boolean @default(false)
-  antibioticProphylaxis Boolean @default(false)
-  anticipateCritical Boolean @default(false)
-  imagingDisplayed Boolean @default(false)
-
-  // Sign Out (Before leaving OT)
-  countsCorrect   Boolean @default(false)
-  specimenLabeled Boolean @default(false)
-  equipmentFixed  Boolean @default(false)
-  recoveryPlan    Boolean @default(false)
-
-  createdAt       DateTime @default(now())
+  id                       String   @id @default(cuid())
+  surgeryId                String   @unique
+  patientConfirmed         Boolean  @default(false)
+  siteMarked               Boolean  @default(false)
+  anaesthesiaSafety        Boolean  @default(false)
+  pulseOximeter            Boolean  @default(false)
+  allergyKnown             Boolean  @default(false)
+  difficultAirway          Boolean  @default(false)
+  bloodLossRisk            Boolean  @default(false)
+  teamIntroduced           Boolean  @default(false)
+  patientIdentityConfirmed Boolean  @default(false)
+  surgicalSiteConfirmed    Boolean  @default(false)
+  antibioticProphylaxis    Boolean  @default(false)
+  anticipateCritical       Boolean  @default(false)
+  imagingDisplayed         Boolean  @default(false)
+  countsCorrect            Boolean  @default(false)
+  specimenLabeled          Boolean  @default(false)
+  equipmentFixed           Boolean  @default(false)
+  recoveryPlan             Boolean  @default(false)
+  createdAt                DateTime @default(now())
+  surgery                  Surgery  @relation(fields: [surgeryId], references: [id])
 }
 
 model AnesthesiaRecord {
   id              String   @id @default(cuid())
   surgeryId       String   @unique
-  surgery         Surgery  @relation(fields: [surgeryId], references: [id])
-  
   preMedication   String?
   inductionAgents String?
   maintenance     String?
   reversalAgents  String?
   intubationNotes String?
-  
-  observations    String? // JSON string of vitals during OT
-  
+  observations    String?
   createdAt       DateTime @default(now())
+  surgery         Surgery  @relation(fields: [surgeryId], references: [id])
 }
 
-// ── BLOOD BANK MANAGEMENT ────────────────────────────────────────────────────
 model BloodStock {
-  id              String   @id @default(cuid())
-  bloodGroup      String // A+, A-, B+, B-, AB+, AB-, O+, O-
-  component       String   @default("Whole Blood") // Whole Blood, PRC, FFP, Platelets
-  units           Int      @default(0)
-  expiryDate      DateTime
-  source          String   @default("External Donation")
-  
-  status          String   @default("Available") // Available, Reserved, Expired, Issued
-  
-  donationId      String?  @unique
-  donation        BloodDonation? @relation(fields: [donationId], references: [id])
-
-  tenantId        String
-  tenant          Tenant   @relation(fields: [tenantId], references: [id])
-
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id         String         @id @default(cuid())
+  bloodGroup String
+  component  String         @default("Whole Blood")
+  units      Int            @default(0)
+  expiryDate DateTime
+  source     String         @default("External Donation")
+  status     String         @default("Available")
+  donationId String?        @unique
+  tenantId   String
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+  tenant     Tenant         @relation(fields: [tenantId], references: [id])
+  donation   BloodDonation? @relation(fields: [donationId], references: [id])
 }
 
 model BloodRequest {
-  id              String   @id @default(cuid())
-  requestCode     String   @unique
-  patientId       String
-  patient         Patient  @relation(fields: [patientId], references: [id])
-  
-  bloodGroup      String
-  component       String
-  unitsRequired   Int
-  priority        String   @default("Routine") // Routine, Urgent, STAT
-  status          String   @default("Pending") // Pending, Cross-Matched, Issued, Cancelled
-  
-  indication      String?
-  issuedAt        DateTime?
-  issuedBy        String?
-
-  issuance        BloodIssuance?
-
-  tenantId        String
-  tenant          Tenant   @relation(fields: [tenantId], references: [id])
-
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id            String         @id @default(cuid())
+  requestCode   String         @unique
+  patientId     String
+  bloodGroup    String
+  component     String
+  unitsRequired Int
+  priority      String         @default("Routine")
+  status        String         @default("Pending")
+  indication    String?
+  issuedAt      DateTime?
+  issuedBy      String?
+  tenantId      String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  issuance      BloodIssuance?
+  tenant        Tenant         @relation(fields: [tenantId], references: [id])
+  patient       Patient        @relation(fields: [patientId], references: [id])
 }
 
 model BloodDonor {
-  id              String   @id @default(cuid())
-  donorCode       String   @unique
-  firstName       String
-  lastName        String
-  gender          String
-  dob             String?
-  bloodGroup      String
-  phone           String?
-  email           String?
-  address         String?
-  lastDonationAt  DateTime?
-  status          String   @default("Active") // Active, Blacklisted
-
-  donations       BloodDonation[]
-
-  tenantId        String
-  tenant          Tenant   @relation(fields: [tenantId], references: [id])
-
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id             String          @id @default(cuid())
+  donorCode      String          @unique
+  firstName      String
+  lastName       String
+  gender         String
+  dob            String?
+  bloodGroup     String
+  phone          String?
+  email          String?
+  address        String?
+  lastDonationAt DateTime?
+  status         String          @default("Active")
+  tenantId       String
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  donations      BloodDonation[]
+  tenant         Tenant          @relation(fields: [tenantId], references: [id])
 }
 
 model BloodDonation {
-  id              String   @id @default(cuid())
-  donationCode    String   @unique
-  donorId         String
-  donor           BloodDonor @relation(fields: [donorId], references: [id])
-  
-  collectionDate  DateTime @default(now())
-  bloodGroup      String
-  unitsCollected  Int      @default(1)
-  
-  // Screening / Procedures
-  hivStatus       String?  @default("Pending") // Pending, Non-Reactive, Reactive
-  hbvStatus       String?  @default("Pending")
-  hcvStatus       String?  @default("Pending")
-  syphilisStatus  String?  @default("Pending")
-  malariaStatus   String?  @default("Pending")
-  haemoglobin     Float?
-  weight          Float?
-  bp              String?
-  pulse           Int?
-  temp            Float?
-  
-  fitForDonation  Boolean  @default(true)
-  remarks         String?
-  
-  certificateIssued Boolean @default(false)
-  
-  stock           BloodStock?
-
-  tenantId        String
-  tenant          Tenant   @relation(fields: [tenantId], references: [id])
-
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id                String      @id @default(cuid())
+  donationCode      String      @unique
+  donorId           String
+  collectionDate    DateTime    @default(now())
+  bloodGroup        String
+  unitsCollected    Int         @default(1)
+  hivStatus         String?     @default("Pending")
+  hbvStatus         String?     @default("Pending")
+  hcvStatus         String?     @default("Pending")
+  syphilisStatus    String?     @default("Pending")
+  malariaStatus     String?     @default("Pending")
+  haemoglobin       Float?
+  weight            Float?
+  bp                String?
+  pulse             Int?
+  temp              Float?
+  fitForDonation    Boolean     @default(true)
+  remarks           String?
+  certificateIssued Boolean     @default(false)
+  tenantId          String
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  tenant            Tenant      @relation(fields: [tenantId], references: [id])
+  donor             BloodDonor  @relation(fields: [donorId], references: [id])
+  stock             BloodStock?
 }
 
 model BloodIssuance {
-  id              String   @id @default(cuid())
-  issuanceCode    String   @unique
-  
-  requestId       String?  @unique
-  request         BloodRequest? @relation(fields: [requestId], references: [id])
-  
-  type            String   @default("Internal") // Internal, External
-  destination     String?  // Ward Name or External Hospital Name
+  id              String        @id @default(cuid())
+  issuanceCode    String        @unique
+  requestId       String?       @unique
+  type            String        @default("Internal")
+  destination     String?
   issuedBy        String
   receivedBy      String?
-  issuedAt        DateTime @default(now())
-  
+  issuedAt        DateTime      @default(now())
   units           Int
   bloodGroup      String
   component       String
-  
   crossMatchNotes String?
-  
   tenantId        String
-  tenant          Tenant   @relation(fields: [tenantId], references: [id])
-
-  createdAt       DateTime @default(now())
+  createdAt       DateTime      @default(now())
+  tenant          Tenant        @relation(fields: [tenantId], references: [id])
+  request         BloodRequest? @relation(fields: [requestId], references: [id])
 }
 
-// ── INSURANCE & TPA ──────────────────────────────────────────────────────────
 model TpaCompany {
-  id           String  @id @default(cuid())
+  id           String             @id @default(cuid())
   name         String
   contactEmail String?
   contactPhone String?
-  discountRate Float   @default(0) // Pre-negotiated discount
-  status       String  @default("Active")
-  
-  invoices     Invoice[]
-  preAuths     InsurancePreAuth[]
-
+  discountRate Float              @default(0)
+  status       String             @default("Active")
   tenantId     String
-  tenant       Tenant  @relation(fields: [tenantId], references: [id])
-
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  preAuths     InsurancePreAuth[]
+  invoices     Invoice[]
+  tenant       Tenant             @relation(fields: [tenantId], references: [id])
 }
 
 model InsurancePreAuth {
-  id              String   @id @default(cuid())
+  id              String     @id @default(cuid())
   patientId       String
-  patient         Patient  @relation(fields: [patientId], references: [id])
-  
   tpaId           String
-  tpa             TpaCompany @relation(fields: [tpaId], references: [id])
-  
-  authCode        String?  // Approval number from insurance
+  authCode        String?
   requestedAmount Float
   approvedAmount  Float?
-  status          String   @default("Pending") // Pending, Approved, Rejected, MoreInfo
-  
+  status          String     @default("Pending")
   expiryDate      DateTime?
-  documentUrl     String?  // Path to approval letter
-  
+  documentUrl     String?
   notes           String?
-
   tenantId        String
-  tenant          Tenant   @relation(fields: [tenantId], references: [id])
-
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  tenant          Tenant     @relation(fields: [tenantId], references: [id])
+  tpa             TpaCompany @relation(fields: [tpaId], references: [id])
+  patient         Patient    @relation(fields: [patientId], references: [id])
 }
 
-// ── RADIOLOGY & IMAGING (RIS) ────────────────────────────────────────────────
 model RadiologyOrder {
-  id              String   @id @default(cuid())
-  orderCode       String   @unique
+  id              String           @id @default(cuid())
+  orderCode       String           @unique
   patientId       String
-  patient         Patient  @relation(fields: [patientId], references: [id])
-  
-  modality        String // X-Ray, CT, MRI, USG, PET-CT
-  procedureName   String 
+  modality        String
+  procedureName   String
   clinicalHistory String?
-  priority        String   @default("Routine") // Routine, Urgent, STAT
-  status          String   @default("Pending") // Pending, In-Progress, Completed, Cancelled
-  
+  priority        String           @default("Routine")
+  status          String           @default("Pending")
   appointmentId   String?
-  appointment     Appointment? @relation(fields: [appointmentId], references: [id])
-  
-  report          RadiologyReport?
-
   tenantId        String
-  tenant          Tenant   @relation(fields: [tenantId], references: [id])
-
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  tenant          Tenant           @relation(fields: [tenantId], references: [id])
+  appointment     Appointment?     @relation(fields: [appointmentId], references: [id])
+  patient         Patient          @relation(fields: [patientId], references: [id])
+  report          RadiologyReport?
 }
 
 model RadiologyReport {
-  id              String   @id @default(cuid())
-  orderId         String   @unique
-  order           RadiologyOrder @relation(fields: [orderId], references: [id])
-  
+  id              String         @id @default(cuid())
+  orderId         String         @unique
   findings        String?
   impression      String?
-  criticalAlert   Boolean  @default(false)
+  criticalAlert   Boolean        @default(false)
   radiologistName String?
-  status          String   @default("Draft") // Draft, Finalized
-  
-  dicomLink       String?  // Link to PACS viewer
-  
+  status          String         @default("Draft")
+  dicomLink       String?
   tenantId        String
-  tenant          Tenant   @relation(fields: [tenantId], references: [id])
-
   finalizedAt     DateTime?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  tenant          Tenant         @relation(fields: [tenantId], references: [id])
+  order           RadiologyOrder @relation(fields: [orderId], references: [id])
 }
 
-// ── MATERNITY & LABOR ROOM ──────────────────────────────────────────────────
 model LaborRecord {
-  id              String   @id @default(cuid())
-  patientId       String
-  patient         Patient  @relation(fields: [patientId], references: [id])
-  
-  admissionDate   DateTime @default(now())
-  edd             DateTime? // Expected Date of Delivery
-  gravida         Int?
-  para            Int?
-  living          Int?
-  abortion        Int?
-  
-  status          String   @default("In-Labor") // In-Labor, Delivered, Discharged
-  deliveryType    String?  // NVD, LSCS, Instrumental
-  deliveryDate    DateTime?
-  
-  partograph      PartographEntry[]
-  births          BirthRecord[]
-
-  tenantId        String
-  tenant          Tenant   @relation(fields: [tenantId], references: [id])
-
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id            String            @id @default(cuid())
+  patientId     String
+  admissionDate DateTime          @default(now())
+  edd           DateTime?
+  gravida       Int?
+  para          Int?
+  living        Int?
+  abortion      Int?
+  status        String            @default("In-Labor")
+  deliveryType  String?
+  deliveryDate  DateTime?
+  tenantId      String
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  births        BirthRecord[]
+  tenant        Tenant            @relation(fields: [tenantId], references: [id])
+  patient       Patient           @relation(fields: [patientId], references: [id])
+  partograph    PartographEntry[]
 }
 
 model PartographEntry {
-  id              String   @id @default(cuid())
-  laborRecordId   String
-  laborRecord     LaborRecord @relation(fields: [laborRecordId], references: [id])
-  
-  timestamp       DateTime @default(now())
-  dilation        Float?   // Cervical dilation in cm (0-10)
-  descent         Int?     // Station of head (-3 to +3)
-  contractions    Int?     // Contractions per 10 mins
-  fetalHeartRate  Int?     // FHR bpm
-  maternalPulse   Int?
-  bpSys           Int?
-  bpDia           Int?
-  
-  notes           String?
-
-  tenantId        String
-  tenant          Tenant   @relation(fields: [tenantId], references: [id])
-
-  createdAt       DateTime @default(now())
+  id             String      @id @default(cuid())
+  laborRecordId  String
+  timestamp      DateTime    @default(now())
+  dilation       Float?
+  descent        Int?
+  contractions   Int?
+  fetalHeartRate Int?
+  maternalPulse  Int?
+  bpSys          Int?
+  bpDia          Int?
+  notes          String?
+  tenantId       String
+  createdAt      DateTime    @default(now())
+  tenant         Tenant      @relation(fields: [tenantId], references: [id])
+  laborRecord    LaborRecord @relation(fields: [laborRecordId], references: [id])
 }
 
 model BirthRecord {
-  id              String   @id @default(cuid())
-  laborRecordId   String
-  laborRecord     LaborRecord @relation(fields: [laborRecordId], references: [id])
-  
-  birthTime       DateTime @default(now())
-  gender          String
-  weight          Float?   // in kg
-  apgar1m         Int?
-  apgar5m         Int?
-  
-  babyPatientId   String?  @unique // Link to new patient record if created
-  
-  tenantId        String
-  tenant          Tenant   @relation(fields: [tenantId], references: [id])
-
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id            String      @id @default(cuid())
+  laborRecordId String
+  birthTime     DateTime    @default(now())
+  gender        String
+  weight        Float?
+  apgar1m       Int?
+  apgar5m       Int?
+  babyPatientId String?     @unique
+  tenantId      String
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  tenant        Tenant      @relation(fields: [tenantId], references: [id])
+  laborRecord   LaborRecord @relation(fields: [laborRecordId], references: [id])
 }
 
-// -- MICROBIOLOGY (Advanced Lab) ----------------------------------------------
 model Organism {
-  id              String   @id @default(cuid())
-  name            String   // e.g., Escherichia coli
-  category        String   // Bacteria, Fungi, Parasite
+  id              String               @id @default(cuid())
+  name            String
+  category        String
   commonInfection String?
-  
-  sensitivities   CultureSensitivity[]
-  
   tenantId        String
-  tenant          Tenant   @relation(fields: [tenantId], references: [id])
+  sensitivities   CultureSensitivity[]
+  tenant          Tenant               @relation(fields: [tenantId], references: [id])
 }
 
 model CultureSensitivity {
-  id              String   @id @default(cuid())
-  labRequestId    String
-  labRequest      LabRequest @relation(fields: [labRequestId], references: [id])
-  
-  organismId      String
-  organism        Organism @relation(fields: [organismId], references: [id])
-  
-  antibiotic      String   // Amoxicillin, Ciprofloxacin
-  result          String   // Sensitive, Resistant, Intermediate
-  micValue        String?  // Minimum Inhibitory Concentration
-  
-  recordedAt      DateTime @default(now())
-  
-  tenantId        String
-  tenant          Tenant   @relation(fields: [tenantId], references: [id])
+  id           String     @id @default(cuid())
+  labRequestId String
+  organismId   String
+  antibiotic   String
+  result       String
+  micValue     String?
+  recordedAt   DateTime   @default(now())
+  tenantId     String
+  tenant       Tenant     @relation(fields: [tenantId], references: [id])
+  organism     Organism   @relation(fields: [organismId], references: [id])
+  labRequest   LabRequest @relation(fields: [labRequestId], references: [id])
 }
